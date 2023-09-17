@@ -13,20 +13,23 @@ namespace Services
             try
             {
                 ConsoleLogger.LogInfo("Consolidating data", 2);
-                consolidatedDataList = ptrData.ProjectEfforts.Select(projectEffort => new ConsolidatedData()
-                {
-                    ProjectId = projectEffort.Key,
-                    TotalEffort = projectEffort.Value,
-                    EmployeeActualEffort = monthlyReportData.EmployeesData
-                    .Where(ed => ed.ProjectData.ContainsKey(projectEffort.Key.Trim()))
-                    .Select(ed => new EmployeeActualEffort()
-                    {
-                        Id = ed.Id,
-                        Name = ed.Name,
-                        ProjectId = projectEffort.Key,
-                        ActualEffort = ed.ProjectData[projectEffort.Key]
-                    }).ToList()
-                }).ToList();
+                var projectIds = ptrData.ProjectIds.Union(monthlyReportData.ProjectIds);
+                consolidatedDataList.AddRange(from projectId in projectIds
+                                              let consolidatedData = new ConsolidatedData
+                                              {
+                                                  ProjectId = projectId,
+                                                  TotalEffort = ptrData.ProjectEfforts.TryGetValue(projectId, out TimeSpan value) ? value : TimeSpan.Zero,
+                                                  EmployeeActualEffort = monthlyReportData.EmployeesData
+                                                                        .Where(ed => ed.ProjectData.ContainsKey(projectId))
+                                                                        .Select(ed => new EmployeeActualEffort()
+                                                                        {
+                                                                            Id = ed.Id,
+                                                                            Name = ed.Name,
+                                                                            ProjectId = projectId,
+                                                                            ActualEffort = ed.ProjectData[projectId]
+                                                                        }).ToList()
+                                              }
+                                              select consolidatedData);
             }
             catch (Exception ex)
             {

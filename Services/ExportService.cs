@@ -91,7 +91,7 @@ namespace Services
                 dataTable.Rows.Add(consDtRow);
                 consDtRow = dataTable.NewRow();
                 consDtRow["Project Id"] = "Actual Available Hours";
-                consDtRow["Total Effort as per PTR"] = string.Empty ;
+                consDtRow["Total Effort as per PTR"] = string.Empty;
                 TimeSpan totalActualAvailableHours = new();
                 monthlyReportData.EmployeesData.Where(ed => employeeNames.Contains($"{ed.Name}({ed.Id})")).ToList()
                    .ForEach(ed =>

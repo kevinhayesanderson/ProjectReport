@@ -16,6 +16,7 @@ namespace Services
         public static MonthlyReportData ReadMonthlyReports(List<string> monthlyReports, UserSettings userSettings)
         {
             List<EmployeeData> employeeDataList = new();
+            HashSet<string> projectIds = new();
             foreach (string monthlyReport in monthlyReports)
             {
                 try
@@ -105,6 +106,7 @@ namespace Services
                                             {
                                                 projectData[key] = hours;
                                             }
+                                            projectIds.Add(key);
                                         }
                                         else
                                         {
@@ -138,7 +140,8 @@ namespace Services
             }
             return new MonthlyReportData()
             {
-                EmployeesData = employeeDataList
+                EmployeesData = employeeDataList,
+                ProjectIds = projectIds
             };
         }
 
@@ -158,6 +161,7 @@ namespace Services
             try
             {
                 Dictionary<string, TimeSpan> projectEfforts = new();
+                HashSet<string> projectIds = new();
                 foreach (string ptrFile in ptrFiles)
                 {
                     ConsoleLogger.LogInfo("Reading " + new FileInfo(ptrFile).Name);
@@ -202,13 +206,15 @@ namespace Services
                                         projectEfforts[key] += totalEffort;
                                     else
                                         projectEfforts[key] = totalEffort;
+                                    projectIds.Add(key);
                                 });
                         }
                     }
                 }
                 ptrData = new PtrData()
                 {
-                    ProjectEfforts = projectEfforts
+                    ProjectEfforts = projectEfforts,
+                    ProjectIds = projectIds,
                 };
             }
             catch (Exception ex)
