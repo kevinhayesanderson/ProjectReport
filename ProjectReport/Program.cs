@@ -4,7 +4,7 @@ using Services;
 using System.Text;
 using Utilities;
 
-namespace ConsoleApplication
+namespace ProjectReport
 {
     internal static class Program
     {

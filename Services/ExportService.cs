@@ -43,8 +43,8 @@ namespace Services
                     Unique = false
                 };
                 dataTable.Columns.Add(column3);
-                List<EmployeeActualEffort> list = consolidatedDataList.SelectMany(data => (IEnumerable<EmployeeActualEffort>)data.EmployeeActualEffort).ToList();
-                List<string> employeeNames = list.Select(eae => $"{eae.Name}({eae.Id})").Distinct().Order().ToList();
+                List<EmployeeActualEffort> EmployeeActualEfforts = consolidatedDataList.SelectMany(data => data.EmployeeActualEffort).ToList();
+                List<string> employeeNames = EmployeeActualEfforts.Select(eae => $"{eae.Name}({eae.Id})").Distinct().Order().ToList();
                 foreach (string str in employeeNames)
                 {
                     DataColumn employeeColumn = new()
@@ -66,7 +66,7 @@ namespace Services
                     consDtRow["Total Effort as per PTR"] = $"{(int)consolidatedData.TotalEffort.TotalHours}:{consolidatedData.TotalEffort.Minutes}";
                     TotalEffort += consolidatedData.TotalEffort;
                     TimeSpan totalActualEffort = new();
-                    list.Where(eae => eae.ProjectId.Equals(consolidatedData.ProjectId, StringComparison.Ordinal)).ToList().ForEach(eae =>
+                    EmployeeActualEfforts.Where(eae => eae.ProjectId.Equals(consolidatedData.ProjectId, StringComparison.Ordinal)).ToList().ForEach(eae =>
                     {
                         totalActualEffort += eae.ActualEffort;
                         consDtRow[$"{eae.Name}({eae.Id})"] = $"{(int)eae.ActualEffort.TotalHours}:{eae.ActualEffort.Minutes}";
