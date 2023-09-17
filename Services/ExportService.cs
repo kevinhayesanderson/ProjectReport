@@ -44,17 +44,17 @@ namespace Services
                 };
                 dataTable.Columns.Add(column3);
                 List<EmployeeActualEffort> list = consolidatedDataList.SelectMany(data => (IEnumerable<EmployeeActualEffort>)data.EmployeeActualEffort).ToList();
-                List<string> employeeNames = list.Select(eae => $"{eae.Name}({eae.Id})").Distinct().ToList();
+                List<string> employeeNames = list.Select(eae => $"{eae.Name}({eae.Id})").Distinct().Order().ToList();
                 foreach (string str in employeeNames)
                 {
-                    DataColumn column4 = new()
+                    DataColumn employeeColumn = new()
                     {
                         DataType = typeof(string),
                         ColumnName = str,
                         Caption = str,
                         ReadOnly = false
                     };
-                    dataTable.Columns.Add(column4);
+                    dataTable.Columns.Add(employeeColumn);
                 }
                 TimeSpan TotalEffort = TimeSpan.Zero;
                 TimeSpan TotalActualEffort = TimeSpan.Zero;
@@ -298,16 +298,18 @@ namespace Services
                 Unique = false
             };
             monthlyTable.Columns.Add(column3);
-            foreach (EmployeeData employeeData1 in monthlyReportData.EmployeesData.Where<EmployeeData>(employeeData => employeeData.ProjectData.Count > 0))
+            foreach (IGrouping<string, EmployeeData>? grouping in monthlyReportData.EmployeesData.Where(employeeData => employeeData.ProjectData.Count > 0).GroupBy(ed => ed.Name).OrderBy(gp => gp.Key))
             {
-                EmployeeData employeeData = employeeData1;
-                employeeData.ProjectData.ToList().ForEach(pt =>
+                grouping.ToList().ForEach(employeeData =>
                 {
-                    DataRow monthlyDtRow = monthlyTable.NewRow();
-                    monthlyDtRow["Name(Id)"] = $"{employeeData.Name}({employeeData.Id})";
-                    monthlyDtRow["Project Id"] = pt.Key;
-                    monthlyDtRow["Actual Effort"] = $"{(int)pt.Value.TotalHours}:{pt.Value.Minutes}";
-                    monthlyTable.Rows.Add(monthlyDtRow);
+                    employeeData.ProjectData.ToList().ForEach(pt =>
+                    {
+                        DataRow monthlyDtRow = monthlyTable.NewRow();
+                        monthlyDtRow["Name(Id)"] = $"{employeeData.Name}({employeeData.Id})";
+                        monthlyDtRow["Project Id"] = pt.Key;
+                        monthlyDtRow["Actual Effort"] = $"{(int)pt.Value.TotalHours}:{pt.Value.Minutes}";
+                        monthlyTable.Rows.Add(monthlyDtRow);
+                    });
                 });
             }
             WriteExcel(monthlyTable, exportPath, tableName);
@@ -352,23 +354,22 @@ namespace Services
             {
                 if (!Directory.Exists(Path.GetDirectoryName(filePath)))
                     _ = Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
-                using (StreamWriter streamWriter1 = new(filePath))
+                using (StreamWriter streamWriter = new(filePath))
                 {
                     for (int index = 0; index < dataTable.Columns.Count; ++index)
                     {
-                        StreamWriter streamWriter2 = streamWriter1;
                         DefaultInterpolatedStringHandler interpolatedStringHandler = new(1, 1);
                         interpolatedStringHandler.AppendFormatted(dataTable.Columns[index]);
                         interpolatedStringHandler.AppendLiteral("\t");
                         string stringAndClear = interpolatedStringHandler.ToStringAndClear();
-                        streamWriter2.Write(stringAndClear);
+                        streamWriter.Write(stringAndClear);
                     }
-                    streamWriter1.WriteLine();
+                    streamWriter.WriteLine();
                     for (int index = 0; index < dataTable.Rows.Count; ++index)
                     {
                         for (int columnIndex = 0; columnIndex < dataTable.Columns.Count; ++columnIndex)
-                            streamWriter1.Write(Convert.ToString(dataTable.Rows[index][columnIndex], CultureInfo.InvariantCulture) + "\t");
-                        streamWriter1.WriteLine();
+                            streamWriter.Write(Convert.ToString(dataTable.Rows[index][columnIndex], CultureInfo.InvariantCulture) + "\t");
+                        streamWriter.WriteLine();
                     }
                 }
                 ConsoleLogger.LogSameLine($"Exported {reportName}: ", 0); ConsoleLogger.LogDataSameLine(filePath);
