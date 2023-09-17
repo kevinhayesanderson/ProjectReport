@@ -65,7 +65,7 @@ namespace Services
                     consDtRow["Project Id"] = consolidatedData.ProjectId;
                     consDtRow["Total Effort as per PTR"] = $"{(int)consolidatedData.TotalEffort.TotalHours}:{consolidatedData.TotalEffort.Minutes}";
                     TotalEffort += consolidatedData.TotalEffort;
-                    TimeSpan totalActualEffort = new();
+                    TimeSpan totalActualEffort = TimeSpan.Zero;
                     EmployeeActualEfforts.Where(eae => eae.ProjectId.Equals(consolidatedData.ProjectId, StringComparison.Ordinal)).ToList().ForEach(eae =>
                     {
                         totalActualEffort += eae.ActualEffort;
@@ -82,11 +82,7 @@ namespace Services
                 monthlyReportData.EmployeesData.Where(ed => employeeNames.Contains($"{ed.Name}({ed.Id})")).ToList()
                     .ForEach(ed =>
                     {
-                        TimeSpan timeSpan2 = ed.ProjectData
-                        .Join(ptrData.ProjectEfforts, projectTime => projectTime.Key, projectEffort => projectEffort.Key, (projectTime, projectEffort) => projectTime.Value)
-                        .AsEnumerable()
-                        .Aggregate(new TimeSpan(), (current, item) => current + item);
-                        consDtRow[$"{ed.Name}({ed.Id})"] = $"{(int)timeSpan2.TotalHours}:{timeSpan2.Minutes}";
+                        consDtRow[$"{ed.Name}({ed.Id})"] = $"{(int)ed.TotalProjectHours.TotalHours}:{ed.TotalProjectHours.Minutes}";
                     });
                 dataTable.Rows.Add(consDtRow);
                 consDtRow = dataTable.NewRow();

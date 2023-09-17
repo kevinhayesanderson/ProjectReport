@@ -1,11 +1,11 @@
 {
   "FinancialYear": "23-24",
-  "Folder": "E:\\Project\\Requirements\\Test",
+  "Folder": "E:\\Project\\Requirements\\14-09-23\\Test kit",
   "GenerateLeaveReport": false,
-  "MonthlyReportMonths": [ "Aug-23" ],
-  "PtrBookingMonthCol": 20,
-  "PtrBookingMonths": [ "8|Aug|Aug-23|Aug_23" ],
-  "PtrEffortCols": [ 18 ],
-  "PtrProjectIdCol": 3,
-  "PtrSheetName": "PTR"
+  "MonthlyReportMonths": [ "Jun-23", "Jul-23" ],
+  "PtrBookingMonthCol": 28,
+  "PtrBookingMonths": [ 6, "7|July_2023" ],
+  "PtrEffortCols": [ 22 ],
+  "PtrProjectIdCol": 2,
+  "PtrSheetName": "PTR_23"
 }
