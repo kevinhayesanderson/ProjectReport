@@ -2,7 +2,7 @@
 {
     public class LeaveReportData
     {
-        public string EmpCode { get; init; } = string.Empty;
+        public string EmployeeId { get; init; } = string.Empty;
 
         public Dictionary<string, int?> Leaves { get; init; } = new Dictionary<string, int?>();
 

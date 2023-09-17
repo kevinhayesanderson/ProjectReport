@@ -6,6 +6,6 @@
 
         public string ProjectId { get; init; } = string.Empty;
 
-        public double TotalEffort { get; init; }
+        public TimeSpan TotalEffort { get; init; }
     }
 }

@@ -1,0 +1,11 @@
+{
+  "FinancialYear": "23-24",
+  "Folder": "E:\\Project\\Requirements\\Test",
+  "GenerateLeaveReport": false,
+  "MonthlyReportMonths": [ "Aug-23" ],
+  "PtrBookingMonthCol": 20,
+  "PtrBookingMonths": [ "8|Aug|Aug-23|Aug_23" ],
+  "PtrEffortCols": [ 18 ],
+  "PtrProjectIdCol": 3,
+  "PtrSheetName": "PTR"
+}
