@@ -9,14 +9,17 @@ namespace Services
 {
     public static class ExportService
     {
-        public static void ExportConsolidateData(List<ConsolidatedData> consolidatedDataList, PtrData ptrData, MonthlyReportData monthlyReportData, string time, string exportFolder)
+        public static void ExportConsolidateData(in List<ConsolidatedData> consolidatedDataList, ref MonthlyReportData monthlyReportData, in string time, in string exportFolder)
         {
             ConsoleLogger.LogInfo("Exporting consolidated data:", 1);
             try
             {
-                string tableName = $"ConsolidatedReport_{time}";
-                string exportPath = $"{exportFolder}\\{tableName}.xls";
-                DataTable dataTable = new(tableName);
+                string reportName = "ConsolidatedReport";
+                string sheetName = $"{reportName}_Sheet1";
+                string fileName = $"{reportName}_{time}.xls";
+                string exportPath = $"{exportFolder}\\{fileName}";
+
+                DataTable dataTable = new(sheetName);
                 DataColumn column1 = new()
                 {
                     DataType = typeof(string),
@@ -110,7 +113,7 @@ namespace Services
                 consDtRow["Total Actual Effort as per Monthly report"] = totalLeaves;
                 consDtRow["Total Effort as per PTR"] = (totalLeaves * 9).ToString();
                 dataTable.Rows.Add(consDtRow);
-                WriteExcel(dataTable, exportPath, tableName);
+                WriteExcel(ref dataTable, exportPath, fileName);
             }
             catch (Exception ex)
             {
@@ -118,7 +121,7 @@ namespace Services
             }
         }
 
-        public static void ExportLeaveReport(List<string> monthlyReports, string financialYear, string exportFolder)
+        public static void ExportLeaveReport(in List<string> monthlyReports, in string financialYear, in string exportFolder)
         {
             ConsoleLogger.LogInfo("Generating Leave Report for FY" + financialYear + ":", 1);
             List<string> sheetNames = DataService.GetFyMonths(financialYear);
@@ -204,9 +207,12 @@ namespace Services
             }
             if (!hasReadErrors)
             {
-                string tableName = $"LeaveReport-FY{financialYear}";
-                string exportPath = $"{exportFolder}\\{tableName}.xls";
-                DataTable dataTable = new(tableName);
+                string reportName = $"LeaveReport-FY{financialYear}";
+                string sheetName = reportName;
+                string fileName = $"{reportName}.xls";
+                string exportPath = $"{exportFolder}\\{fileName}";
+
+                DataTable dataTable = new(sheetName);
                 DataColumn column1 = new()
                 {
                     DataType = typeof(string),
@@ -251,11 +257,14 @@ namespace Services
                     row["Employee Id"] = leaveReportData.EmployeeId;
                     row["Employee Name"] = leaveReportData.Name;
                     foreach (KeyValuePair<string, int?> leaf in leaveReportData.Leaves)
+                    {
                         row[leaf.Key] = leaf.Value.HasValue ? leaf.Value.ToString() : "NA";
+                    }
+
                     row["Total Leave Days"] = leaveReportData.TotalLeaves.HasValue ? leaveReportData.TotalLeaves.ToString() : "NA";
                     dataTable.Rows.Add(row);
                 }
-                WriteExcel(dataTable, exportPath, tableName);
+                WriteExcel(ref dataTable, exportPath, fileName);
             }
             else
             {
@@ -263,12 +272,14 @@ namespace Services
             }
         }
 
-        public static void ExportMonthlyReportInter(MonthlyReportData monthlyReportData, string time, string exportFolder)
+        public static void ExportMonthlyReportInter(ref MonthlyReportData monthlyReportData, in string time, in string exportFolder)
         {
             ConsoleLogger.LogInfo("Exporting monthly report inter:", 2);
-            string tableName = $"MonthlyReport_Inter_{time}";
-            string exportPath = $"{exportFolder}\\{tableName}.xls";
-            DataTable monthlyTable = new(tableName);
+            string reportName = "MonthlyReport_Inter";
+            string sheetName = $"{reportName}_Sheet1";
+            string fileName = $"{reportName}_{time}.xls";
+            string exportPath = $"{exportFolder}\\{fileName}";
+            DataTable monthlyTable = new(sheetName);
             DataColumn column1 = new()
             {
                 DataType = typeof(string),
@@ -308,15 +319,17 @@ namespace Services
                     });
                 });
             }
-            WriteExcel(monthlyTable, exportPath, tableName);
+            WriteExcel(ref monthlyTable, exportPath, fileName);
         }
 
-        public static void ExportPtrInter(PtrData ptrData, string time, string exportFolder)
+        public static void ExportPtrInter(ref PtrData ptrData, in string time, in string exportFolder)
         {
             ConsoleLogger.LogInfo("Exporting ptr inter data:", 1);
-            string tableName = $"PTR_Inter_{time}";
-            string exportPath = $"{exportFolder}\\{tableName}.xls";
-            DataTable dataTable = new(tableName);
+            string reportName = "PTR_Inter";
+            string sheetName = $"{reportName}_Sheet1";
+            string fileName = $"{reportName}_{time}.xls";
+            string exportPath = $"{exportFolder}\\{fileName}";
+            DataTable dataTable = new(sheetName);
             DataColumn column1 = new()
             {
                 DataType = typeof(string),
@@ -341,15 +354,18 @@ namespace Services
                 row["Total Effort"] = $"{(int)projectEffort.Value.TotalHours}:{projectEffort.Value.Minutes}";
                 dataTable.Rows.Add(row);
             }
-            WriteExcel(dataTable, exportPath, tableName);
+            WriteExcel(ref dataTable, exportPath, fileName);
         }
 
-        private static void WriteExcel(DataTable dataTable, string filePath, string reportName = "data")
+        private static void WriteExcel(ref DataTable dataTable, in string filePath, in string reportName = "data")
         {
             if (dataTable is not null && !string.IsNullOrEmpty(filePath))
             {
                 if (!Directory.Exists(Path.GetDirectoryName(filePath)))
+                {
                     _ = Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
+                }
+
                 using (StreamWriter streamWriter = new(filePath))
                 {
                     for (int index = 0; index < dataTable.Columns.Count; ++index)
@@ -364,7 +380,10 @@ namespace Services
                     for (int index = 0; index < dataTable.Rows.Count; ++index)
                     {
                         for (int columnIndex = 0; columnIndex < dataTable.Columns.Count; ++columnIndex)
+                        {
                             streamWriter.Write(Convert.ToString(dataTable.Rows[index][columnIndex], CultureInfo.InvariantCulture) + "\t");
+                        }
+
                         streamWriter.WriteLine();
                     }
                 }

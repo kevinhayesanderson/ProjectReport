@@ -5,7 +5,7 @@
         public static void ExitApplication()
         {
             Log("Press any key to exit.", 1);
-            Console.ReadKey();
+            _ = Console.ReadKey();
             Environment.Exit(0);
         }
 

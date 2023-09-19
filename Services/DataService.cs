@@ -13,7 +13,7 @@ namespace Services
             try
             {
                 ConsoleLogger.LogInfo("Consolidating data", 2);
-                var projectIds = ptrData.ProjectIds.Union(monthlyReportData.ProjectIds);
+                IEnumerable<string> projectIds = ptrData.ProjectIds.Union(monthlyReportData.ProjectIds);
                 consolidatedDataList.AddRange(from projectId in projectIds
                                               let consolidatedData = new ConsolidatedData
                                               {

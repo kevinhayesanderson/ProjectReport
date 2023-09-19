@@ -25,15 +25,9 @@ namespace Services
                     using FileStream fileStream = File.Open(monthlyReport, FileMode.Open, FileAccess.Read);
                     using IExcelDataReader reader = ExcelReaderFactory.CreateReader(fileStream, null);
                     DataTableCollection tables = ExcelDataReaderExtensions.AsDataSet(reader, null).Tables;
-                    List<DataTable> dataTableList;
-                    if (userSettings.MonthlyReportMonths.Any())
-                    {
-                        dataTableList = tables.Cast<DataTable>().Where(dataTable => userSettings.MonthlyReportMonths.Contains(dataTable.TableName.Trim())).ToList();
-                    }
-                    else
-                    {
-                        dataTableList = tables.Cast<DataTable>().Select(dataTable => dataTable).ToList();
-                    }
+                    List<DataTable> dataTableList = userSettings.MonthlyReportMonths.Any()
+                        ? tables.Cast<DataTable>().Where(dataTable => userSettings.MonthlyReportMonths.Contains(dataTable.TableName.Trim())).ToList()
+                        : tables.Cast<DataTable>().Select(dataTable => dataTable).ToList();
                     if (dataTableList.Count > 0)
                     {
                         if (string.IsNullOrEmpty(((string)dataTableList[0].Rows[3][2]).Trim()))
@@ -89,7 +83,10 @@ namespace Services
                                     if (rows[rowIndex][2] is string key && (key.ToUpper().StartsWith("ACS_", StringComparison.Ordinal) || key.ToUpper().StartsWith("ACS.", StringComparison.Ordinal)))
                                     {
                                         if (key.ToUpper().StartsWith("ACS.", StringComparison.Ordinal))
+                                        {
                                             key = key.Replace('.', '_');
+                                        }
+
                                         lastColumnIndex = rows[rowIndex].ItemArray.Length - 1;
                                         if (TimeSpan.TryParse(rows[rowIndex][lastColumnIndex].ToString(), out TimeSpan hours))
                                         {
@@ -106,7 +103,7 @@ namespace Services
                                             {
                                                 projectData[key] = hours;
                                             }
-                                            projectIds.Add(key);
+                                            _ = projectIds.Add(key);
                                         }
                                         else
                                         {
@@ -131,7 +128,9 @@ namespace Services
                         });
                     }
                     else
+                    {
                         ConsoleLogger.LogWarning("No sheets found for the filter condition in monthly report " + monthlyReport + ".");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -185,28 +184,46 @@ namespace Services
                                     DataRow row = obj.item;
                                     int rowIndex = obj.index;
                                     if (!((string)row[projectIdCol]).ToUpper().StartsWith("ACS", StringComparison.Ordinal))
+                                    {
                                         return;
+                                    }
+
                                     string key = ((string)row[projectIdCol]).Replace('.', '_');
                                     TimeSpan totalEffort = new();
                                     userSettings.PtrEffortCols.ForEach(ef =>
                                     {
-                                        var effortCol = (int)ef - 1;
+                                        int effortCol = (int)ef - 1;
                                         if (row[effortCol] == DBNull.Value)
+                                        {
                                             totalEffort += TimeSpan.Zero;
+                                        }
                                         else if (row[effortCol] is double doubleValue)
+                                        {
                                             totalEffort += new TimeSpan((int)doubleValue, 0, 0);
+                                        }
                                         else if (row[effortCol] is TimeSpan timeSpan)
+                                        {
                                             totalEffort += timeSpan;
+                                        }
                                         else if (row[effortCol] is DateTime dateTime)
+                                        {
                                             totalEffort += new TimeSpan(dateTime.Hour, dateTime.Minute, dateTime.Second);
+                                        }
                                         else
+                                        {
                                             ConsoleLogger.LogErrorAndExit($"Unknown format of the effort value at column: {ef} at row: {rowIndex}");
+                                        }
                                     });
                                     if (projectEfforts.ContainsKey(key))
+                                    {
                                         projectEfforts[key] += totalEffort;
+                                    }
                                     else
+                                    {
                                         projectEfforts[key] = totalEffort;
-                                    projectIds.Add(key);
+                                    }
+
+                                    _ = projectIds.Add(key);
                                 });
                         }
                     }
@@ -224,14 +241,15 @@ namespace Services
             return ptrData;
         }
 
-        public static UserSettings? ReadUserSettings()
+        public static void ReadUserSettings(out UserSettings userSettings)
         {
-            UserSettings? userSettings = new();
+            userSettings = new UserSettings();
             try
             {
-                userSettings = JsonSerializer.Deserialize<UserSettings>(File.ReadAllText("userSettings.json"));
-                if (userSettings != null)
+                UserSettings? deserializedObject = JsonSerializer.Deserialize<UserSettings>(File.ReadAllText("userSettings.json"));
+                if (deserializedObject is not null)
                 {
+                    userSettings = deserializedObject;
                     ConsoleLogger.LogInfo("User settings:", 1);
                     ConsoleLogger.LogSameLine("Folder: "); ConsoleLogger.LogDataSameLine(userSettings.Folder, 1);
                     ConsoleLogger.LogSameLine("MonthlyReportMonths: "); ConsoleLogger.LogDataSameLine(string.Join(",", (IEnumerable<string>)userSettings.MonthlyReportMonths), 1);
@@ -244,13 +262,14 @@ namespace Services
                     ConsoleLogger.LogSameLine("FinancialYear: "); ConsoleLogger.LogDataSameLine(userSettings.FinancialYear, 1);
                 }
                 else
+                {
                     ConsoleLogger.LogErrorAndExit("Error on reading user settings: null userSettings value");
+                }
             }
             catch (Exception ex)
             {
                 ConsoleLogger.LogErrorAndExit("Error on reading user settings: " + ex.Message);
             }
-            return userSettings;
         }
 
         private static bool ConvertInputBookingMonths(List<object> inputBookingMonths)
@@ -263,13 +282,19 @@ namespace Services
                     case JsonValueKind.String:
                         string? str = jsonElement.GetString();
                         if (string.IsNullOrEmpty(str))
+                        {
                             break;
+                        }
+
                         if (str.Contains('|'))
                         {
                             string[] splits = str.Split('|');
                             string numMonth = splits[0].Trim();
                             if (int.TryParse(numMonth, out int month))
+                            {
                                 BookingMonths.Add(month);
+                            }
+
                             BookingMonths.AddRange(splits[1..]);
                             break;
                         }
@@ -278,7 +303,10 @@ namespace Services
 
                     case JsonValueKind.Number:
                         if (!DataService.Months.Contains(jsonElement.GetInt32()))
+                        {
                             break;
+                        }
+
                         BookingMonths.Add(jsonElement.GetInt32());
                         break;
 
@@ -289,11 +317,14 @@ namespace Services
             return true;
         }
 
-        private static bool IsRowOfBookingMonth(DataRow dataRow) => dataRow[_ptrBookingMonthCol - 1] switch
+        private static bool IsRowOfBookingMonth(DataRow dataRow)
         {
-            double num => BookingMonths.Contains((int)num),
-            string str => BookingMonths.Contains(str),
-            _ => false,
-        };
+            return dataRow[_ptrBookingMonthCol - 1] switch
+            {
+                double num => BookingMonths.Contains((int)num),
+                string str => BookingMonths.Contains(str),
+                _ => false,
+            };
+        }
     }
 }

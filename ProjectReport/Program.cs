@@ -2,81 +2,74 @@
 using Models;
 using Services;
 using System.Text;
+using System.Text.RegularExpressions;
 using Utilities;
 
 namespace ProjectReport
 {
-    internal static class Program
+    internal static partial class Program
     {
         private const string ApplicationDev = "kevin.hayes@ambigai.net";
         private static string _exportFolder = string.Empty;
+        private static MonthlyReportData _monthlyReportData = new();
+        private static PtrData _ptrData = new();
         private static string _time = string.Empty;
-
-        private static List<ConsolidatedData>? ConsolidatedData { get; set; }
-
-        private static MonthlyReportData? MonthlyReportData { get; set; }
-
-        private static List<string>? MonthlyReports { get; set; }
-
-        private static PtrData? PtrData { get; set; }
-
-        private static List<string>? PtrFiles { get; set; }
-
-        private static UserSettings? UserSettings { get; set; }
+        public static ref MonthlyReportData MonthlyReportData => ref _monthlyReportData;
+        public static ref PtrData PtrData => ref _ptrData;
 
         private static void Main()
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             ConsoleLogger.LogInfo($"Running Project Report Application at {DateTime.Now}");
-            UserSettings = ReadService.ReadUserSettings();
-            if (Directory.Exists(UserSettings?.Folder))
+            ReadService.ReadUserSettings(out UserSettings userSettings);
+            if (Directory.Exists(userSettings?.Folder))
             {
-                _time = DateTime.Now.ToString().Replace(":", "_").Replace(" ", "_").Trim();
-                _exportFolder = UserSettings.Folder + "\\Reports_" + _time;
+                _time = RemoveAllSymbols().Replace(DateTime.Now.ToString(), "_");
+                _exportFolder = $"{userSettings.Folder}\\Reports_{_time}";
                 Matcher monthlyReportMatcher = new();
-                monthlyReportMatcher.AddInclude("*Monthly_Report*");
-                MonthlyReports = monthlyReportMatcher.GetResultsInFullPath(UserSettings.Folder).ToList();
+                _ = monthlyReportMatcher.AddInclude("*Monthly_Report*");
+                List<string> MonthlyReports = monthlyReportMatcher.GetResultsInFullPath(userSettings.Folder).ToList();
                 if (MonthlyReports.Count > 0)
                 {
                     ConsoleLogger.LogInfo("Monthly reports found:", 1);
                     MonthlyReports.ForEach(mr => ConsoleLogger.Log(new FileInfo(mr).Name));
-                    if (UserSettings.GenerateLeaveReport)
+                    if (userSettings.GenerateLeaveReport)
                     {
-                        ExportService.ExportLeaveReport(MonthlyReports, UserSettings.FinancialYear, _exportFolder);
+                        ExportService.ExportLeaveReport(in MonthlyReports, userSettings.FinancialYear, in _exportFolder);
                         ConsoleLogger.ExitApplication();
                     }
                     else
                     {
-                        MonthlyReportData = ReadService.ReadMonthlyReports(MonthlyReports, UserSettings);
-                        ExportService.ExportMonthlyReportInter(MonthlyReportData, _time, _exportFolder);
+                        _monthlyReportData = ReadService.ReadMonthlyReports(MonthlyReports, userSettings);
+                        ExportService.ExportMonthlyReportInter(ref MonthlyReportData, in _time, in _exportFolder);
                     }
                 }
                 else
                 {
-                    ConsoleLogger.LogWarningAndExit("No Monthly reports found on " + UserSettings.Folder + ", needed monthly reports to generate consolidated report or leave report.");
+                    ConsoleLogger.LogWarningAndExit("No Monthly reports found on " + userSettings.Folder + ", needed monthly reports to generate consolidated report or leave report.");
                 }
 
                 Matcher ptrMatcher = new();
-                ptrMatcher.AddInclude("*ACS_PTR*");
-                PtrFiles = ptrMatcher.GetResultsInFullPath(UserSettings.Folder).ToList();
+                _ = ptrMatcher.AddInclude("*ACS_PTR*");
+                List<string> PtrFiles = ptrMatcher.GetResultsInFullPath(userSettings.Folder).ToList();
                 if (PtrFiles.Count > 0)
                 {
                     ConsoleLogger.LogInfo("PTR's found:", 2);
                     PtrFiles.ForEach(ptr => ConsoleLogger.Log(new FileInfo(ptr).Name));
-                    PtrData = ReadService.ReadPtr(PtrFiles, UserSettings);
-                    ExportService.ExportPtrInter(PtrData, _time, _exportFolder);
+                    _ptrData = ReadService.ReadPtr(PtrFiles, userSettings);
+                    ExportService.ExportPtrInter(ref PtrData, in _time, in _exportFolder);
                 }
                 else
                 {
-                    ConsoleLogger.LogWarningAndExit("No PTR found on " + UserSettings.Folder + ", needed PTR to generate consolidated report.");
+                    ConsoleLogger.LogWarningAndExit("No PTR found on " + userSettings.Folder + ", needed PTR to generate consolidated report.");
                 }
 
                 if (MonthlyReportData != null && PtrData != null)
                 {
-                    ConsolidatedData = DataService.Consolidate(PtrData, MonthlyReportData);
+                    List<ConsolidatedData> ConsolidatedData = DataService.Consolidate(PtrData, MonthlyReportData);
                     if (ConsolidatedData.Count > 0)
                     {
-                        ExportService.ExportConsolidateData(ConsolidatedData, PtrData, MonthlyReportData, _time, _exportFolder);
+                        ExportService.ExportConsolidateData(in ConsolidatedData, ref MonthlyReportData, in _time, in _exportFolder);
                     }
                     else
                     {
@@ -90,10 +83,13 @@ namespace ProjectReport
             }
             else
             {
-                ConsoleLogger.LogErrorAndExit($"Directory doesn't exist: {UserSettings?.Folder}", 2);
+                ConsoleLogger.LogErrorAndExit($"Directory doesn't exist: {userSettings?.Folder}", 2);
             }
 
             ConsoleLogger.ExitApplication();
         }
+
+        [GeneratedRegex("[^\\w\\d]")]
+        private static partial Regex RemoveAllSymbols();
     }
 }
