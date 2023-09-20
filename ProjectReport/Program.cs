@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.FileSystemGlobbing;
 using Models;
 using Services;
+using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 using Utilities;
@@ -20,11 +21,12 @@ namespace ProjectReport
         private static void Main()
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            ConsoleLogger.LogInfo($"Running Project Report Application at {DateTime.Now}");
+            _time = RemoveAllSymbols().Replace(DateTime.Now.ToString(), "_");
+            Console.Title = $"Project Report PID:{Process.GetCurrentProcess().Id} {_time}";
+            ConsoleLogger.LogInfo($"Running Project Report Application at {_time}");
             ReadService.ReadUserSettings(out UserSettings userSettings);
             if (Directory.Exists(userSettings?.Folder))
             {
-                _time = RemoveAllSymbols().Replace(DateTime.Now.ToString(), "_");
                 _exportFolder = $"{userSettings.Folder}\\Reports_{_time}";
                 Matcher monthlyReportMatcher = new();
                 _ = monthlyReportMatcher.AddInclude("*Monthly_Report*");
