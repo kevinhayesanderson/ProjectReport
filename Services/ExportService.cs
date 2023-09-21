@@ -66,40 +66,39 @@ namespace Services
                 {
                     consDtRow = dataTable.NewRow();
                     consDtRow["Project Id"] = consolidatedData.ProjectId;
-                    consDtRow["Total Effort as per PTR"] = $"{(int)consolidatedData.TotalEffort.TotalHours}:{consolidatedData.TotalEffort.Minutes}";
+                    consDtRow["Total Effort as per PTR"] = $"{(int)consolidatedData.TotalEffort.TotalHours}:{consolidatedData.TotalEffort.TotalMinutes % 60}";
                     TotalEffort += consolidatedData.TotalEffort;
                     TimeSpan totalActualEffort = TimeSpan.Zero;
                     EmployeeActualEfforts.Where(eae => eae.ProjectId.Equals(consolidatedData.ProjectId, StringComparison.Ordinal)).ToList().ForEach(eae =>
                     {
                         totalActualEffort += eae.ActualEffort;
-                        consDtRow[$"{eae.Name}({eae.Id})"] = $"{(int)eae.ActualEffort.TotalHours}:{eae.ActualEffort.Minutes}";
+                        consDtRow[$"{eae.Name}({eae.Id})"] = $"{(int)eae.ActualEffort.TotalHours}:{eae.ActualEffort.TotalMinutes % 60}";
                     });
-                    consDtRow["Total Actual Effort as per Monthly report"] = $"{(int)totalActualEffort.TotalHours}:{totalActualEffort.Minutes}";
+                    consDtRow["Total Actual Effort as per Monthly report"] = $"{(int)totalActualEffort.TotalHours}:{totalActualEffort.TotalMinutes % 60}";
                     TotalActualEffort += totalActualEffort;
                     dataTable.Rows.Add(consDtRow);
                 }
                 consDtRow = dataTable.NewRow();
                 consDtRow["Project Id"] = "Total Hours";
-                consDtRow["Total Effort as per PTR"] = $"{(int)TotalEffort.TotalHours}:{TotalEffort.Minutes}";
-                consDtRow["Total Actual Effort as per Monthly report"] = $"{(int)TotalActualEffort.TotalHours}:{TotalActualEffort.Minutes}";
+                consDtRow["Total Effort as per PTR"] = $"{(int)TotalEffort.TotalHours}:{TotalEffort.TotalMinutes % 60}";
+                consDtRow["Total Actual Effort as per Monthly report"] = $"{(int)TotalActualEffort.TotalHours}:{TotalActualEffort.TotalMinutes % 60}";
                 monthlyReportData.EmployeesData.Where(ed => employeeNames.Contains($"{ed.Name}({ed.Id})")).ToList()
                     .ForEach(ed =>
                     {
-                        consDtRow[$"{ed.Name}({ed.Id})"] = $"{(int)ed.TotalProjectHours.TotalHours}:{ed.TotalProjectHours.Minutes}";
+                        consDtRow[$"{ed.Name}({ed.Id})"] = $"{(int)ed.TotalProjectHours.TotalHours}:{ed.TotalProjectHours.TotalMinutes % 60}";
                     });
                 dataTable.Rows.Add(consDtRow);
                 consDtRow = dataTable.NewRow();
                 consDtRow["Project Id"] = "Actual Available Hours";
                 consDtRow["Total Effort as per PTR"] = string.Empty;
-                TimeSpan totalActualAvailableHours = new();
+                TimeSpan totalActualAvailableHours = TimeSpan.Zero;
                 monthlyReportData.EmployeesData.Where(ed => employeeNames.Contains($"{ed.Name}({ed.Id})")).ToList()
                    .ForEach(ed =>
                    {
-                       TimeSpan timeSpan2 = ed.ActualAvailableHours;
-                       consDtRow[$"{ed.Name}({ed.Id})"] = $"{(int)timeSpan2.TotalHours}:{timeSpan2.Minutes}";
-                       totalActualAvailableHours += timeSpan2;
+                       consDtRow[$"{ed.Name}({ed.Id})"] = $"{(int)ed.ActualAvailableHours.TotalHours}:{ed.ActualAvailableHours.TotalMinutes % 60}";
+                       totalActualAvailableHours += ed.ActualAvailableHours;
                    });
-                consDtRow["Total Actual Effort as per Monthly report"] = $"{(int)totalActualAvailableHours.TotalHours}:{totalActualAvailableHours.Minutes}";
+                consDtRow["Total Actual Effort as per Monthly report"] = $"{(int)totalActualAvailableHours.TotalHours}:{totalActualAvailableHours.TotalMinutes % 60}";
                 dataTable.Rows.Add(consDtRow);
                 consDtRow = dataTable.NewRow();
                 consDtRow["Project Id"] = "Total Leaves availed by team in Days";
@@ -314,7 +313,7 @@ namespace Services
                         DataRow monthlyDtRow = monthlyTable.NewRow();
                         monthlyDtRow["Name(Id)"] = $"{employeeData.Name}({employeeData.Id})";
                         monthlyDtRow["Project Id"] = pt.Key;
-                        monthlyDtRow["Actual Effort"] = $"{(int)pt.Value.TotalHours}:{pt.Value.Minutes}";
+                        monthlyDtRow["Actual Effort"] = $"{(int)pt.Value.TotalHours}:{pt.Value.TotalMinutes % 60}";
                         monthlyTable.Rows.Add(monthlyDtRow);
                     });
                 });
@@ -351,7 +350,7 @@ namespace Services
             {
                 DataRow row = dataTable.NewRow();
                 row["Project Id"] = projectEffort.Key;
-                row["Total Effort"] = $"{(int)projectEffort.Value.TotalHours}:{projectEffort.Value.Minutes}";
+                row["Total Effort"] = $"{(int)projectEffort.Value.TotalHours}:{projectEffort.Value.TotalMinutes % 60}";
                 dataTable.Rows.Add(row);
             }
             WriteExcel(ref dataTable, exportPath, fileName);

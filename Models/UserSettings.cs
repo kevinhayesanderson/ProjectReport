@@ -19,5 +19,7 @@
         public int PtrProjectIdCol { get; set; }
 
         public string PtrSheetName { get; set; } = string.Empty;
+
+        public int MonthlyReportIdCol { get; set; } = 3;
     }
 }

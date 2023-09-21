@@ -42,7 +42,7 @@ namespace Services
                         }
                         Dictionary<string, TimeSpan> projectData = new();
                         ConsoleLogger.LogSameLine("Reading Sheet: ");
-                        TimeSpan ActualAvailableHours = new();
+                        TimeSpan ActualAvailableHours = TimeSpan.Zero;
                         int TotalLeaves = new();
                         foreach (DataTable dataTable in dataTableList)
                         {
@@ -80,7 +80,7 @@ namespace Services
                                 }
                                 for (int rowIndex = 15; rowIndex < rows.Count; ++rowIndex)
                                 {
-                                    if (rows[rowIndex][2] is string key && (key.ToUpper().StartsWith("ACS_", StringComparison.Ordinal) || key.ToUpper().StartsWith("ACS.", StringComparison.Ordinal)))
+                                    if (rows[rowIndex][userSettings.MonthlyReportIdCol - 1] is string key && (key.ToUpper().StartsWith("ACS_", StringComparison.Ordinal) || key.ToUpper().StartsWith("ACS.", StringComparison.Ordinal)))
                                     {
                                         if (key.ToUpper().StartsWith("ACS.", StringComparison.Ordinal))
                                         {
@@ -189,7 +189,7 @@ namespace Services
                                     }
 
                                     string key = ((string)row[projectIdCol]).Replace('.', '_');
-                                    TimeSpan totalEffort = new();
+                                    TimeSpan totalEffort = TimeSpan.Zero;
                                     userSettings.PtrEffortCols.ForEach(ef =>
                                     {
                                         int effortCol = (int)ef - 1;
@@ -253,6 +253,7 @@ namespace Services
                     ConsoleLogger.LogInfo("User settings:", 1);
                     ConsoleLogger.LogSameLine("Folder: "); ConsoleLogger.LogDataSameLine(userSettings.Folder, 1);
                     ConsoleLogger.LogSameLine("MonthlyReportMonths: "); ConsoleLogger.LogDataSameLine(string.Join(",", (IEnumerable<string>)userSettings.MonthlyReportMonths), 1);
+                    ConsoleLogger.LogSameLine("MonthlyReportIdCol: "); ConsoleLogger.LogDataSameLine(userSettings.MonthlyReportIdCol.ToString(), 1);
                     ConsoleLogger.LogSameLine("PtrSheetName: "); ConsoleLogger.LogDataSameLine(userSettings.PtrSheetName, 1);
                     ConsoleLogger.LogSameLine("PtrProjectIdCol: "); ConsoleLogger.LogDataSameLine(userSettings.PtrProjectIdCol.ToString(), 1);
                     ConsoleLogger.LogSameLine("PtrBookingMonthCol: "); ConsoleLogger.LogDataSameLine(userSettings.PtrBookingMonthCol.ToString(), 1);

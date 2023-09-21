@@ -2,6 +2,7 @@
   "FinancialYear": "23-24",
   "Folder": "E:\\ProjectReport\\Requirements\\14-09-23\\Test kit",
   "GenerateLeaveReport": false,
+  "MonthlyReportIdCol": 3,
   "MonthlyReportMonths": [ "Jun-23", "Jul-23" ],
   "PtrBookingMonthCol": 28,
   "PtrBookingMonths": [ 6, "7|July_2023" ],
