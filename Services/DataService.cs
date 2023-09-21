@@ -1,4 +1,6 @@
-﻿using Models;
+﻿// Ignore Spelling: Tohhmm
+
+using Models;
 using Utilities;
 
 namespace Services
@@ -56,6 +58,25 @@ namespace Services
                 "Feb-" + strArray[1],
                 "Mar-" + strArray[1]
             };
+        }
+
+        public static string TohhmmFormatString(this TimeSpan timeSpan)
+        {
+            string totalHours = ((int)timeSpan.TotalHours).ToString();
+            string minutes = timeSpan.Minutes.ToString();
+            if (timeSpan.Seconds == 59 && (timeSpan.Milliseconds == 999 || timeSpan.Microseconds == 999))
+            {
+                if (timeSpan.Minutes + 1 == 60)
+                {
+                    minutes = "00";
+                    totalHours = ((int)timeSpan.TotalHours + 1).ToString();
+                }
+                else
+                {
+                    minutes = (timeSpan.Minutes + 1).ToString();
+                }
+            }
+            return $"{totalHours}:{minutes}";
         }
     }
 }

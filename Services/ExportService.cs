@@ -66,26 +66,26 @@ namespace Services
                 {
                     consDtRow = dataTable.NewRow();
                     consDtRow["Project Id"] = consolidatedData.ProjectId;
-                    consDtRow["Total Effort as per PTR"] = $"{(int)consolidatedData.TotalEffort.TotalHours}:{consolidatedData.TotalEffort.TotalMinutes % 60}";
+                    consDtRow["Total Effort as per PTR"] = consolidatedData.TotalEffort.TohhmmFormatString();
                     TotalEffort += consolidatedData.TotalEffort;
                     TimeSpan totalActualEffort = TimeSpan.Zero;
                     EmployeeActualEfforts.Where(eae => eae.ProjectId.Equals(consolidatedData.ProjectId, StringComparison.Ordinal)).ToList().ForEach(eae =>
                     {
                         totalActualEffort += eae.ActualEffort;
-                        consDtRow[$"{eae.Name}({eae.Id})"] = $"{(int)eae.ActualEffort.TotalHours}:{eae.ActualEffort.TotalMinutes % 60}";
+                        consDtRow[$"{eae.Name}({eae.Id})"] = eae.ActualEffort.TohhmmFormatString();
                     });
-                    consDtRow["Total Actual Effort as per Monthly report"] = $"{(int)totalActualEffort.TotalHours}:{totalActualEffort.TotalMinutes % 60}";
+                    consDtRow["Total Actual Effort as per Monthly report"] = totalActualEffort.TohhmmFormatString();
                     TotalActualEffort += totalActualEffort;
                     dataTable.Rows.Add(consDtRow);
                 }
                 consDtRow = dataTable.NewRow();
                 consDtRow["Project Id"] = "Total Hours";
-                consDtRow["Total Effort as per PTR"] = $"{(int)TotalEffort.TotalHours}:{TotalEffort.TotalMinutes % 60}";
-                consDtRow["Total Actual Effort as per Monthly report"] = $"{(int)TotalActualEffort.TotalHours}:{TotalActualEffort.TotalMinutes % 60}";
+                consDtRow["Total Effort as per PTR"] = TotalEffort.TohhmmFormatString();
+                consDtRow["Total Actual Effort as per Monthly report"] = TotalActualEffort.TohhmmFormatString();
                 monthlyReportData.EmployeesData.Where(ed => employeeNames.Contains($"{ed.Name}({ed.Id})")).ToList()
                     .ForEach(ed =>
                     {
-                        consDtRow[$"{ed.Name}({ed.Id})"] = $"{(int)ed.TotalProjectHours.TotalHours}:{ed.TotalProjectHours.TotalMinutes % 60}";
+                        consDtRow[$"{ed.Name}({ed.Id})"] = ed.TotalProjectHours.TohhmmFormatString();
                     });
                 dataTable.Rows.Add(consDtRow);
                 consDtRow = dataTable.NewRow();
@@ -95,10 +95,10 @@ namespace Services
                 monthlyReportData.EmployeesData.Where(ed => employeeNames.Contains($"{ed.Name}({ed.Id})")).ToList()
                    .ForEach(ed =>
                    {
-                       consDtRow[$"{ed.Name}({ed.Id})"] = $"{(int)ed.ActualAvailableHours.TotalHours}:{ed.ActualAvailableHours.TotalMinutes % 60}";
+                       consDtRow[$"{ed.Name}({ed.Id})"] = ed.ActualAvailableHours.TohhmmFormatString();
                        totalActualAvailableHours += ed.ActualAvailableHours;
                    });
-                consDtRow["Total Actual Effort as per Monthly report"] = $"{(int)totalActualAvailableHours.TotalHours}:{totalActualAvailableHours.TotalMinutes % 60}";
+                consDtRow["Total Actual Effort as per Monthly report"] = totalActualAvailableHours.TohhmmFormatString();
                 dataTable.Rows.Add(consDtRow);
                 consDtRow = dataTable.NewRow();
                 consDtRow["Project Id"] = "Total Leaves availed by team in Days";
@@ -313,7 +313,7 @@ namespace Services
                         DataRow monthlyDtRow = monthlyTable.NewRow();
                         monthlyDtRow["Name(Id)"] = $"{employeeData.Name}({employeeData.Id})";
                         monthlyDtRow["Project Id"] = pt.Key;
-                        monthlyDtRow["Actual Effort"] = $"{(int)pt.Value.TotalHours}:{pt.Value.TotalMinutes % 60}";
+                        monthlyDtRow["Actual Effort"] = pt.Value.TohhmmFormatString();
                         monthlyTable.Rows.Add(monthlyDtRow);
                     });
                 });
@@ -350,7 +350,7 @@ namespace Services
             {
                 DataRow row = dataTable.NewRow();
                 row["Project Id"] = projectEffort.Key;
-                row["Total Effort"] = $"{(int)projectEffort.Value.TotalHours}:{projectEffort.Value.TotalMinutes % 60}";
+                row["Total Effort"] = projectEffort.Value.TohhmmFormatString();
                 dataTable.Rows.Add(row);
             }
             WriteExcel(ref dataTable, exportPath, fileName);
