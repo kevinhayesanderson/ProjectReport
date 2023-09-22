@@ -11,7 +11,7 @@ namespace Services
     {
         public static void ExportConsolidateData(in List<ConsolidatedData> consolidatedDataList, ref MonthlyReportData monthlyReportData, in string time, in string exportFolder)
         {
-            ConsoleLogger.LogInfo("Exporting consolidated data:", 1);
+            ConsoleLogger.LogInfo("Exporting Consolidated Report:", 1);
             try
             {
                 string reportName = "ConsolidatedReport";
@@ -116,7 +116,7 @@ namespace Services
             }
             catch (Exception ex)
             {
-                ConsoleLogger.LogErrorAndExit("Error on exporting data: " + ex.Message);
+                ConsoleLogger.LogErrorAndExit($"Error on exporting Consolidated Report: {ex.Message}");
             }
         }
 
@@ -273,7 +273,7 @@ namespace Services
 
         public static void ExportMonthlyReportInter(ref MonthlyReportData monthlyReportData, in string time, in string exportFolder)
         {
-            ConsoleLogger.LogInfo("Exporting monthly report inter:", 2);
+            ConsoleLogger.LogInfo("Exporting Monthly Report Inter:", 2);
             string reportName = "MonthlyReport_Inter";
             string sheetName = $"{reportName}_Sheet1";
             string fileName = $"{reportName}_{time}.xls";
@@ -323,7 +323,7 @@ namespace Services
 
         public static void ExportPtrInter(ref PtrData ptrData, in string time, in string exportFolder)
         {
-            ConsoleLogger.LogInfo("Exporting ptr inter data:", 1);
+            ConsoleLogger.LogInfo("Exporting PTR Inter:", 1);
             string reportName = "PTR_Inter";
             string sheetName = $"{reportName}_Sheet1";
             string fileName = $"{reportName}_{time}.xls";
