@@ -28,13 +28,21 @@
     <meta http-equiv="cache-control" content="no-cache">
 </head>
 <body>
-    <div id="___markdown-content___" class="markdown-body"><h1 id="project-report-application-information"><a id="pragma-line-0"></a>Project Report Application Information</h1>
-<h2 id="user-setting-information"><a id="pragma-line-2"></a>1. User Setting information</h2>
-<font size="4">
-The user settings are stored in the userSettings.json file.<br>
-Here’s an example userSettings.json for reference:
-<pre><code id="pragma-line-8">{
+    <div id="___markdown-content___" class="markdown-body"><h2 id="project-report-application-information"><a id="pragma-line-0"></a>Project Report Application Information</h2>
+<h3 id="application-description"><a id="pragma-line-1"></a>Application Description:</h3>
+<p id="pragma-line-2"> Project report application is a Windows console application used to create consolidated reports from Monthly and PTR reports.</p>
+<h3 id="application-owner-info"><a id="pragma-line-3"></a>Application Owner Info:</h3>
+<p id="pragma-line-4"> MohanRaj L.V.P<br>
+ <a href="mailto:mohanraj.lvp@ambigai.net">mohanraj.lvp@ambigai.net</a></p>
+<h3 id="developer-info"><a id="pragma-line-6"></a>Developer Info:</h3>
+<p id="pragma-line-7"> Kevin Hayes Anderson<br>
+ <a href="mailto:kevin.hayes@ambigai.net">kevin.hayes@ambigai.net</a></p>
+<h3 id="user-setting-information"><a id="pragma-line-10"></a>User Setting information:</h3>
+<p id="pragma-line-11">The user settings are stored in the userSettings.json file.<br><br>
+Here's an example userSettings.json for reference:</p>
+<pre><code id="pragma-line-14">{
     "Folder": "C:\\Users\\Id\\Reports\\InputDir",
+    "MonthlyReportIdCol": 3,
     "MonthlyReportMonths": [ "Jun-23", "Jul-23", "Aug-23" ],
     "PtrProjectIdCol": 2,
     "PtrBookingMonthCol": 20,
@@ -45,71 +53,75 @@ Here’s an example userSettings.json for reference:
     "FinancialYear": "23-24"
 }
 </code></pre>
-<p id="pragma-line-20"><em><strong>Folder:</strong></em><br>
+<p id="pragma-line-27"><em><strong>Folder:</strong></em><br>
 Path to reports and output path of the application.</p>
-<p id="pragma-line-23"><em><strong>MonthlyReportMonths:</strong></em><br>
+<p id="pragma-line-30"><em><strong>MonthlyReportIdCol:</strong></em><br>
+Column number indicating project ID column in monthly report.<br>
+Default value is 3.</p>
+<p id="pragma-line-34"><em><strong>MonthlyReportMonths:</strong></em><br>
 List of sheet names of monthly reports to read.</p>
-<blockquote id="pragma-line-25">
-<p id="pragma-line-25"><em><strong>options</strong></em><br>
+<blockquote id="pragma-line-36">
+<p id="pragma-line-36"><em><strong>options</strong></em><br>
 <code>[]</code> - All sheets will be read from the monthly report.<br>
-<code>["Jan-22"]</code> - Only sheet with name “Jan-22” will be read.<br>
-<code>["Jan-22","Feb-22"]</code> - Sheets with name “Jan-22” &amp; “Feb-22” will be read.</p>
+<code>["Jan-22"]</code> - Only sheet with name "Jan-22" will be read.<br>
+<code>["Jan-22","Feb-22"]</code> - Sheets with name "Jan-22" &amp; "Feb-22" will be read.</p>
 </blockquote>
-<p id="pragma-line-30"><em><strong>PtrProjectIdCol:</strong></em><br>
+<p id="pragma-line-41"><em><strong>PtrProjectIdCol:</strong></em><br>
 Column number indicating project ID column in Ptr report.</p>
-<p id="pragma-line-33"><em><strong>PtrBookingMonthCol:</strong></em><br>
+<p id="pragma-line-44"><em><strong>PtrBookingMonthCol:</strong></em><br>
 Column number indicating booking month column in Ptr report.</p>
-<p id="pragma-line-36"><em><strong>PtrBookingMonths:</strong></em><br>
+<p id="pragma-line-47"><em><strong>PtrBookingMonths:</strong></em><br>
 List of values for booking month column in Ptr report.</p>
-<blockquote id="pragma-line-38">
-<p id="pragma-line-38"><em><strong>options</strong></em><br>
+<blockquote id="pragma-line-49">
+<p id="pragma-line-49"><em><strong>options</strong></em><br>
 <code>[]</code> - All booking months project IDs will be read.<br>
 <code>[3]</code> - Only booking month 3 project IDs will be read.<br>
 <code>[3,4]</code> - Project IDs for booking months 3 and 4 will be read.<br>
-<code>["1|Jan-22|Jan|Jan_23"]</code> - Only booking month 1 with formats “Jan-22”, "Jan" &amp; "Jan_23" project IDs will be read.<br>
-<code>["5|May-22|May", "6|June_2023"]</code> - Project IDs for booking months 5 or “May-22”, "May" and 6 or "June_2023" will be read.</p>
+<code>["1|Jan-22|Jan|Jan_23"]</code> - Only booking month 1 with formats "Jan-22", "Jan" &amp; "Jan_23" project IDs will be read.<br>
+<code>["5|May-22|May", "6|June_2023"]</code> - Project IDs for booking months 5 or "May-22", "May" and 6 or "June_2023" will be read.</p>
 </blockquote>
-<p id="pragma-line-45"><em><strong>PtrEffortCols:</strong></em><br>
+<p id="pragma-line-56"><em><strong>PtrEffortCols:</strong></em><br>
 List of column numbers for effort column in Ptr report.</p>
-<blockquote id="pragma-line-47">
-<p id="pragma-line-47"><em><strong>options</strong></em><br>
+<blockquote id="pragma-line-58">
+<p id="pragma-line-58"><em><strong>options</strong></em><br>
 <code>[22]</code> - Only effort in column 22 will be read.<br>
 <code>[22,23]</code> - Summation of efforts in columns 22 and 23 will be read.</p>
 </blockquote>
-<p id="pragma-line-51"><em><strong>PtrSheetName:</strong></em><br>
+<p id="pragma-line-62"><em><strong>PtrSheetName:</strong></em><br>
 Sheet name to read values in the Ptr report.</p>
-<p id="pragma-line-54"><em><strong>GenerateLeaveReport:</strong></em><br>
+<p id="pragma-line-65"><em><strong>GenerateLeaveReport:</strong></em><br>
 Generation of leave report.</p>
-<blockquote id="pragma-line-56">
-<p id="pragma-line-56"><em><strong>options</strong></em><br>
+<blockquote id="pragma-line-67">
+<p id="pragma-line-67"><em><strong>options</strong></em><br>
 <code>true</code> - The application will generate a leave report and will not generate consolidated and inter reports.<br>
 <code>false</code> - The application will not generate a leave report and will generate consolidated and inter reports.</p>
 </blockquote>
-<p id="pragma-line-60"><em><strong>FinancialYear:</strong></em><br>
+<p id="pragma-line-71"><em><strong>FinancialYear:</strong></em><br>
 The single financial year for which the leave report will be generated.</p>
-<blockquote id="pragma-line-62">
-<p id="pragma-line-62"><em><strong>format</strong></em><br>
+<blockquote id="pragma-line-73">
+<p id="pragma-line-73"><em><strong>format</strong></em><br>
 <code>"20-21"</code> - FY 2020-2021.<br>
 <code>"21-22"</code> - FY 2021-2022.</p>
 </blockquote>
-<h2 id="monthly-report-constraints"><a id="pragma-line-66"></a>2. Monthly report constraints</h2>
-<ol id="pragma-line-68">
-<li id="pragma-line-68">The file name should have “Monthly_Report” in the file name to be considered as a Monthly report.</li>
-<li id="pragma-line-69">All sheets should have a default layout and default format for correct data capture.</li>
-<li id="pragma-line-70">Available time-Actual will be read from the last column in row 13.</li>
-<li id="pragma-line-71">Leave will be read from the last column in row 14.</li>
-<li id="pragma-line-72">Project rows will be read from row 16.</li>
-<li id="pragma-line-73">Project Ids should start with “ACS_” or “ACS.” or “Acs_” or “Acs.” or “acs_” or “acs.”.</li>
+<h3 id="monthly-report-constraints"><a id="pragma-line-77"></a>Monthly report constraints:</h3>
+<ol id="pragma-line-79">
+<li id="pragma-line-79">The file name should have "Monthly_Report" in the file name to be considered as a Monthly report.</li>
+<li id="pragma-line-80">All sheets should have a default layout and default format for correct data capture.</li>
+<li id="pragma-line-81">Available time-Actual will be read from the last column in row 13.</li>
+<li id="pragma-line-82">Leave will be read from the last column in row 14.</li>
+<li id="pragma-line-83">Project rows will be read from row 16.</li>
+<li id="pragma-line-84">Project Ids should start with "ACS_" or "ACS." or "Acs_" or "Acs." or "acs_" or "acs.".</li>
 </ol>
-<h2 id="ptr-constraints"><a id="pragma-line-75"></a>3. PTR constraints</h2>
-<ol id="pragma-line-77">
-<li id="pragma-line-77">The file name should have “ACS_PTR” present in the file name to be considered as a PTR report.</li>
-<li id="pragma-line-78">Effort should either be in the Excel format of <code>number</code> or <code>[h]:mm:ss</code>.</li>
+<h3 id="ptr-constraints"><a id="pragma-line-86"></a>PTR constraints:</h3>
+<ol id="pragma-line-88">
+<li id="pragma-line-88">The file name should have "ACS_PTR" present in the file name to be considered as a PTR report.</li>
+<li id="pragma-line-89">Effort should either be in the Excel format of <code>number</code> or <code>[h]:mm:ss</code>.</li>
 </ol>
-<h2 id="general-constraints"><a id="pragma-line-80"></a>4. General constraints</h2>
-</font><ol id="pragma-line-82"><font size="4">
-</font><li id="pragma-line-82"><font size="4">Year-wise PTR will be read faster as the filter iterates through all the rows in the sheet.<br>
-</font></li>
+<h3 id="general-constraints"><a id="pragma-line-91"></a>General constraints:</h3>
+<ol id="pragma-line-93">
+<li id="pragma-line-93">Year-wise PTR will be read faster as the filter iterates through all the rows in the sheet.<br>
+<br><br><br>
+<strong><p style="text-align: center;">© 2023 <a href="https://www.ambigai.net/">Ambigai Consultancy Services GmbH</a></p></strong></li>
 </ol>
 </div>
     <script>

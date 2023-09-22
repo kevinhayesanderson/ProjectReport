@@ -1,13 +1,20 @@
-# Project Report Application Information
+## Project Report Application Information
+### Application Description:
+ &emsp;Project report application is a Windows console application used to create consolidated reports from Monthly and PTR reports.
+### Application Owner Info: 
+&emsp;MohanRaj L.V.P 
+&emsp;<mohanraj.lvp@ambigai.net>
+### Developer Info:
+&emsp;Kevin Hayes Anderson 
+&emsp;<kevin.hayes@ambigai.net>
 
-## 1\. User Setting information
-
-<font size= "4">
+### User Setting information:
 The user settings are stored in the userSettings.json file.<br/>
-Here’s an example userSettings.json for reference:
+Here's an example userSettings.json for reference:
 
     {
         "Folder": "C:\\Users\\Id\\Reports\\InputDir",
+        "MonthlyReportIdCol": 3,
         "MonthlyReportMonths": [ "Jun-23", "Jul-23", "Aug-23" ],
         "PtrProjectIdCol": 2,
         "PtrBookingMonthCol": 20,
@@ -21,12 +28,16 @@ Here’s an example userSettings.json for reference:
 ***Folder:***
 Path to reports and output path of the application.
 
+***MonthlyReportIdCol:***
+Column number indicating project ID column in monthly report.
+Default value is 3.
+
 ***MonthlyReportMonths:***
 List of sheet names of monthly reports to read.
 >***options***
 > `[]` - All sheets will be read from the monthly report.  
-> `["Jan-22"]` - Only sheet with name “Jan-22” will be read.  
-> `["Jan-22","Feb-22"]` - Sheets with name “Jan-22” & “Feb-22” will be read.
+> `["Jan-22"]` - Only sheet with name "Jan-22" will be read.  
+> `["Jan-22","Feb-22"]` - Sheets with name "Jan-22" & "Feb-22" will be read.
 
 ***PtrProjectIdCol:***
 Column number indicating project ID column in Ptr report.
@@ -40,8 +51,8 @@ List of values for booking month column in Ptr report.
 > `[]` - All booking months project IDs will be read.  
 > `[3]` - Only booking month 3 project IDs will be read.  
 > `[3,4]` - Project IDs for booking months 3 and 4 will be read.  
-> `["1|Jan-22|Jan|Jan_23"]` - Only booking month 1 with formats “Jan-22”, "Jan" & "Jan_23" project IDs will be read.  
-> `["5|May-22|May", "6|June_2023"]` - Project IDs for booking months 5 or “May-22”, "May" and 6 or "June_2023" will be read.
+> `["1|Jan-22|Jan|Jan_23"]` - Only booking month 1 with formats "Jan-22", "Jan" & "Jan_23" project IDs will be read.  
+> `["5|May-22|May", "6|June_2023"]` - Project IDs for booking months 5 or "May-22", "May" and 6 or "June_2023" will be read.
 
 ***PtrEffortCols:***
 List of column numbers for effort column in Ptr report.
@@ -64,21 +75,22 @@ The single financial year for which the leave report will be generated.
 > `"20-21"` - FY 2020-2021.  
 > `"21-22"` - FY 2021-2022.
 
-## 2\. Monthly report constraints
+### Monthly report constraints:
 
-1. The file name should have “Monthly_Report” in the file name to be considered as a Monthly report.
+1. The file name should have "Monthly_Report" in the file name to be considered as a Monthly report.
 2. All sheets should have a default layout and default format for correct data capture.
 3. Available time-Actual will be read from the last column in row 13.
 4. Leave will be read from the last column in row 14.
 5. Project rows will be read from row 16.
-6. Project Ids should start with “ACS\_” or “ACS.” or “Acs\_” or “Acs.” or “acs\_” or “acs.”.
+6. Project Ids should start with "ACS\_" or "ACS." or "Acs\_" or "Acs." or "acs\_" or "acs.".
 
-## 3\. PTR constraints
+### PTR constraints:
 
-1. The file name should have “ACS_PTR” present in the file name to be considered as a PTR report.
+1. The file name should have "ACS_PTR" present in the file name to be considered as a PTR report.
 2. Effort should either be in the Excel format of `number` or `[h]:mm:ss`.
 
-## 4\. General constraints
+### General constraints:
 
 1. Year-wise PTR will be read faster as the filter iterates through all the rows in the sheet.
-</font>
+<br/><br/>
+**<p style="text-align: center;">&copy; 2023 [Ambigai Consultancy Services GmbH](https://www.ambigai.net/)</p>**
