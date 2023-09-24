@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.FileSystemGlobbing;
 using Models;
 using Services;
-using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 using Utilities;
@@ -10,26 +9,28 @@ namespace ProjectReport
 {
     internal static partial class Program
     {
-        private const string ApplicationDev = "kevin.hayes@ambigai.net";
+        private static readonly string _time;
+        static Program()
+        {
+            _time = RemoveAllSymbols().Replace(DateTime.Now.ToString(), "_");
+        }
         private static string _exportFolder = string.Empty;
         private static MonthlyReportData _monthlyReportData = new();
         private static PtrData _ptrData = new();
-        private static string _time = string.Empty;
         public static ref MonthlyReportData MonthlyReportData => ref _monthlyReportData;
         public static ref PtrData PtrData => ref _ptrData;
 
         private static void Main()
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            _time = RemoveAllSymbols().Replace(DateTime.Now.ToString(), "_");
-            Console.Title = $"Project Report PID:{Process.GetCurrentProcess().Id} {_time}";
+            Console.Title = $"Project Report PID:{Environment.ProcessId} {_time}";
             ConsoleLogger.LogInfo($"Running Project Report Application at {_time}");
             ReadService.ReadUserSettings(out UserSettings userSettings);
             if (Directory.Exists(userSettings?.Folder))
             {
                 _exportFolder = $"{userSettings.Folder}\\Reports_{_time}";
                 Matcher monthlyReportMatcher = new();
-                _ = monthlyReportMatcher.AddInclude("*Monthly_Report*");
+                _ = monthlyReportMatcher.AddInclude(Constants.MonthlyReportPattern);
                 List<string> MonthlyReports = monthlyReportMatcher.GetResultsInFullPath(userSettings.Folder).ToList();
                 if (MonthlyReports.Count > 0)
                 {
@@ -52,7 +53,7 @@ namespace ProjectReport
                 }
 
                 Matcher ptrMatcher = new();
-                _ = ptrMatcher.AddInclude("*ACS_PTR*");
+                _ = ptrMatcher.AddInclude(Constants.PTRPattern);
                 List<string> PtrFiles = ptrMatcher.GetResultsInFullPath(userSettings.Folder).ToList();
                 if (PtrFiles.Count > 0)
                 {
@@ -75,12 +76,12 @@ namespace ProjectReport
                     }
                     else
                     {
-                        ConsoleLogger.LogWarningAndExit($"Consolidated data is empty, modify filter conditions or check if data is present, otherwise report application error to {ApplicationDev}", 2);
+                        ConsoleLogger.LogWarningAndExit($"Consolidated data is empty, modify filter conditions or check if data is present, otherwise report application error to {Constants.ApplicationDev}", 2);
                     }
                 }
                 else
                 {
-                    ConsoleLogger.LogWarningAndExit($"Either PTR or Monthly report data is empty, modify filter conditions or check if data is present, otherwise report application error to {ApplicationDev}", 2);
+                    ConsoleLogger.LogWarningAndExit($"Either PTR or Monthly report data is empty, modify filter conditions or check if data is present, otherwise report application error to {Constants.ApplicationDev}", 2);
                 }
             }
             else
