@@ -3,7 +3,7 @@ using Models;
 using Services;
 using Utilities;
 
-namespace ProjectReport.Actions
+namespace Actions
 {
     [SettingName("GenerateConsolidatedReport")]
     internal class GenerateConsolidatedReportAction : IAction

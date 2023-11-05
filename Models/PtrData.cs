@@ -2,8 +2,8 @@
 {
     public class PtrData
     {
-        public Dictionary<string, TimeSpan> ProjectEfforts { get; init; } = new Dictionary<string, TimeSpan>();
+        public Dictionary<string, TimeSpan> ProjectEfforts { get; init; } = [];
 
-        public HashSet<string> ProjectIds { get; init; } = new HashSet<string>();
+        public HashSet<string> ProjectIds { get; init; } = [];
     }
 }

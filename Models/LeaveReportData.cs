@@ -4,7 +4,7 @@
     {
         public string EmployeeId { get; init; } = string.Empty;
 
-        public Dictionary<string, int?> Leaves { get; init; } = new Dictionary<string, int?>();
+        public Dictionary<string, int?> Leaves { get; init; } = [];
 
         public string Name { get; init; } = string.Empty;
 

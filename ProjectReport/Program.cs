@@ -1,11 +1,11 @@
-﻿using Models;
-using ProjectReport.Actions;
+﻿using Actions;
+using Models;
 using Services;
 using System.Text;
 using System.Text.RegularExpressions;
 using Utilities;
 
-namespace ProjectReport
+namespace ConsoleApp
 {
     internal static partial class Program
     {

@@ -2,7 +2,7 @@
 {
     public class ConsolidatedData
     {
-        public List<EmployeeActualEffort> EmployeeActualEffort { get; init; } = new List<EmployeeActualEffort>();
+        public List<EmployeeActualEffort> EmployeeActualEffort { get; init; } = [];
 
         public string ProjectId { get; init; } = string.Empty;
 

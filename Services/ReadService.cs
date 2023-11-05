@@ -8,14 +8,14 @@ namespace Services
 {
     public static class ReadService
     {
-        private static readonly List<object> BookingMonths = new();
+        private static readonly List<object> BookingMonths = [];
 
         private static int _ptrBookingMonthCol;
 
         public static MonthlyReportData ReadMonthlyReports(List<string> reports, object[] months, int idCol)
         {
-            List<EmployeeData> employeeDataList = new();
-            HashSet<string> projectIds = new();
+            List<EmployeeData> employeeDataList = [];
+            HashSet<string> projectIds = [];
             foreach (string report in reports)
             {
                 try
@@ -39,7 +39,7 @@ namespace Services
                         {
                             throw new ArgumentException("Employee Id is empty or has an invalid format in the sheet " + dataTableList[0].TableName + ": Check row " + 5 + " at column " + 3);
                         }
-                        Dictionary<string, TimeSpan> projectData = new();
+                        Dictionary<string, TimeSpan> projectData = [];
                         ConsoleLogger.LogSameLine("Reading Sheet: ");
                         TimeSpan ActualAvailableHours = TimeSpan.Zero;
                         int TotalLeaves = new();
@@ -158,8 +158,8 @@ namespace Services
             }
             try
             {
-                Dictionary<string, TimeSpan> projectEfforts = new();
-                HashSet<string> projectIds = new();
+                Dictionary<string, TimeSpan> projectEfforts = [];
+                HashSet<string> projectIds = [];
                 foreach (string ptrFile in reports)
                 {
                     ConsoleLogger.LogInfo("Reading " + new FileInfo(ptrFile).Name);

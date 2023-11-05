@@ -124,7 +124,7 @@ namespace Services
         {
             ConsoleLogger.LogInfo("Generating Leave Report for FY" + financialYear + ":", 1);
             List<string> sheetNames = DataService.GetFyMonths(financialYear);
-            List<LeaveReportData> leaveReportDataList = new();
+            List<LeaveReportData> leaveReportDataList = [];
             bool hasReadErrors = false;
             foreach (string monthlyReport in monthlyReports)
             {
@@ -136,7 +136,7 @@ namespace Services
                     DataTableCollection tables = ExcelDataReaderExtensions.AsDataSet(reader, null).Tables;
                     List<DataTable> sheets = tables.Cast<DataTable>().Where(dataTable => sheetNames.Contains(dataTable.TableName.Trim())).ToList();
                     int? totalLeaves = new int?(0);
-                    Dictionary<string, int?> leaves = new();
+                    Dictionary<string, int?> leaves = [];
                     string employeeName = string.Empty;
                     int employeeId = default;
                     if (sheets.Count > 0)

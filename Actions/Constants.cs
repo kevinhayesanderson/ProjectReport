@@ -1,4 +1,4 @@
-﻿namespace ProjectReport
+﻿namespace Actions
 {
     internal static class Constants
     {

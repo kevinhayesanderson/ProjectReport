@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.FileSystemGlobbing;
 
-namespace ProjectReport.Actions
+namespace Actions
 {
     internal static class Helper
     {

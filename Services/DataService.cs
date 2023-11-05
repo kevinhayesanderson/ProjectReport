@@ -11,7 +11,7 @@ namespace Services
 
         public static List<ConsolidatedData> Consolidate(PtrData ptrData, MonthlyReportData monthlyReportData)
         {
-            List<ConsolidatedData> consolidatedDataList = new();
+            List<ConsolidatedData> consolidatedDataList = [];
             try
             {
                 ConsoleLogger.LogInfo("Consolidating data", 2);
@@ -43,8 +43,8 @@ namespace Services
         public static List<string> GetFyMonths(string financialYear)
         {
             string[] strArray = financialYear.Split('-');
-            return new List<string>()
-            {
+            return
+            [
                 "Apr-" + strArray[0],
                 "May-" + strArray[0],
                 "Jun-" + strArray[0],
@@ -57,7 +57,7 @@ namespace Services
                 "Jan-" + strArray[1],
                 "Feb-" + strArray[1],
                 "Mar-" + strArray[1]
-            };
+            ];
         }
 
         public static string TohhmmFormatString(this TimeSpan timeSpan)

@@ -32,8 +32,10 @@ namespace Services
         {
             myExcelApplication = null;
 
-            myExcelApplication = new Excel.Application(); // create Excell App
-            myExcelApplication.DisplayAlerts = false; // turn off alerts
+            myExcelApplication = new Excel.Application
+            {
+                DisplayAlerts = false // turn off alerts
+            }; // create Excell App
 
             myExcelWorkbook = myExcelApplication.Workbooks._Open(excelFilePath, Missing.Value,
                Missing.Value, Missing.Value, Missing.Value,

@@ -1,6 +1,6 @@
 ﻿using Utilities;
 
-namespace ProjectReport.Actions
+namespace Actions
 {
     public interface IAction
     {
@@ -20,9 +20,9 @@ namespace ProjectReport.Actions
 
         public static IAction[] InitiateActions(Models.Action[] userActions, string time)
         {
-            List<IAction> actions = new();
+            List<IAction> actions = [];
             var executableUserActions = userActions.Where(ua => ua.Run).ToList();
-            var actionTypes = typeof(Program).Assembly.GetTypes().Where(type => !type.IsInterface && type.IsAssignableTo(typeof(IAction))).ToList();
+            var actionTypes = typeof(IAction).Assembly.GetTypes().Where(type => !type.IsInterface && type.IsAssignableTo(typeof(IAction))).ToList();
             foreach (var actionType in actionTypes)
             {
                 SettingNameAttribute attribute = actionType.GetCustomAttributes(typeof(SettingNameAttribute), false).OfType<SettingNameAttribute>().First();

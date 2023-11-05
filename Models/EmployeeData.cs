@@ -8,7 +8,7 @@
 
         public string Name { get; init; } = string.Empty;
 
-        public Dictionary<string, TimeSpan> ProjectData { get; init; } = new Dictionary<string, TimeSpan>();
+        public Dictionary<string, TimeSpan> ProjectData { get; init; } = [];
 
         public int TotalLeaves { get; init; }
 

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.FileSystemGlobbing;
 using Utilities;
 
-namespace ProjectReport.Actions
+namespace Actions
 {
     [SettingName("CalculatePunchMovement")]
     internal class CalculatePunchMovementAction : IAction

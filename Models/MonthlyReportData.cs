@@ -2,8 +2,8 @@
 {
     public class MonthlyReportData
     {
-        public List<EmployeeData> EmployeesData { get; init; } = new List<EmployeeData>();
+        public List<EmployeeData> EmployeesData { get; init; } = [];
 
-        public HashSet<string> ProjectIds { get; init; } = new HashSet<string>();
+        public HashSet<string> ProjectIds { get; init; } = [];
     }
 }

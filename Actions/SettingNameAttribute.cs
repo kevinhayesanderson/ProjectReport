@@ -1,4 +1,4 @@
-﻿namespace ProjectReport.Actions
+﻿namespace Actions
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public class SettingNameAttribute : Attribute

@@ -1,6 +1,6 @@
 ﻿using Services;
 
-namespace ProjectReport.Actions
+namespace Actions
 {
     [SettingName("GenerateLeaveReport")]
     internal class GenerateLeaveReportAction : IAction

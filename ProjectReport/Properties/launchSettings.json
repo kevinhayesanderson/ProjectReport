@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "ConsoleApp": {
+      "commandName": "Project",
+      "nativeDebugging": true,
+      "sqlDebugging": true,
+      "jsWebView2Debugging": true,
+      "remoteDebugEnabled": false,
+      "authenticationMode": "Windows"
+    }
+  }
+}
