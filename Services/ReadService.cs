@@ -1,7 +1,6 @@
 ﻿using ExcelDataReader;
 using Models;
 using System.Data;
-using System.Globalization;
 using System.Text.Json;
 using Utilities;
 
@@ -13,20 +12,20 @@ namespace Services
 
         private static int _ptrBookingMonthCol;
 
-        public static MonthlyReportData ReadMonthlyReports(List<string> monthlyReports, UserSettings userSettings)
+        public static MonthlyReportData ReadMonthlyReports(List<string> reports, object[] months, int idCol)
         {
             List<EmployeeData> employeeDataList = new();
             HashSet<string> projectIds = new();
-            foreach (string monthlyReport in monthlyReports)
+            foreach (string report in reports)
             {
                 try
                 {
-                    ConsoleLogger.LogInfo("Reading " + new FileInfo(monthlyReport).Name, 1);
-                    using FileStream fileStream = File.Open(monthlyReport, FileMode.Open, FileAccess.Read);
+                    ConsoleLogger.LogInfo("Reading " + new FileInfo(report).Name, 1);
+                    using FileStream fileStream = File.Open(report, FileMode.Open, FileAccess.Read);
                     using IExcelDataReader reader = ExcelReaderFactory.CreateReader(fileStream, null);
                     DataTableCollection tables = ExcelDataReaderExtensions.AsDataSet(reader, null).Tables;
-                    List<DataTable> dataTableList = userSettings.MonthlyReportMonths.Any()
-                        ? tables.Cast<DataTable>().Where(dataTable => userSettings.MonthlyReportMonths.Contains(dataTable.TableName.Trim())).ToList()
+                    List<DataTable> dataTableList = months.Any()
+                        ? tables.Cast<DataTable>().Where(dataTable => months.Contains(dataTable.TableName.Trim())).ToList()
                         : tables.Cast<DataTable>().Select(dataTable => dataTable).ToList();
                     if (dataTableList.Count > 0)
                     {
@@ -80,7 +79,7 @@ namespace Services
                                 }
                                 for (int rowIndex = 15; rowIndex < rows.Count; ++rowIndex)
                                 {
-                                    if (rows[rowIndex][userSettings.MonthlyReportIdCol - 1] is string key && (key.ToUpper().StartsWith("ACS_", StringComparison.Ordinal) || key.ToUpper().StartsWith("ACS.", StringComparison.Ordinal)))
+                                    if (rows[rowIndex][idCol - 1] is string key && (key.ToUpper().StartsWith("ACS_", StringComparison.Ordinal) || key.ToUpper().StartsWith("ACS.", StringComparison.Ordinal)))
                                     {
                                         if (key.ToUpper().StartsWith("ACS.", StringComparison.Ordinal))
                                         {
@@ -129,12 +128,12 @@ namespace Services
                     }
                     else
                     {
-                        ConsoleLogger.LogWarning("No sheets found for the filter condition in monthly report " + monthlyReport + ".");
+                        ConsoleLogger.LogWarning("No sheets found for the filter condition in monthly report " + report + ".");
                     }
                 }
                 catch (Exception ex)
                 {
-                    ConsoleLogger.LogErrorAndExit("Error on reading monthly report " + monthlyReport + ": " + ex.Message);
+                    ConsoleLogger.LogErrorAndExit("Error on reading monthly report " + report + ": " + ex.Message);
                 }
             }
             return new MonthlyReportData()
@@ -144,38 +143,38 @@ namespace Services
             };
         }
 
-        public static PtrData ReadPtr(List<string> ptrFiles, UserSettings userSettings)
+        public static PtrData ReadPtr(List<string> reports, int bookingMonthCol, object[] bookingMonths, object[] effortCols, int projectIdCol, string sheetName)
         {
             PtrData ptrData = new();
-            _ptrBookingMonthCol = userSettings.PtrBookingMonthCol;
-            bool flag = userSettings.PtrBookingMonths.Count == 0;
-            if (!flag && ConvertInputBookingMonths(userSettings.PtrBookingMonths))
+            _ptrBookingMonthCol = bookingMonthCol;
+            bool flag = bookingMonths.Any();
+            if (!flag && ConvertInputBookingMonths(bookingMonths))
             {
                 ConsoleLogger.LogLine();
             }
             else
             {
-                ConsoleLogger.LogErrorAndExit($"Error converting Ptr booking months: {userSettings.PtrBookingMonths}");
+                ConsoleLogger.LogErrorAndExit($"Error converting Ptr booking months: {bookingMonths}");
             }
             try
             {
                 Dictionary<string, TimeSpan> projectEfforts = new();
                 HashSet<string> projectIds = new();
-                foreach (string ptrFile in ptrFiles)
+                foreach (string ptrFile in reports)
                 {
                     ConsoleLogger.LogInfo("Reading " + new FileInfo(ptrFile).Name);
                     using FileStream fileStream = File.Open(ptrFile, FileMode.Open, FileAccess.Read);
                     using IExcelDataReader reader = ExcelReaderFactory.CreateReader(fileStream, null);
-                    DataTable? table = ExcelDataReaderExtensions.AsDataSet(reader, null).Tables[userSettings.PtrSheetName];
+                    DataTable? table = ExcelDataReaderExtensions.AsDataSet(reader, null).Tables[sheetName];
                     if (table == null)
                     {
-                        ConsoleLogger.LogErrorAndExit("Error on reading Ptr: no sheet found for name " + userSettings.PtrSheetName);
+                        ConsoleLogger.LogErrorAndExit("Error on reading Ptr: no sheet found for name " + sheetName);
                     }
                     else
                     {
-                        List<DataRow> list = table.AsEnumerable().Where(r => r[userSettings.PtrBookingMonthCol - 1] != DBNull.Value).Skip(1).ToList();
+                        List<DataRow> list = table.AsEnumerable().Where(r => r[bookingMonthCol - 1] != DBNull.Value).Skip(1).ToList();
                         List<DataRow> rows = flag ? list : list.Where(IsRowOfBookingMonth).ToList();
-                        int projectIdCol = userSettings.PtrProjectIdCol - 1;
+                        projectIdCol--;
                         if (rows.Any())
                         {
                             rows.Select((r, i) => new { item = r, index = i }).ToList()
@@ -190,7 +189,7 @@ namespace Services
 
                                     string key = ((string)row[projectIdCol]).Replace('.', '_');
                                     TimeSpan totalEffort = TimeSpan.Zero;
-                                    userSettings.PtrEffortCols.ForEach(ef =>
+                                    Array.ForEach(effortCols, ef =>
                                     {
                                         int effortCol = (int)ef - 1;
                                         if (row[effortCol] == DBNull.Value)
@@ -241,26 +240,26 @@ namespace Services
             return ptrData;
         }
 
-        public static void ReadUserSettings(out UserSettings userSettings)
+        public static UserSettings? GetUserSettings()
         {
-            userSettings = new UserSettings();
+            UserSettings? userSettings = default;
             try
             {
-                UserSettings? deserializedObject = JsonSerializer.Deserialize<UserSettings>(File.ReadAllText("userSettings.json"));
-                if (deserializedObject is not null)
+                userSettings = JsonSerializer.Deserialize<UserSettings>(File.ReadAllText("userSettings.json"));
+                if (userSettings is not null)
                 {
-                    userSettings = deserializedObject;
                     ConsoleLogger.LogInfo("User settings:", 1);
-                    ConsoleLogger.LogSameLine("Folder: "); ConsoleLogger.LogDataSameLine(userSettings.Folder, 1);
-                    ConsoleLogger.LogSameLine("MonthlyReportMonths: "); ConsoleLogger.LogDataSameLine(string.Join(",", (IEnumerable<string>)userSettings.MonthlyReportMonths), 1);
-                    ConsoleLogger.LogSameLine("MonthlyReportIdCol: "); ConsoleLogger.LogDataSameLine(userSettings.MonthlyReportIdCol.ToString(), 1);
-                    ConsoleLogger.LogSameLine("PtrSheetName: "); ConsoleLogger.LogDataSameLine(userSettings.PtrSheetName, 1);
-                    ConsoleLogger.LogSameLine("PtrProjectIdCol: "); ConsoleLogger.LogDataSameLine(userSettings.PtrProjectIdCol.ToString(), 1);
-                    ConsoleLogger.LogSameLine("PtrBookingMonthCol: "); ConsoleLogger.LogDataSameLine(userSettings.PtrBookingMonthCol.ToString(), 1);
-                    ConsoleLogger.LogSameLine("PtrBookingMonths: "); ConsoleLogger.LogDataSameLine(string.Join(",", userSettings.PtrBookingMonths.Select(bookingMonth => bookingMonth).ToArray()), 1);
-                    ConsoleLogger.LogSameLine("PtrEffortCols: "); ConsoleLogger.LogDataSameLine(string.Join(",", userSettings.PtrEffortCols.Select(effortCol => effortCol.ToString(CultureInfo.InvariantCulture)).ToArray()), 1);
-                    ConsoleLogger.LogSameLine("GenerateLeaveReport: "); ConsoleLogger.LogDataSameLine(userSettings.GenerateLeaveReport.ToString(), 1);
-                    ConsoleLogger.LogSameLine("FinancialYear: "); ConsoleLogger.LogDataSameLine(userSettings.FinancialYear, 1);
+                    for (int i = 0; i < userSettings.Actions.Length; i++)
+                    {
+                        ConsoleLogger.LogChar('-', 100);
+                        ConsoleLogger.LogLine(1);
+                        PrintAction(userSettings.Actions[i]);
+                        if (i == userSettings.Actions.Length - 1)
+                        {
+                            ConsoleLogger.LogChar('-', 100);
+                            ConsoleLogger.LogLine(1);
+                        }
+                    }
                 }
                 else
                 {
@@ -271,11 +270,65 @@ namespace Services
             {
                 ConsoleLogger.LogErrorAndExit("Error on reading user settings: " + ex.Message);
             }
+            return userSettings;
         }
 
-        private static bool ConvertInputBookingMonths(List<object> inputBookingMonths)
+        private static void PrintAction(Models.Action action)
         {
-            inputBookingMonths.ForEach(ibm =>
+            string convertObjectToString(object obj)
+            {
+                return obj?.ToString() ?? string.Empty;
+            }
+            string[] convertObjectsToStrings(object[] objects) => Array.ConvertAll(objects, convertObjectToString);
+            ConsoleLogger.LogSameLine("Name: "); ConsoleLogger.LogDataSameLine(action.Name, 1);
+            ConsoleLogger.LogSameLine("Run: "); ConsoleLogger.LogDataSameLine(action.Run.ToString(), 1);
+            ConsoleLogger.LogSameLine("InputFolder: "); ConsoleLogger.LogDataSameLine(action.InputFolder, 1);
+
+            if (action.MonthlyReportMonths is not null)
+            {
+                ConsoleLogger.LogSameLine("MonthlyReportMonths: ");
+                ConsoleLogger.LogDataSameLine(string.Join(",", convertObjectsToStrings(action.MonthlyReportMonths)), 1);
+            }
+            if (action.MonthlyReportIdCol is not null)
+            {
+                ConsoleLogger.LogSameLine("MonthlyReportIdCol: ");
+                ConsoleLogger.LogDataSameLine(action.MonthlyReportIdCol?.ToString() ?? string.Empty, 1);
+            }
+            if (action.PtrSheetName is not null)
+            {
+                ConsoleLogger.LogSameLine("PtrSheetName: ");
+                ConsoleLogger.LogDataSameLine(action.PtrSheetName, 1);
+            }
+            if (action.PtrProjectIdCol is not null)
+            {
+                ConsoleLogger.LogSameLine("PtrProjectIdCol: ");
+                ConsoleLogger.LogDataSameLine(action.PtrProjectIdCol.ToString() ?? string.Empty, 1);
+            }
+            if (action.PtrBookingMonthCol is not null)
+            {
+                ConsoleLogger.LogSameLine("PtrBookingMonthCol: ");
+                ConsoleLogger.LogDataSameLine(action.PtrBookingMonthCol.ToString() ?? string.Empty, 1);
+            }
+            if (action.PtrBookingMonths is not null)
+            {
+                ConsoleLogger.LogSameLine("PtrBookingMonths: ");
+                ConsoleLogger.LogDataSameLine(string.Join(",", convertObjectsToStrings(action.PtrBookingMonths)), 1);
+            }
+            if (action.PtrEffortCols is not null)
+            {
+                ConsoleLogger.LogSameLine("PtrEffortCols: ");
+                ConsoleLogger.LogDataSameLine(string.Join(",", convertObjectsToStrings(action.PtrEffortCols)), 1);
+            }
+            if (action.FinancialYear is not null)
+            {
+                ConsoleLogger.LogSameLine("FinancialYear: ");
+                ConsoleLogger.LogDataSameLine(action.FinancialYear, 1);
+            }
+        }
+
+        private static bool ConvertInputBookingMonths(object[] inputBookingMonths)
+        {
+            Array.ForEach(inputBookingMonths, ibm =>
             {
                 JsonElement jsonElement = (JsonElement)ibm;
                 switch (jsonElement.ValueKind)
@@ -326,6 +379,13 @@ namespace Services
                 string str => BookingMonths.Contains(str),
                 _ => false,
             };
+        }
+
+        public static EmployeePunchData ReadPunchMovementReport()
+        {
+            EmployeePunchData employeePunchData = new EmployeePunchData();
+
+            return employeePunchData;
         }
     }
 }

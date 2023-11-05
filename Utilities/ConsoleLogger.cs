@@ -19,28 +19,21 @@
         }
 
         public static void Log(string message, int line = 0) => Log(LogType.Normal, message, line);
-        
-        public static void LogSameLine(string message, int line = 0) => Log(LogType.Normal, message, 0, line, true);
+
+        public static void LogChar(char character, int length)
+        {
+            for (int i = 0; i < length; i++)
+            {
+                Console.Write(character);
+            }
+        }
 
         public static void LogData(string data, int line = 0) => Log(LogType.Data, data, line);
 
         public static void LogDataSameLine(string data, int line = 0) => Log(LogType.Data, data, 0, line, true);
-        
-        public static void LogInfo(string message, int line = 0) => Log(LogType.Info, message, line);
-
-        public static void LogInfoSameLine(string message, int line = 0) => Log(LogType.Info, message, 0, line, true);
-        
-        public static void LogWarning(string message, int line = 0) => Log(LogType.Warning, message, line);
-
-        public static void LogWarningAndExit(string message, int line = 1)
-        {
-            LogLine(line);
-            LogWarning(message);
-            ExitApplication();
-        }
 
         public static void LogError(string message, int line = 0) => Log(LogType.Error, message, line);
-        
+
         public static void LogErrorAndExit(string message, int line = 1)
         {
             LogLine(line);
@@ -48,12 +41,27 @@
             ExitApplication();
         }
 
+        public static void LogInfo(string message, int line = 0) => Log(LogType.Info, message, line);
+
+        public static void LogInfoSameLine(string message, int line = 0) => Log(LogType.Info, message, 0, line, true);
+
         public static void LogLine(int lines = 1)
         {
             for (int i = 0; i < lines; i++)
             {
                 Console.WriteLine();
             }
+        }
+
+        public static void LogSameLine(string message, int line = 0) => Log(LogType.Normal, message, 0, line, true);
+
+        public static void LogWarning(string message, int line = 0) => Log(LogType.Warning, message, line);
+
+        public static void LogWarningAndExit(string message, int line = 1)
+        {
+            LogLine(line);
+            LogWarning(message);
+            ExitApplication();
         }
 
         private static void Log(LogType logType, string message, int lineBefore = 0, int lineAfter = 0, bool onSameLine = false)
