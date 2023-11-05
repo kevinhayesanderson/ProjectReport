@@ -147,7 +147,7 @@ namespace Services
         {
             PtrData ptrData = new();
             _ptrBookingMonthCol = bookingMonthCol;
-            bool flag = bookingMonths.Any();
+            bool flag = bookingMonths.Length != 0;
             if (!flag && ConvertInputBookingMonths(bookingMonths))
             {
                 ConsoleLogger.LogLine();
@@ -175,7 +175,7 @@ namespace Services
                         List<DataRow> list = table.AsEnumerable().Where(r => r[bookingMonthCol - 1] != DBNull.Value).Skip(1).ToList();
                         List<DataRow> rows = flag ? list : list.Where(IsRowOfBookingMonth).ToList();
                         projectIdCol--;
-                        if (rows.Any())
+                        if (rows.Count != 0)
                         {
                             rows.Select((r, i) => new { item = r, index = i }).ToList()
                                 .ForEach(obj =>
@@ -383,7 +383,7 @@ namespace Services
 
         public static EmployeePunchData ReadPunchMovementReport()
         {
-            EmployeePunchData employeePunchData = new EmployeePunchData();
+            EmployeePunchData employeePunchData = new();
 
             return employeePunchData;
         }

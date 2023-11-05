@@ -31,7 +31,7 @@ namespace Actions
                     actions.Add(InitializeAction(actionType, executableUserActions.Find(eua => eua.Name == attribute.Name)!, time));
                 }
             }
-            return actions.ToArray();
+            return [.. actions];
         }
 
         public bool CanExecuteAction()

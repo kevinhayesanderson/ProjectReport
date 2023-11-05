@@ -1,13 +1,8 @@
 ﻿namespace Actions
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
-    public class SettingNameAttribute : Attribute
+    public class SettingNameAttribute(string name) : Attribute
     {
-        public string Name { get; }
-
-        public SettingNameAttribute(string name)
-        {
-            Name = name;
-        }
+        public string Name { get; set;} = name;
     }
 }

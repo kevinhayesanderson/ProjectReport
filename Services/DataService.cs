@@ -7,7 +7,7 @@ namespace Services
 {
     public static class DataService
     {
-        public static readonly int[] Months = new int[12] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+        public static readonly int[] Months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
         public static List<ConsolidatedData> Consolidate(PtrData ptrData, MonthlyReportData monthlyReportData)
         {
