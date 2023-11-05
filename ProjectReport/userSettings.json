@@ -3,7 +3,7 @@
     {
       "Name": "GenerateConsolidatedReport",
       "Run": true,
-      "InputFolder": "E:\\ProjectReport\\Requirements\\Second reuquirement",
+      "InputFolder": "E:\\ProjectReport\\Requirements\\Second_requirement",
       "MonthlyReportIdCol": 0,
       "MonthlyReportMonths": [],
       "PtrBookingMonthCol": 0,
@@ -15,13 +15,13 @@
     {
       "Name": "GenerateLeaveReport",
       "Run": true,
-      "InputFolder": "E:\\ProjectReport\\Requirements\\Second reuquirement",
+      "InputFolder": "E:\\ProjectReport\\Requirements\\Second_requirement",
       "FinancialYear": ""
     },
     {
       "Name": "CalculatePunchMovement",
       "Run": true,
-      "InputFolder": "E:\\ProjectReport\\Requirements\\Second reuquirement"
+      "InputFolder": "E:\\ProjectReport\\Requirements\\Second_requirement"
     }
   ]
 }
