@@ -20,7 +20,7 @@ internal static partial class Program
         }
         catch (Exception ex)
         {
-            logger.LogErrorAndExit(ex.Message);
+            logger.LogErrorAndExit(ex.ToString());
         }
     }
 

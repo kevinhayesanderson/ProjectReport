@@ -116,7 +116,7 @@ namespace Services
             }
             catch (Exception ex)
             {
-                logger.LogErrorAndExit($"Error on exporting Consolidated Report: {ex.Message}");
+                logger.LogErrorAndExit($"Error on exporting Consolidated Report: {ex}");
             }
         }
 
@@ -183,7 +183,7 @@ namespace Services
                                 catch (Exception ex)
                                 {
                                     hasReadErrors = true;
-                                    logger.LogErrorAndExit("Error on generating leave report for " + monthlyReport + ": " + ex.Message);
+                                    logger.LogErrorAndExit($"Error on generating leave report for {monthlyReport}: {ex}");
                                 }
                             }
                             else

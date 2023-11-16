@@ -1,7 +1,6 @@
 ﻿using ExcelDataReader;
 using Models;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
 using System.Data;
 using Utilities;
@@ -57,7 +56,7 @@ namespace Services
             }
             catch (Exception ex)
             {
-                logger.LogErrorAndExit("Error on reading user settings: " + ex.Message);
+                logger.LogErrorAndExit($"Error on reading user settings: {ex}");
             }
             return userSettings;
         }
@@ -163,7 +162,7 @@ namespace Services
                             }
                             catch (Exception ex)
                             {
-                                logger.LogErrorAndExit("Error on reading sheet " + dataTable.TableName + ": " + ex.Message);
+                                logger.LogErrorAndExit($"Error on reading sheet {dataTable.TableName}: {ex}");
                             }
                         }
                         employeeDataList.Add(new EmployeeData()
@@ -183,7 +182,7 @@ namespace Services
                 }
                 catch (Exception ex)
                 {
-                    logger.LogErrorAndExit("Error on reading monthly report " + report + ": " + ex.Message);
+                    logger.LogErrorAndExit($"Error on reading monthly report {report}: {ex}");
                 }
             }
             return new MonthlyReportData()
@@ -197,9 +196,10 @@ namespace Services
         {
             PtrData ptrData = new();
             _ptrBookingMonthCol = bookingMonthCol;
-            bool flag = bookingMonths.Length != 0;
-            if (!flag && ConvertInputBookingMonths(bookingMonths))
+            bool isBookingMonth = false;
+            if (bookingMonths.Length != 0 && ConvertInputBookingMonths(bookingMonths))
             {
+                isBookingMonth = true;
                 logger.LogLine();
             }
             else
@@ -223,7 +223,7 @@ namespace Services
                     else
                     {
                         List<DataRow> list = table.AsEnumerable().Where(r => r[bookingMonthCol - 1] != DBNull.Value).Skip(1).ToList();
-                        List<DataRow> rows = flag ? list : list.Where(IsRowOfBookingMonth).ToList();
+                        List<DataRow> rows = isBookingMonth ? list.Where(IsRowOfBookingMonth).ToList() : list;
                         projectIdCol--;
                         if (rows.Count != 0)
                         {
@@ -241,7 +241,7 @@ namespace Services
                                     TimeSpan totalEffort = TimeSpan.Zero;
                                     Array.ForEach(effortCols, ef =>
                                     {
-                                        int effortCol = (int)ef - 1;
+                                        int effortCol = Convert.ToInt32(ef) - 1;
                                         if (row[effortCol] == DBNull.Value)
                                         {
                                             totalEffort += TimeSpan.Zero;
@@ -285,7 +285,7 @@ namespace Services
             }
             catch (Exception ex)
             {
-                logger.LogErrorAndExit("Error on reading Ptr: " + ex.Message);
+                logger.LogErrorAndExit($"Error on reading Ptr: {ex}");
             }
             return ptrData;
         }
@@ -302,11 +302,10 @@ namespace Services
             _bookingMonths = [];
             Array.ForEach(inputBookingMonths, ibm =>
             {
-                System.Text.Json.JsonElement jsonElement = (System.Text.Json.JsonElement)ibm;
-                switch (jsonElement.ValueKind)
+                switch (ibm)
                 {
-                    case System.Text.Json.JsonValueKind.String:
-                        string? str = jsonElement.GetString();
+                    case string stringValue:
+                        string? str = stringValue;
                         if (string.IsNullOrEmpty(str))
                         {
                             break;
@@ -327,13 +326,13 @@ namespace Services
                         _bookingMonths.Add(str.Trim());
                         break;
 
-                    case System.Text.Json.JsonValueKind.Number:
-                        if (!dataService.Months.Contains(jsonElement.GetInt32()))
+                    case long number:
+                        if (!dataService.Months.Contains(number))
                         {
                             break;
                         }
 
-                        _bookingMonths.Add(jsonElement.GetInt32());
+                        _bookingMonths.Add(number);
                         break;
 
                     default:
@@ -350,7 +349,7 @@ namespace Services
             {
                 res = dataRow[_ptrBookingMonthCol - 1] switch
                 {
-                    double num => _bookingMonths.Contains((int)num),
+                    double num => _bookingMonths.Contains((int)num) || _bookingMonths.Contains((long)num),
                     string str => _bookingMonths.Contains(str),
                     _ => false,
                 };
@@ -409,21 +408,6 @@ namespace Services
                 logger.LogSameLine("FinancialYear: ");
                 logger.LogDataSameLine(action.FinancialYear, 1);
             }
-        }
-
-        private bool ValidateUserSettings(out IList<string> validationErrors)
-        {
-            bool res = false;
-            using (StreamReader schemaFile = File.OpenText("userSettings-schema.json"))
-            using (JsonTextReader schemaReader = new(schemaFile))
-            {
-                JSchema schema = JSchema.Load(schemaReader);
-
-                JObject userSettings = JObject.Parse(File.ReadAllText("userSettings.json"));
-
-                res = userSettings.IsValid(schema, out validationErrors);
-            }
-            return res;
         }
     }
 }

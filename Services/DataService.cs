@@ -7,7 +7,7 @@ namespace Services
 {
     public class DataService(ILogger logger)
     {
-        public int[] Months => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+        public long[] Months => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
         public List<ConsolidatedData> Consolidate(PtrData ptrData, MonthlyReportData monthlyReportData)
         {
@@ -35,7 +35,7 @@ namespace Services
             }
             catch (Exception ex)
             {
-                logger.LogErrorAndExit("Error on consolidating data: " + ex.Message + " ");
+                logger.LogErrorAndExit("Error on consolidating data: " + ex.ToString() + " ");
             }
             return consolidatedDataList;
         }

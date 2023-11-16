@@ -13,6 +13,8 @@ namespace Actions
         {
             var _exportFolder = @$"{InputFolder}\Reports_{time}";
             List<string> monthlyReports = Helper.GetMonthlyReports(InputFolder);
+            logger.LogInfo("Monthly reports found:", 1);
+            monthlyReports.ForEach(mr => logger.Log(new FileInfo(mr).Name));
             exportService.ExportLeaveReport(in monthlyReports, fy, in _exportFolder);
             bool res = true;
             return res;
