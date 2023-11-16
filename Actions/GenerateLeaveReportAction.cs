@@ -1,27 +1,19 @@
 ﻿using Services;
+using Utilities;
 
 namespace Actions
 {
-    [SettingName("GenerateLeaveReport")]
-    internal class GenerateLeaveReportAction : IAction
+    [ActionName("GenerateLeaveReport")]
+    internal class GenerateLeaveReportAction(bool run, string inputFolder, string time, ILogger logger, string fy, ExportService exportService) : IAction
     {
-        private readonly string _fy;
-        private readonly string _time;
-
-        public GenerateLeaveReportAction(bool run, string inputFolder, string time, string fy)
-        {
-            (Run, InputFolder) = (run, inputFolder);
-            (_time, _fy) = (time, fy);
-        }
-
-        public string InputFolder { get; }
-        public bool Run { get; }
+        public string InputFolder => inputFolder;
+        public bool Run => run;
 
         public bool Execute()
         {
-            var _exportFolder = @$"{InputFolder}\Reports_{_time}";
+            var _exportFolder = @$"{InputFolder}\Reports_{time}";
             List<string> monthlyReports = Helper.GetMonthlyReports(InputFolder);
-            ExportService.ExportLeaveReport(in monthlyReports, _fy, in _exportFolder);
+            exportService.ExportLeaveReport(in monthlyReports, fy, in _exportFolder);
             bool res = true;
             return res;
         }

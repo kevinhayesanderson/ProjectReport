@@ -5,16 +5,16 @@ using Utilities;
 
 namespace Services
 {
-    public static class DataService
+    public class DataService(ILogger logger)
     {
-        public static readonly int[] Months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+        public int[] Months => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
-        public static List<ConsolidatedData> Consolidate(PtrData ptrData, MonthlyReportData monthlyReportData)
+        public List<ConsolidatedData> Consolidate(PtrData ptrData, MonthlyReportData monthlyReportData)
         {
             List<ConsolidatedData> consolidatedDataList = [];
             try
             {
-                ConsoleLogger.LogInfo("Consolidating data", 2);
+                logger.LogInfo("Consolidating data", 2);
                 IEnumerable<string> projectIds = ptrData.ProjectIds.Union(monthlyReportData.ProjectIds);
                 consolidatedDataList.AddRange(from projectId in projectIds
                                               let consolidatedData = new ConsolidatedData
@@ -35,12 +35,12 @@ namespace Services
             }
             catch (Exception ex)
             {
-                ConsoleLogger.LogErrorAndExit("Error on consolidating data: " + ex.Message + " ");
+                logger.LogErrorAndExit("Error on consolidating data: " + ex.Message + " ");
             }
             return consolidatedDataList;
         }
 
-        public static List<string> GetFyMonths(string financialYear)
+        public List<string> GetFyMonths(string financialYear)
         {
             string[] strArray = financialYear.Split('-');
             return
@@ -60,7 +60,7 @@ namespace Services
             ];
         }
 
-        public static string TohhmmFormatString(this TimeSpan timeSpan)
+        public string TohhmmFormatString(TimeSpan timeSpan)
         {
             string totalHours = ((int)timeSpan.TotalHours).ToString();
             string minutes = timeSpan.Minutes.ToString();

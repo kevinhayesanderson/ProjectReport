@@ -1,38 +1,40 @@
-﻿using Actions;
-using Models;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Services;
-using System.Text;
-using System.Text.RegularExpressions;
 using Utilities;
 
-namespace ConsoleApp;
+namespace ConsoleApplication;
 
 internal static partial class Program
 {
-    private static readonly string _time = RemoveAllSymbols().Replace(DateTime.Now.ToString(), "_");
-
     private static void Main()
     {
-        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        using IHost host = CreateHostBuilder().Build();
+        using var scope = host.Services.CreateScope();
 
-        Console.Title = $"Project Report PID:{Environment.ProcessId} {_time}";
-
-        ConsoleLogger.LogInfo($"Running Project Report Application at {_time}");
-
-        UserSettings userSettings = ReadService.GetUserSettings()!;
-
-        var actions = IAction.InitiateActions(userSettings.Actions, _time);
-
-        var res = IAction.ExecuteActions(actions);
-
-        if (!res)
+        var services = scope.ServiceProvider;
+        var logger = services.GetRequiredService<ILogger>();
+        try
         {
-            ConsoleLogger.LogErrorAndExit($"Application Error", 2);
+            services.GetRequiredService<Application>().Run();
         }
-
-        ConsoleLogger.ExitApplication();
+        catch (Exception ex)
+        {
+            logger.LogErrorAndExit(ex.Message);
+        }
     }
 
-    [GeneratedRegex("[^\\w\\d]")]
-    private static partial Regex RemoveAllSymbols();
+    private static IHostBuilder CreateHostBuilder()
+    {
+        return Host.CreateDefaultBuilder()
+            .ConfigureServices((_, services) =>
+            {
+                services.AddSingleton<ILogger, ConsoleLogger>();
+                services.AddSingleton<DataService>();
+                services.AddSingleton<ReadService>();
+                services.AddSingleton<WriteService>();
+                services.AddSingleton<ExportService>();
+                services.AddSingleton<Application>();
+            });
+    }
 }

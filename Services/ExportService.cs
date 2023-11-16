@@ -7,11 +7,11 @@ using Utilities;
 
 namespace Services
 {
-    public static class ExportService
+    public class ExportService(ILogger logger, DataService dataService)
     {
-        public static void ExportConsolidateData(in List<ConsolidatedData> consolidatedDataList, ref MonthlyReportData monthlyReportData, in string time, in string exportFolder)
+        public void ExportConsolidateData(in List<ConsolidatedData> consolidatedDataList, ref MonthlyReportData monthlyReportData, in string time, in string exportFolder)
         {
-            ConsoleLogger.LogInfo("Exporting Consolidated Report:", 1);
+            logger.LogInfo("Exporting Consolidated Report:", 1);
             try
             {
                 string reportName = "ConsolidatedReport";
@@ -66,26 +66,26 @@ namespace Services
                 {
                     consDtRow = dataTable.NewRow();
                     consDtRow["Project Id"] = consolidatedData.ProjectId;
-                    consDtRow["Total Effort as per PTR"] = consolidatedData.TotalEffort.TohhmmFormatString();
+                    consDtRow["Total Effort as per PTR"] = dataService.TohhmmFormatString(consolidatedData.TotalEffort);
                     TotalEffort += consolidatedData.TotalEffort;
                     TimeSpan totalActualEffort = TimeSpan.Zero;
                     EmployeeActualEfforts.Where(eae => eae.ProjectId.Equals(consolidatedData.ProjectId, StringComparison.Ordinal)).ToList().ForEach(eae =>
                     {
                         totalActualEffort += eae.ActualEffort;
-                        consDtRow[$"{eae.Name}({eae.Id})"] = eae.ActualEffort.TohhmmFormatString();
+                        consDtRow[$"{eae.Name}({eae.Id})"] = dataService.TohhmmFormatString(eae.ActualEffort);
                     });
-                    consDtRow["Total Actual Effort as per Monthly report"] = totalActualEffort.TohhmmFormatString();
+                    consDtRow["Total Actual Effort as per Monthly report"] = dataService.TohhmmFormatString(totalActualEffort);
                     TotalActualEffort += totalActualEffort;
                     dataTable.Rows.Add(consDtRow);
                 }
                 consDtRow = dataTable.NewRow();
                 consDtRow["Project Id"] = "Total Hours";
-                consDtRow["Total Effort as per PTR"] = TotalEffort.TohhmmFormatString();
-                consDtRow["Total Actual Effort as per Monthly report"] = TotalActualEffort.TohhmmFormatString();
+                consDtRow["Total Effort as per PTR"] = dataService.TohhmmFormatString(TotalEffort);
+                consDtRow["Total Actual Effort as per Monthly report"] = dataService.TohhmmFormatString(TotalActualEffort);
                 monthlyReportData.EmployeesData.Where(ed => employeeNames.Contains($"{ed.Name}({ed.Id})")).ToList()
                     .ForEach(ed =>
                     {
-                        consDtRow[$"{ed.Name}({ed.Id})"] = ed.TotalProjectHours.TohhmmFormatString();
+                        consDtRow[$"{ed.Name}({ed.Id})"] = dataService.TohhmmFormatString(ed.TotalProjectHours);
                     });
                 dataTable.Rows.Add(consDtRow);
                 consDtRow = dataTable.NewRow();
@@ -95,10 +95,10 @@ namespace Services
                 monthlyReportData.EmployeesData.Where(ed => employeeNames.Contains($"{ed.Name}({ed.Id})")).ToList()
                    .ForEach(ed =>
                    {
-                       consDtRow[$"{ed.Name}({ed.Id})"] = ed.ActualAvailableHours.TohhmmFormatString();
+                       consDtRow[$"{ed.Name}({ed.Id})"] = dataService.TohhmmFormatString(ed.ActualAvailableHours);
                        totalActualAvailableHours += ed.ActualAvailableHours;
                    });
-                consDtRow["Total Actual Effort as per Monthly report"] = totalActualAvailableHours.TohhmmFormatString();
+                consDtRow["Total Actual Effort as per Monthly report"] = dataService.TohhmmFormatString(totalActualAvailableHours);
                 dataTable.Rows.Add(consDtRow);
                 consDtRow = dataTable.NewRow();
                 consDtRow["Project Id"] = "Total Leaves availed by team in Days";
@@ -116,19 +116,19 @@ namespace Services
             }
             catch (Exception ex)
             {
-                ConsoleLogger.LogErrorAndExit($"Error on exporting Consolidated Report: {ex.Message}");
+                logger.LogErrorAndExit($"Error on exporting Consolidated Report: {ex.Message}");
             }
         }
 
-        public static void ExportLeaveReport(in List<string> monthlyReports, in string financialYear, in string exportFolder)
+        public void ExportLeaveReport(in List<string> monthlyReports, in string financialYear, in string exportFolder)
         {
-            ConsoleLogger.LogInfo("Generating Leave Report for FY" + financialYear + ":", 1);
-            List<string> sheetNames = DataService.GetFyMonths(financialYear);
+            logger.LogInfo("Generating Leave Report for FY" + financialYear + ":", 1);
+            List<string> sheetNames = dataService.GetFyMonths(financialYear);
             List<LeaveReportData> leaveReportDataList = [];
             bool hasReadErrors = false;
             foreach (string monthlyReport in monthlyReports)
             {
-                ConsoleLogger.Log("Reading " + new FileInfo(monthlyReport).Name);
+                logger.Log("Reading " + new FileInfo(monthlyReport).Name);
                 LeaveReportData leaveReportData;
                 using (FileStream fileStream = File.Open(monthlyReport, FileMode.Open, FileAccess.Read))
                 {
@@ -159,13 +159,13 @@ namespace Services
                             }
                             break;
                         }
-                        ConsoleLogger.LogSameLine("Reading Sheet: ");
+                        logger.LogSameLine("Reading Sheet: ");
                         sheetNames.ForEach(sheetName =>
                         {
                             if (sheets.Exists(sh => sh.TableName == sheetName))
                             {
                                 DataTable dataTable = sheets.First(sh => sh.TableName == sheetName);
-                                ConsoleLogger.LogDataSameLine(dataTable.TableName + ", ");
+                                logger.LogDataSameLine(dataTable.TableName + ", ");
                                 try
                                 {
                                     DataRowCollection rows = dataTable.Rows;
@@ -183,7 +183,7 @@ namespace Services
                                 catch (Exception ex)
                                 {
                                     hasReadErrors = true;
-                                    ConsoleLogger.LogErrorAndExit("Error on generating leave report for " + monthlyReport + ": " + ex.Message);
+                                    logger.LogErrorAndExit("Error on generating leave report for " + monthlyReport + ": " + ex.Message);
                                 }
                             }
                             else
@@ -192,7 +192,7 @@ namespace Services
                                 totalLeaves = new int?();
                             }
                         });
-                        ConsoleLogger.LogLine();
+                        logger.LogLine();
                     }
                     leaveReportData = new LeaveReportData()
                     {
@@ -267,13 +267,13 @@ namespace Services
             }
             else
             {
-                ConsoleLogger.LogErrorAndExit("Process stopped due to errors.");
+                logger.LogErrorAndExit("Process stopped due to errors.");
             }
         }
 
-        public static void ExportMonthlyReportInter(ref MonthlyReportData monthlyReportData, in string time, in string exportFolder)
+        public void ExportMonthlyReportInter(ref MonthlyReportData monthlyReportData, in string time, in string exportFolder)
         {
-            ConsoleLogger.LogInfo("Exporting Monthly Report Inter:", 2);
+            logger.LogInfo("Exporting Monthly Report Inter:", 2);
             string reportName = "MonthlyReport_Inter";
             string sheetName = $"{reportName}_Sheet1";
             string fileName = $"{reportName}_{time}.xls";
@@ -313,7 +313,7 @@ namespace Services
                         DataRow monthlyDtRow = monthlyTable.NewRow();
                         monthlyDtRow["Name(Id)"] = $"{employeeData.Name}({employeeData.Id})";
                         monthlyDtRow["Project Id"] = pt.Key;
-                        monthlyDtRow["Actual Effort"] = pt.Value.TohhmmFormatString();
+                        monthlyDtRow["Actual Effort"] = dataService.TohhmmFormatString(pt.Value);
                         monthlyTable.Rows.Add(monthlyDtRow);
                     });
                 });
@@ -321,9 +321,9 @@ namespace Services
             WriteExcel(ref monthlyTable, exportPath, fileName);
         }
 
-        public static void ExportPtrInter(ref PtrData ptrData, in string time, in string exportFolder)
+        public void ExportPtrInter(ref PtrData ptrData, in string time, in string exportFolder)
         {
-            ConsoleLogger.LogInfo("Exporting PTR Inter:", 1);
+            logger.LogInfo("Exporting PTR Inter:", 1);
             string reportName = "PTR_Inter";
             string sheetName = $"{reportName}_Sheet1";
             string fileName = $"{reportName}_{time}.xls";
@@ -350,13 +350,13 @@ namespace Services
             {
                 DataRow row = dataTable.NewRow();
                 row["Project Id"] = projectEffort.Key;
-                row["Total Effort"] = projectEffort.Value.TohhmmFormatString();
+                row["Total Effort"] = dataService.TohhmmFormatString(projectEffort.Value);
                 dataTable.Rows.Add(row);
             }
             WriteExcel(ref dataTable, exportPath, fileName);
         }
 
-        private static void WriteExcel(ref DataTable dataTable, in string filePath, in string reportName = "data")
+        private void WriteExcel(ref DataTable dataTable, in string filePath, in string reportName = "data")
         {
             if (dataTable is not null && !string.IsNullOrEmpty(filePath))
             {
@@ -386,7 +386,7 @@ namespace Services
                         streamWriter.WriteLine();
                     }
                 }
-                ConsoleLogger.LogSameLine($"Exported {reportName}: ", 0); ConsoleLogger.LogDataSameLine(filePath);
+                logger.LogSameLine($"Exported {reportName}: ", 0); logger.LogDataSameLine(filePath);
             }
         }
     }

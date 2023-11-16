@@ -3,28 +3,21 @@ using Utilities;
 
 namespace Actions
 {
-    [SettingName("CalculatePunchMovement")]
-    internal class CalculatePunchMovementAction : IAction
+    [ActionName("CalculatePunchMovement")]
+    internal class CalculatePunchMovementAction(bool run, string inputFolder, string time, ILogger logger) : IAction
     {
-        private readonly string _time;
+        public string InputFolder => inputFolder;
 
-        public CalculatePunchMovementAction(bool run, string inputFolder, string time)
-        {
-            Run = run;
-            InputFolder = inputFolder;
-            _time = time;
-        }
-
-        public string InputFolder { get; }
-        public bool Run { get; }
+        public bool Run => run;
 
         public bool Execute()
         {
+            var exportFolder = @$"{InputFolder}\Reports_{time}";
             Matcher punchMovementMatcher = new();
             _ = punchMovementMatcher.AddInclude(Constants.PunchMovementPattern);
             List<string> PunchMovementFiles = punchMovementMatcher.GetResultsInFullPath(InputFolder).ToList();
-            ConsoleLogger.LogInfo("PunchMovement Files found:", 1);
-            PunchMovementFiles.ForEach(pm => ConsoleLogger.Log(new FileInfo(pm).Name));
+            logger.LogInfo("PunchMovement Files found:", 1);
+            PunchMovementFiles.ForEach(pm => logger.Log(new FileInfo(pm).Name));
             bool res = true;
             return res;
         }

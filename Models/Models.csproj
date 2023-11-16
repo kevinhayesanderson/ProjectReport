@@ -17,4 +17,18 @@
     <DebugSymbols>False</DebugSymbols>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="userSettings-schema.json" />
+    <None Remove="userSettings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="userSettings-schema.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="userSettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

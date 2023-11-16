@@ -1,6 +1,6 @@
 ﻿namespace Utilities
 {
-    public static class ConsoleLogger
+    public class ConsoleLogger : ILogger
     {
         private enum LogType
         {
@@ -11,16 +11,22 @@
             Error
         }
 
-        public static void ExitApplication()
+        public void ExitApplication()
         {
             Log("Press any key to exit.", 1);
             _ = Console.ReadKey();
             Environment.Exit(0);
         }
 
-        public static void Log(string message, int line = 0) => Log(LogType.Normal, message, line);
+        public void ExitApplication(string exitMessage)
+        {
+            Log(exitMessage, 1);
+            ExitApplication();
+        }
 
-        public static void LogChar(char character, int length)
+        public void Log(string message, int line = 0) => Log(LogType.Normal, message, line);
+
+        public void LogChar(char character, int length)
         {
             for (int i = 0; i < length; i++)
             {
@@ -28,24 +34,24 @@
             }
         }
 
-        public static void LogData(string data, int line = 0) => Log(LogType.Data, data, line);
+        public void LogData(string data, int line = 0) => Log(LogType.Data, data, line);
 
-        public static void LogDataSameLine(string data, int line = 0) => Log(LogType.Data, data, 0, line, true);
+        public void LogDataSameLine(string data, int line = 0) => Log(LogType.Data, data, 0, line, true);
 
-        public static void LogError(string message, int line = 0) => Log(LogType.Error, message, line);
+        public void LogError(string message, int line = 0) => Log(LogType.Error, message, line);
 
-        public static void LogErrorAndExit(string message, int line = 1)
+        public void LogErrorAndExit(string message, int line = 1)
         {
             LogLine(line);
             LogError(message);
             ExitApplication();
         }
 
-        public static void LogInfo(string message, int line = 0) => Log(LogType.Info, message, line);
+        public void LogInfo(string message, int line = 0) => Log(LogType.Info, message, line);
 
-        public static void LogInfoSameLine(string message, int line = 0) => Log(LogType.Info, message, 0, line, true);
+        public void LogInfoSameLine(string message, int line = 0) => Log(LogType.Info, message, 0, line, true);
 
-        public static void LogLine(int lines = 1)
+        public void LogLine(int lines = 1)
         {
             for (int i = 0; i < lines; i++)
             {
@@ -53,18 +59,18 @@
             }
         }
 
-        public static void LogSameLine(string message, int line = 0) => Log(LogType.Normal, message, 0, line, true);
+        public void LogSameLine(string message, int line = 0) => Log(LogType.Normal, message, 0, line, true);
 
-        public static void LogWarning(string message, int line = 0) => Log(LogType.Warning, message, line);
+        public void LogWarning(string message, int line = 0) => Log(LogType.Warning, message, line);
 
-        public static void LogWarningAndExit(string message, int line = 1)
+        public void LogWarningAndExit(string message, int line = 1)
         {
             LogLine(line);
             LogWarning(message);
             ExitApplication();
         }
 
-        private static void Log(LogType logType, string message, int lineBefore = 0, int lineAfter = 0, bool onSameLine = false)
+        private void Log(LogType logType, string message, int lineBefore = 0, int lineAfter = 0, bool onSameLine = false)
         {
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = logType switch
