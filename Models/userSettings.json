@@ -2,7 +2,7 @@
   "Actions": [
     {
       "Name": "GenerateConsolidatedReport",
-      "Run": true,
+      "Run": false,
       "InputFolder": "E:\\ProjectReport\\Requirements\\Test kit",
       "MonthlyReportIdCol": 3,
       "MonthlyReportMonths": [ "Jun-23", "Jul-23" ],
@@ -10,7 +10,7 @@
       "PtrBookingMonths": [ 6, "7|July_2023" ],
       "PtrEffortCols": [ 22 ],
       "PtrProjectIdCol": 2,
-      "PtrSheetName": "PTR_23"
+      "PtrSheetName": ""
     },
     {
       "Name": "GenerateLeaveReport",
@@ -20,6 +20,11 @@
     },
     {
       "Name": "CalculatePunchMovement",
+      "Run": true,
+      "InputFolder": "E:\\ProjectReport\\Requirements\\Second_requirement"
+    },
+    {
+      "Name": "InOutEntry",
       "Run": false,
       "InputFolder": "E:\\ProjectReport\\Requirements\\Test kit"
     }

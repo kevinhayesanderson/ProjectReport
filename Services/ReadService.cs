@@ -34,6 +34,14 @@ namespace Services
                 JsonSerializer serializer = new();
                 userSettings = serializer.Deserialize<UserSettings>(validatingReader);
 
+                if (messages.Count > 0)
+                {
+                    logger.LogError("Validation error on reading user settings:", 1);
+                    messages.ForEach(message => logger.LogError(message));
+                    logger.LogError("Refer documentation to solve above error");
+                    return null;
+                }
+
                 if (userSettings is not null)
                 {
                     logger.LogInfo("User settings:", 1);
@@ -51,12 +59,14 @@ namespace Services
                 }
                 else
                 {
-                    logger.LogErrorAndExit("Error on reading user settings: null userSettings value");
+                    logger.LogError("Error on reading user settings: null userSettings value");
+                    return null;
                 }
             }
             catch (Exception ex)
             {
-                logger.LogErrorAndExit($"Error on reading user settings: {ex}");
+                logger.LogError($"Error on reading user settings: {ex}");
+                throw;
             }
             return userSettings;
         }
@@ -69,7 +79,7 @@ namespace Services
             {
                 try
                 {
-                    logger.LogInfo("Reading " + new FileInfo(report).Name, 1);
+                    logger.LogInfo($"Reading {new FileInfo(report).Name}", 1);
                     using FileStream fileStream = File.Open(report, FileMode.Open, FileAccess.Read);
                     using IExcelDataReader reader = ExcelReaderFactory.CreateReader(fileStream, null);
                     DataTableCollection tables = ExcelDataReaderExtensions.AsDataSet(reader, null).Tables;
@@ -80,13 +90,13 @@ namespace Services
                     {
                         if (string.IsNullOrEmpty(((string)dataTableList[0].Rows[3][2]).Trim()))
                         {
-                            throw new ArgumentException("Employee name is empty or has an invalid format in the sheet " + dataTableList[0].TableName + ": Check row " + 4 + " at column " + 3);
+                            throw new ArgumentException($"Employee name is empty or has an invalid format in the sheet {dataTableList[0].TableName}: Check row {4} at column {3}");
                         }
                         string employeeName = (string)dataTableList[0].Rows[3][2];
                         employeeName = employeeName.Trim();
                         if (!int.TryParse(dataTableList[0].Rows[4][2].ToString(), out int employeeId))
                         {
-                            throw new ArgumentException("Employee Id is empty or has an invalid format in the sheet " + dataTableList[0].TableName + ": Check row " + 5 + " at column " + 3);
+                            throw new ArgumentException($"Employee Id is empty or has an invalid format in the sheet {dataTableList[0].TableName}: Check row {5} at column {3}");
                         }
                         Dictionary<string, TimeSpan> projectData = [];
                         logger.LogSameLine("Reading Sheet: ");
@@ -162,7 +172,8 @@ namespace Services
                             }
                             catch (Exception ex)
                             {
-                                logger.LogErrorAndExit($"Error on reading sheet {dataTable.TableName}: {ex}");
+                                logger.LogError($"Error on reading sheet {dataTable.TableName}: {ex}");
+                                throw;
                             }
                         }
                         employeeDataList.Add(new EmployeeData()
@@ -177,12 +188,13 @@ namespace Services
                     }
                     else
                     {
-                        logger.LogWarning("No sheets found for the filter condition in monthly report " + report + ".");
+                        logger.LogWarning($"No sheets found for the filter condition in monthly report {report}.");
                     }
                 }
                 catch (Exception ex)
                 {
-                    logger.LogErrorAndExit($"Error on reading monthly report {report}: {ex}");
+                    logger.LogError($"Error on reading monthly report {report}: {ex}");
+                    throw;
                 }
             }
             return new MonthlyReportData()
@@ -196,34 +208,37 @@ namespace Services
         {
             PtrData ptrData = new();
             _ptrBookingMonthCol = bookingMonthCol;
-            bool isBookingMonth = false;
-            if (bookingMonths.Length != 0 && ConvertInputBookingMonths(bookingMonths))
-            {
-                isBookingMonth = true;
-                logger.LogLine();
-            }
-            else
-            {
-                logger.LogErrorAndExit($"Error converting Ptr booking months: {bookingMonths}");
-            }
             try
             {
+                if (bookingMonths.Length != 0 && ConvertInputBookingMonths(bookingMonths))
+                {
+                    logger.LogLine();
+                }
+                else
+                {
+                    string errMessage = $"Error converting Ptr booking months: {bookingMonths}";
+                    logger.LogError(errMessage);
+                    throw new FormatException(errMessage);
+                }
+
                 Dictionary<string, TimeSpan> projectEfforts = [];
                 HashSet<string> projectIds = [];
                 foreach (string ptrFile in reports)
                 {
-                    logger.LogInfo("Reading " + new FileInfo(ptrFile).Name);
+                    logger.LogInfo($"Reading {new FileInfo(ptrFile).Name}");
                     using FileStream fileStream = File.Open(ptrFile, FileMode.Open, FileAccess.Read);
                     using IExcelDataReader reader = ExcelReaderFactory.CreateReader(fileStream, null);
                     DataTable? table = ExcelDataReaderExtensions.AsDataSet(reader, null).Tables[sheetName];
                     if (table == null)
                     {
-                        logger.LogErrorAndExit("Error on reading Ptr: no sheet found for name " + sheetName);
+                        string errMessage = $"Error on reading Ptr: no sheet found for name {sheetName}";
+                        logger.LogError(errMessage);
+                        throw new FormatException(errMessage);
                     }
                     else
                     {
                         List<DataRow> list = table.AsEnumerable().Where(r => r[bookingMonthCol - 1] != DBNull.Value).Skip(1).ToList();
-                        List<DataRow> rows = isBookingMonth ? list.Where(IsRowOfBookingMonth).ToList() : list;
+                        List<DataRow> rows = bookingMonths.Length != 0 ? list.Where(IsRowOfBookingMonth).ToList() : list;
                         projectIdCol--;
                         if (rows.Count != 0)
                         {
@@ -260,7 +275,9 @@ namespace Services
                                         }
                                         else
                                         {
-                                            logger.LogErrorAndExit($"Unknown format of the effort value at column: {ef} at row: {rowIndex}");
+                                            string errMessage = $"Unknown format of the effort value at column: {ef} at row: {rowIndex}";
+                                            logger.LogError(errMessage);
+                                            throw new FormatException(errMessage);
                                         }
                                     });
                                     if (projectEfforts.ContainsKey(key))
@@ -285,16 +302,56 @@ namespace Services
             }
             catch (Exception ex)
             {
-                logger.LogErrorAndExit($"Error on reading Ptr: {ex}");
+                logger.LogError($"Error on reading Ptr: {ex}");
+                throw;
             }
             return ptrData;
         }
 
-        public EmployeePunchData ReadPunchMovementReport()
+        public PunchMovementData ReadPunchMovementReports(List<string> reports)
         {
-            EmployeePunchData employeePunchData = new();
-
-            return employeePunchData;
+            List<EmployeePunchData> employeePunchDatas = new List<EmployeePunchData>();
+            foreach (string report in reports)
+            {
+                try
+                {
+                    logger.LogInfo($"Reading {new FileInfo(report).Name}", 1);
+                    using FileStream fileStream = File.Open(report, FileMode.Open, FileAccess.Read);
+                    using IExcelDataReader reader = ExcelReaderFactory.CreateReader(fileStream, null);
+                    DataTableCollection tables = ExcelDataReaderExtensions.AsDataSet(reader, null).Tables;
+                    List<DataTable> dataTableList = tables.Cast<DataTable>().Select(dataTable => dataTable).ToList();
+                    if (dataTableList.Count > 0)
+                    {
+                        logger.LogSameLine("Reading Sheet: ");
+                        foreach (DataTable dataTable in dataTableList)
+                        {
+                            try
+                            {
+                                logger.LogDataSameLine(dataTable.TableName + ", ");
+                                DataRowCollection rows = dataTable.Rows;
+                            }
+                            catch (Exception ex)
+                            {
+                                logger.LogError($"Error on reading sheet {dataTable.TableName}: {ex}");
+                                throw;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        logger.LogWarning($"No sheets found in punch movement report {report}.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError($"Error on reading punch movement report {report}: {ex}");
+                    throw;
+                }
+            }
+            return new PunchMovementData()
+            {
+                EmployeePunchDatas = employeePunchDatas,
+            };
         }
 
         private bool ConvertInputBookingMonths(object[] inputBookingMonths)

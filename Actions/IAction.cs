@@ -77,8 +77,14 @@ namespace Actions
 
                 nameof(CalculatePunchMovementAction) => ((Func<CalculatePunchMovementAction>)(() =>
                 {
-                    return new CalculatePunchMovementAction(action.Run, action.InputFolder, time, logger);
+                    return new CalculatePunchMovementAction(action.Run, action.InputFolder, time, logger, readService, dataService, exportService);
                 }))(),
+
+                nameof(InOutEntryAction) => ((Func<InOutEntryAction>)(() =>
+                {
+                    return new InOutEntryAction(action.Run, action.InputFolder, time, logger, readService, exportService);
+                }))(),
+
                 _ => throw new NotImplementedException("Action not implemented.")
             };
         }

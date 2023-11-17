@@ -9,8 +9,9 @@ namespace Services
 {
     public class ExportService(ILogger logger, DataService dataService)
     {
-        public void ExportConsolidateData(in List<ConsolidatedData> consolidatedDataList, ref MonthlyReportData monthlyReportData, in string time, in string exportFolder)
+        public bool ExportConsolidateData(in List<ConsolidatedData> consolidatedDataList, ref MonthlyReportData monthlyReportData, in string time, in string exportFolder)
         {
+            bool res = true;
             logger.LogInfo("Exporting Consolidated Report:", 1);
             try
             {
@@ -116,12 +117,15 @@ namespace Services
             }
             catch (Exception ex)
             {
-                logger.LogErrorAndExit($"Error on exporting Consolidated Report: {ex}");
+                logger.LogError($"Error on exporting Consolidated Report: {ex}");
+                return false;
             }
+            return res;
         }
 
-        public void ExportLeaveReport(in List<string> monthlyReports, in string financialYear, in string exportFolder)
+        public bool ExportLeaveReport(in List<string> monthlyReports, in string financialYear, in string exportFolder)
         {
+            bool res = true;
             logger.LogInfo("Generating Leave Report for FY" + financialYear + ":", 1);
             List<string> sheetNames = dataService.GetFyMonths(financialYear);
             List<LeaveReportData> leaveReportDataList = [];
@@ -183,7 +187,8 @@ namespace Services
                                 catch (Exception ex)
                                 {
                                     hasReadErrors = true;
-                                    logger.LogErrorAndExit($"Error on generating leave report for {monthlyReport}: {ex}");
+                                    logger.LogError($"Error on generating leave report for {monthlyReport}: {ex}");
+                                    throw;
                                 }
                             }
                             else
@@ -267,8 +272,10 @@ namespace Services
             }
             else
             {
-                logger.LogErrorAndExit("Process stopped due to errors.");
+                logger.LogError("Process stopped due to errors.");
+                return false;
             }
+            return res;
         }
 
         public void ExportMonthlyReportInter(ref MonthlyReportData monthlyReportData, in string time, in string exportFolder)
@@ -354,6 +361,11 @@ namespace Services
                 dataTable.Rows.Add(row);
             }
             WriteExcel(ref dataTable, exportPath, fileName);
+        }
+
+        public bool ExportPunchMovementSummaryReport(in string exportFolder, in PunchMovementData employeePunchData)
+        {
+            throw new NotImplementedException();
         }
 
         private void WriteExcel(ref DataTable dataTable, in string filePath, in string reportName = "data")

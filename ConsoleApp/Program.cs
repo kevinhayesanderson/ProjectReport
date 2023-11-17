@@ -1,40 +1,36 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using ConsoleApplication;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Services;
 using Utilities;
 
-namespace ConsoleApplication;
+using IHost host = CreateHostBuilder().Build();
+using var scope = host.Services.CreateScope();
 
-internal static partial class Program
+var services = scope.ServiceProvider;
+var logger = services.GetRequiredService<ILogger>();
+var application = services.GetRequiredService<Application>();
+try
 {
-    private static void Main()
-    {
-        using IHost host = CreateHostBuilder().Build();
-        using var scope = host.Services.CreateScope();
+    application.Run();
+}
+catch (Exception ex)
+{
+    logger.LogError(ex.ToString());
+    application.ExitApplication();
+}
 
-        var services = scope.ServiceProvider;
-        var logger = services.GetRequiredService<ILogger>();
-        try
+static IHostBuilder CreateHostBuilder()
+{
+    return Host
+        .CreateDefaultBuilder()
+        .ConfigureServices((_, services) =>
         {
-            services.GetRequiredService<Application>().Run();
-        }
-        catch (Exception ex)
-        {
-            logger.LogErrorAndExit(ex.ToString());
-        }
-    }
-
-    private static IHostBuilder CreateHostBuilder()
-    {
-        return Host.CreateDefaultBuilder()
-            .ConfigureServices((_, services) =>
-            {
-                services.AddSingleton<ILogger, ConsoleLogger>();
-                services.AddSingleton<DataService>();
-                services.AddSingleton<ReadService>();
-                services.AddSingleton<WriteService>();
-                services.AddSingleton<ExportService>();
-                services.AddSingleton<Application>();
-            });
-    }
+            services.AddSingleton<ILogger, ConsoleLogger>();
+            services.AddSingleton<DataService>();
+            services.AddSingleton<ReadService>();
+            services.AddSingleton<WriteService>();
+            services.AddSingleton<ExportService>();
+            services.AddSingleton<Application>();
+        });
 }

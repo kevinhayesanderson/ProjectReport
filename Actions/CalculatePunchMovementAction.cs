@@ -1,10 +1,11 @@
 ﻿using Microsoft.Extensions.FileSystemGlobbing;
+using Services;
 using Utilities;
 
 namespace Actions
 {
     [ActionName("CalculatePunchMovement")]
-    internal class CalculatePunchMovementAction(bool run, string inputFolder, string time, ILogger logger) : IAction
+    internal class CalculatePunchMovementAction(bool run, string inputFolder, string time, ILogger logger, ReadService readService, DataService dataService, ExportService exportService) : IAction
     {
         public string InputFolder => inputFolder;
 
@@ -18,8 +19,9 @@ namespace Actions
             List<string> PunchMovementFiles = punchMovementMatcher.GetResultsInFullPath(InputFolder).ToList();
             logger.LogInfo("PunchMovement Files found:", 1);
             PunchMovementFiles.ForEach(pm => logger.Log(new FileInfo(pm).Name));
-            bool res = true;
-            return res;
+            var punchMovementData = readService.ReadPunchMovementReports(PunchMovementFiles);
+            dataService.CalculatePunchMovement(punchMovementData);
+            return exportService.ExportPunchMovementSummaryReport(in exportFolder, in punchMovementData);
         }
     }
 }

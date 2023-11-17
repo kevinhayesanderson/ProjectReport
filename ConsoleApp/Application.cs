@@ -16,13 +16,11 @@ namespace ConsoleApplication
 
             Console.Clear();
 
-            AppDomain.CurrentDomain.ProcessExit += (sender, args) => ExitHandler(cts);
-
             Console.CancelKeyPress += (sender, args) => ExitHandler(cts);
 
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-            Console.Title = $"Project Report Application PID:{Environment.ProcessId} Date_Time:{time}";
+            Console.Title = $"Project Report Application PID:{Environment.ProcessId}";
 
             logger.LogInfo($"Running Project Report Application at Date_Time:{time}");
 
@@ -34,17 +32,25 @@ namespace ConsoleApplication
 
                 if (!res)
                 {
-                    logger.LogErrorAndExit($"Application Error", 2);
+                    ExitApplication($"Application Error", 2);
                 }
             }
 
-            logger.ExitApplication("Exiting application.");
+            ExitApplication("Exiting application.");
         }
 
         private void ExitHandler(CancellationTokenSource cts)
         {
             cts.Cancel();
-            logger.ExitApplication("Exiting...");
+            logger.LogWarning("Application canceled by user");
+            ExitApplication("Exiting application.");
+        }
+
+        public void ExitApplication(string exitMessage = "", int line = 1)
+        {
+            if (!string.IsNullOrEmpty(exitMessage))
+                logger.Log(exitMessage, line);
+            Environment.Exit(0);
         }
     }
 }

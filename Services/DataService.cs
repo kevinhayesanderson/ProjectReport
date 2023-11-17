@@ -9,6 +9,11 @@ namespace Services
     {
         public long[] Months => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
+        public void CalculatePunchMovement(PunchMovementData punchMovementData)
+        {
+            throw new NotImplementedException();
+        }
+
         public List<ConsolidatedData> Consolidate(PtrData ptrData, MonthlyReportData monthlyReportData)
         {
             List<ConsolidatedData> consolidatedDataList = [];
@@ -35,7 +40,8 @@ namespace Services
             }
             catch (Exception ex)
             {
-                logger.LogErrorAndExit("Error on consolidating data: " + ex.ToString() + " ");
+                logger.LogError($"Error on consolidating data: {ex} ");
+                throw;
             }
             return consolidatedDataList;
         }
@@ -45,18 +51,18 @@ namespace Services
             string[] strArray = financialYear.Split('-');
             return
             [
-                "Apr-" + strArray[0],
-                "May-" + strArray[0],
-                "Jun-" + strArray[0],
-                "Jul-" + strArray[0],
-                "Aug-" + strArray[0],
-                "Sep-" + strArray[0],
-                "Oct-" + strArray[0],
-                "Nov-" + strArray[0],
-                "Dec-" + strArray[0],
-                "Jan-" + strArray[1],
-                "Feb-" + strArray[1],
-                "Mar-" + strArray[1]
+                $"Apr-{strArray[0]}",
+                $"May-{strArray[0]}",
+                $"Jun-{strArray[0]}",
+                $"Jul-{strArray[0]}",
+                $"Aug-{strArray[0]}",
+                $"Sep-{strArray[0]}",
+                $"Oct-{strArray[0]}",
+                $"Nov-{strArray[0]}",
+                $"Dec-{strArray[0]}",
+                $"Jan-{strArray[1]}",
+                $"Feb-{strArray[1]}",
+                $"Mar-{strArray[1]}"
             ];
         }
 

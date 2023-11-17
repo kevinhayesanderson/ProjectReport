@@ -23,10 +23,10 @@ namespace Actions
 
         public bool Execute()
         {
-            bool res = false;
-            MonthlyReportData _monthlyReportData = new();
-            PtrData _ptrData = new();
+            bool res = true;
             var _exportFolder = @$"{InputFolder}\Reports_{time}";
+
+            MonthlyReportData? _monthlyReportData = default;
             List<string> monthlyReports = Helper.GetMonthlyReports(InputFolder);
             if (monthlyReports.Count > 0)
             {
@@ -37,9 +37,11 @@ namespace Actions
             }
             else
             {
-                logger.LogWarningAndExit($"No Monthly reports found on {InputFolder}, needed monthly reports to generate consolidated report or leave report.");
+                logger.LogWarning($"No Monthly reports found on {InputFolder}, needed monthly reports to generate consolidated report or leave report.");
+                return false;
             }
 
+            PtrData? _ptrData = default;
             Matcher ptrMatcher = new();
             _ = ptrMatcher.AddInclude(Constants.PTRPattern);
             List<string> ptrFiles = ptrMatcher.GetResultsInFullPath(InputFolder).ToList();
@@ -52,7 +54,8 @@ namespace Actions
             }
             else
             {
-                logger.LogWarningAndExit($"No PTR found on {InputFolder}, needed PTR to generate consolidated report.");
+                logger.LogWarning($"No PTR found on {InputFolder}, needed PTR to generate consolidated report.");
+                return false;
             }
 
             if (_monthlyReportData != null && _ptrData != null)
@@ -64,14 +67,15 @@ namespace Actions
                 }
                 else
                 {
-                    logger.LogWarningAndExit($"Consolidated data is empty, modify filter conditions or check if data is present, otherwise report application error to {Constants.ApplicationDev}", 2);
+                    logger.LogWarning($"Consolidated data is empty, modify filter conditions or check if data is present, otherwise report application error to {Constants.ApplicationAdmin}", 2);
+                    return false;
                 }
             }
             else
             {
-                logger.LogWarningAndExit($"Either PTR or Monthly report data is empty, modify filter conditions or check if data is present, otherwise report application error to {Constants.ApplicationDev}", 2);
+                logger.LogWarning($"Either PTR or Monthly report data is empty, modify filter conditions or check if data is present, otherwise report application error to {Constants.ApplicationAdmin}", 2);
+                return false;
             }
-            res = true;
             return res;
         }
     }

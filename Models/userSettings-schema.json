@@ -6,17 +6,17 @@
     "Actions": {
       "type": "array",
       "minItems": 1,
-      "maxItems": 3,
+      "maxItems": 4,
       "uniqueItems": true,
       "items": {
         "type": "object",
         "properties": {
           "Name": {
-            "default": "GenerateConsolidatedReport",
             "enum": [
               "GenerateConsolidatedReport",
               "GenerateLeaveReport",
-              "CalculatePunchMovement"
+              "CalculatePunchMovement",
+              "InOutEntry"
             ]
           },
           "Run": {
@@ -39,7 +39,7 @@
               "properties": {
                 "MonthlyReportIdCol": {
                   "type": "number",
-                  "default": 4 
+                  "default": 4
                 },
                 "MonthlyReportMonths": {
                   "type": "array",
@@ -106,6 +106,21 @@
               "properties": {
                 "Name": {
                   "const": "CalculatePunchMovement"
+                }
+              },
+              "required": [
+                "Name"
+              ]
+            },
+            "then": {
+              "properties": {}
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "Name": {
+                  "const": "InOutEntry"
                 }
               },
               "required": [
