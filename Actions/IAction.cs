@@ -69,21 +69,11 @@ namespace Actions
                     return new GenerateConsolidatedReportAction(action.Run, action.InputFolder, time, logger, monthlyReportMonths, monthlyReportIdCol, ptrBookingMonthCol, ptrBookingMonths, ptrEffortCols, ptrProjectIdCol, ptrSheetName, dataService, readService, exportService);
                 }))(),
 
-                nameof(GenerateLeaveReportAction) => ((Func<GenerateLeaveReportAction>)(() =>
-                {
-                    var fy = action.FinancialYear ?? string.Empty;
-                    return new GenerateLeaveReportAction(action.Run, action.InputFolder, time, logger, fy, exportService);
-                }))(),
+                nameof(GenerateLeaveReportAction) => ((Func<GenerateLeaveReportAction>)(() => new GenerateLeaveReportAction(action.Run, action.InputFolder, time, logger, action.FinancialYear ?? string.Empty, exportService)))(),
 
-                nameof(CalculatePunchMovementAction) => ((Func<CalculatePunchMovementAction>)(() =>
-                {
-                    return new CalculatePunchMovementAction(action.Run, action.InputFolder, time, logger, readService, dataService, exportService);
-                }))(),
+                nameof(CalculatePunchMovementAction) => ((Func<CalculatePunchMovementAction>)(() => new CalculatePunchMovementAction(action.Run, action.InputFolder, time, logger, readService, dataService, exportService)))(),
 
-                nameof(InOutEntryAction) => ((Func<InOutEntryAction>)(() =>
-                {
-                    return new InOutEntryAction(action.Run, action.InputFolder, time, logger, readService, exportService);
-                }))(),
+                nameof(InOutEntryAction) => ((Func<InOutEntryAction>)(() => new InOutEntryAction(action.Run, action.InputFolder, time, logger, readService, exportService)))(),
 
                 _ => throw new NotImplementedException("Action not implemented.")
             };
