@@ -9,9 +9,73 @@ namespace Services
     {
         public long[] Months => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
-        public void CalculatePunchMovement(PunchMovementData punchMovementData)
+        public void CalculatePunchMovement(PunchMovementData punchMovementData, string cutOff)
         {
-            throw new NotImplementedException();
+            foreach (var punchDatas in punchMovementData.EmployeePunchDatas.Select(epd => epd.PunchDatas))
+            {
+                for (int i = 0; i < punchDatas.Count; i++)
+                {
+                    (int hour, int minute) = (int.Parse(cutOff.Split(':')[1]), int.Parse(cutOff.Split(':')[^1]));
+
+                    DateTime firstValue = punchDatas[i].Punches.First(punch => TimeOnly.FromDateTime(punch) >= new TimeOnly(hour, minute));
+
+                    IEnumerable<DateTime> InOuts = Enumerable.Empty<DateTime>();
+
+                    bool lastOutPredicate(DateTime punch) => TimeOnly.FromDateTime(punch) <= new TimeOnly(hour, minute);
+
+                    bool TryGetLastOutForPreviousDay(List<DateTime> punches, out DateTime lastOut)
+                    {
+                        bool res = false;
+                        lastOut = DateTime.MinValue;
+                        res = punches.Exists(lastOutPredicate);
+                        if (res) lastOut = punches.Last(lastOutPredicate);
+                        return res;
+                    }
+
+                    bool isLastOutNextDay = false;
+
+                    DateTime lastValue;
+                    if ((i + 1) < punchDatas.Count && TryGetLastOutForPreviousDay(punchDatas[i + 1].Punches, out DateTime lastOut))
+                    {
+                        isLastOutNextDay = true;
+                        lastValue = lastOut;
+                        int subsetIndex = punchDatas[i + 1].Punches.IndexOf(lastValue);
+                        var nextDayInOuts = punchDatas[i + 1].Punches[..subsetIndex];
+                        var firstValueIndex = punchDatas[i].Punches.IndexOf(firstValue);
+                        InOuts = punchDatas[i].Punches[firstValueIndex..].Concat(nextDayInOuts);
+                    }
+                    else
+                    {
+                        lastValue = punchDatas[i].Punches[^1];
+                        var firstIndex = punchDatas[i].Punches.IndexOf(firstValue);
+                        var lastIndex = punchDatas[i].Punches.IndexOf(lastValue);
+                        InOuts = punchDatas[i].Punches[firstIndex..lastIndex];
+                    }
+
+                    TimeSpan breakTime = TimeSpan.MinValue;
+
+                    if (InOuts != null && (InOuts.Count() % 2 == 0))
+                    {
+                        var ins = InOuts.Where(io => Array.IndexOf(InOuts.ToArray(), io) % 2 == 0);
+                        var outs = InOuts.Except(ins);
+                        foreach ((DateTime outTime, DateTime inTime) in outs.Zip(ins))
+                        {
+                            breakTime.Add(TimeOnly.FromDateTime(outTime) - TimeOnly.FromDateTime(inTime));
+                        }
+                    }
+
+                    punchDatas[i] = new PunchData
+                    {
+                        Date = punchDatas[i].Date,
+                        Punches = punchDatas[i].Punches,
+                        FirstInTime = firstValue,
+                        LastOutTime = lastValue,
+                        WorkHours = TimeOnly.FromDateTime(firstValue) - TimeOnly.FromDateTime(lastValue),
+                        BreakHours = breakTime,
+                        IsLastOutNextDay = isLastOutNextDay
+                    };
+                }
+            }
         }
 
         public List<ConsolidatedData> Consolidate(PtrData ptrData, MonthlyReportData monthlyReportData)

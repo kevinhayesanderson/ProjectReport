@@ -71,7 +71,7 @@ namespace Actions
 
                 nameof(GenerateLeaveReportAction) => ((Func<GenerateLeaveReportAction>)(() => new GenerateLeaveReportAction(action.Run, action.InputFolder, time, logger, action.FinancialYear ?? string.Empty, exportService)))(),
 
-                nameof(CalculatePunchMovementAction) => ((Func<CalculatePunchMovementAction>)(() => new CalculatePunchMovementAction(action.Run, action.InputFolder, time, logger, readService, dataService, exportService)))(),
+                nameof(CalculatePunchMovementAction) => ((Func<CalculatePunchMovementAction>)(() => new CalculatePunchMovementAction(action.Run, action.InputFolder, time, logger, action.CutOff ?? string.Empty, readService, dataService, exportService)))(),
 
                 nameof(InOutEntryAction) => ((Func<InOutEntryAction>)(() => new InOutEntryAction(action.Run, action.InputFolder, time, logger, readService, exportService)))(),
 

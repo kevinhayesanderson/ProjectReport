@@ -465,6 +465,11 @@ namespace Services
                 logger.LogSameLine("FinancialYear: ");
                 logger.LogDataSameLine(action.FinancialYear, 1);
             }
+            if (action.CutOff is not null)
+            {
+                logger.LogSameLine("Cut-off: ");
+                logger.LogDataSameLine(action.CutOff, 1);
+            }
         }
     }
 }

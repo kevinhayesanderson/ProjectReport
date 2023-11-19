@@ -113,7 +113,11 @@
               ]
             },
             "then": {
-              "properties": {}
+              "properties": {
+                "Cut-off": {
+                  "type": "string"
+                }
+              }
             }
           },
           {
