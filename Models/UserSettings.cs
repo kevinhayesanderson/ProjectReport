@@ -43,7 +43,7 @@
         [JsonPropertyName("FinancialYear")]
         public string? FinancialYear { get; set; }
 
-        [JsonPropertyName("Cut-off")]
+        [JsonPropertyName("CutOff")]
         public string? CutOff { get; set; }
     }
 }

@@ -15,18 +15,18 @@ namespace Services
             {
                 for (int i = 0; i < punchDatas.Count; i++)
                 {
-                    (int hour, int minute) = (int.Parse(cutOff.Split(':')[1]), int.Parse(cutOff.Split(':')[^1]));
+                    (int hour, int minute) = (int.Parse(cutOff.Split(':')[0]), int.Parse(cutOff.Split(':')[^1]));
 
-                    DateTime firstValue = punchDatas[i].Punches.First(punch => TimeOnly.FromDateTime(punch) >= new TimeOnly(hour, minute));
+                    TimeOnly firstValue = punchDatas[i].Punches.First(punch => punch >= new TimeOnly(hour, minute));
 
-                    IEnumerable<DateTime> InOuts = Enumerable.Empty<DateTime>();
+                    IEnumerable<TimeOnly> InOuts = Enumerable.Empty<TimeOnly>();
 
-                    bool lastOutPredicate(DateTime punch) => TimeOnly.FromDateTime(punch) <= new TimeOnly(hour, minute);
+                    bool lastOutPredicate(TimeOnly punch) => punch <= new TimeOnly(hour, minute);
 
-                    bool TryGetLastOutForPreviousDay(List<DateTime> punches, out DateTime lastOut)
+                    bool TryGetLastOutForPreviousDay(List<TimeOnly> punches, out TimeOnly lastOut)
                     {
                         bool res = false;
-                        lastOut = DateTime.MinValue;
+                        lastOut = TimeOnly.MinValue;
                         res = punches.Exists(lastOutPredicate);
                         if (res) lastOut = punches.Last(lastOutPredicate);
                         return res;
@@ -34,8 +34,8 @@ namespace Services
 
                     bool isLastOutNextDay = false;
 
-                    DateTime lastValue;
-                    if ((i + 1) < punchDatas.Count && TryGetLastOutForPreviousDay(punchDatas[i + 1].Punches, out DateTime lastOut))
+                    TimeOnly lastValue;
+                    if ((i + 1) < punchDatas.Count && TryGetLastOutForPreviousDay(punchDatas[i + 1].Punches, out TimeOnly lastOut))
                     {
                         isLastOutNextDay = true;
                         lastValue = lastOut;
@@ -49,19 +49,27 @@ namespace Services
                         lastValue = punchDatas[i].Punches[^1];
                         var firstIndex = punchDatas[i].Punches.IndexOf(firstValue);
                         var lastIndex = punchDatas[i].Punches.IndexOf(lastValue);
-                        InOuts = punchDatas[i].Punches[firstIndex..lastIndex];
+                        InOuts = punchDatas[i].Punches[firstIndex..(lastIndex+1)];
                     }
 
-                    TimeSpan breakTime = TimeSpan.MinValue;
+                    TimeSpan breakTime = TimeSpan.Zero;
 
-                    if (InOuts != null && (InOuts.Count() % 2 == 0))
+                    if (InOuts != null)
                     {
-                        var ins = InOuts.Where(io => Array.IndexOf(InOuts.ToArray(), io) % 2 == 0);
-                        var outs = InOuts.Except(ins);
-                        foreach ((DateTime outTime, DateTime inTime) in outs.Zip(ins))
+                        if (InOuts.Count() % 2 == 0)
                         {
-                            breakTime.Add(TimeOnly.FromDateTime(outTime) - TimeOnly.FromDateTime(inTime));
+                            var ins = InOuts.Where(io => Array.IndexOf(InOuts.ToArray(), io) % 2 == 0).ToArray();
+                            var outs = InOuts.Except(ins).ToArray();
+                            foreach ((TimeOnly outTime, TimeOnly inTime) in outs.Zip(ins[1..]))
+                            {
+                                breakTime += inTime - outTime;
+                            }
                         }
+                        else
+                        {
+
+                        }
+                        
                     }
 
                     punchDatas[i] = new PunchData
@@ -70,8 +78,9 @@ namespace Services
                         Punches = punchDatas[i].Punches,
                         FirstInTime = firstValue,
                         LastOutTime = lastValue,
-                        WorkHours = TimeOnly.FromDateTime(firstValue) - TimeOnly.FromDateTime(lastValue),
+                        TotalHours = lastValue - firstValue,
                         BreakHours = breakTime,
+                        WorkHours = lastValue - firstValue - breakTime,
                         IsLastOutNextDay = isLastOutNextDay
                     };
                 }

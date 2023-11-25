@@ -3,6 +3,7 @@ using Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Schema;
 using System.Data;
+using System.Globalization;
 using Utilities;
 
 namespace Services
@@ -111,7 +112,7 @@ namespace Services
                                 int lastColumnIndex;
                                 int actualAvailableHoursRowIndex = 13;
                                 lastColumnIndex = rows[actualAvailableHoursRowIndex].ItemArray.Length - 1;
-                                if (TimeSpan.TryParse(rows[actualAvailableHoursRowIndex][lastColumnIndex].ToString(), System.Globalization.CultureInfo.InvariantCulture, out TimeSpan actualAvailableHours))
+                                if (TimeSpan.TryParse(rows[actualAvailableHoursRowIndex][lastColumnIndex].ToString(), out TimeSpan actualAvailableHours))
                                 {
                                     if (actualAvailableHours.Equals(new TimeSpan()))
                                     {
@@ -146,7 +147,7 @@ namespace Services
                                         }
 
                                         lastColumnIndex = rows[rowIndex].ItemArray.Length - 1;
-                                        if (TimeSpan.TryParse(rows[rowIndex][lastColumnIndex].ToString(), System.Globalization.CultureInfo.InvariantCulture, out TimeSpan hours))
+                                        if (TimeSpan.TryParse(rows[rowIndex][lastColumnIndex].ToString(), out TimeSpan hours))
                                         {
                                             if (hours.Equals(new TimeSpan()))
                                             {
@@ -310,7 +311,7 @@ namespace Services
 
         public PunchMovementData ReadPunchMovementReports(List<string> reports)
         {
-            List<EmployeePunchData> employeePunchDatas = new List<EmployeePunchData>();
+            List<EmployeePunchData> employeePunchDatas = [];
             foreach (string report in reports)
             {
                 try
@@ -324,11 +325,11 @@ namespace Services
                     {
                         int i = 0;
                         logger.LogSameLine("Reading Sheet: ");
-                        int eCodeColumn;
-                        int nameColumn;
-                        int dateColumn;
-                        int firstInOutColumn;
-                        int lastInOutColumn;
+                        int eCodeColumn = -1;
+                        int nameColumn = -1;
+                        int dateColumn = -1;
+                        int firstInOutColumn = -1;
+                        int lastInOutColumn = -1;
                         foreach (DataTable dataTable in dataTableList)
                         {
                             try
@@ -338,19 +339,43 @@ namespace Services
                                     eCodeColumn = Array.IndexOf(dataTable.Rows[0].ItemArray, "ECode");
                                     nameColumn = Array.IndexOf(dataTable.Rows[0].ItemArray, "Name");
                                     dateColumn = Array.IndexOf(dataTable.Rows[0].ItemArray, "Date");
-                                    firstInOutColumn = Array.FindIndex(dataTable.Rows[0].ItemArray, item => item.ToString().ToLower() == "in" || item.ToString().ToLower() == "out");
-                                    lastInOutColumn = Array.FindLastIndex(dataTable.Rows[0].ItemArray, item => item.ToString().ToLower() == "in" || item.ToString().ToLower() == "out");
+                                    firstInOutColumn = Array.FindIndex(dataTable.Rows[0].ItemArray, item => item?.ToString()?.ToLower() == "in" || item?.ToString()?.ToLower() == "out");
+                                    lastInOutColumn = Array.FindLastIndex(dataTable.Rows[0].ItemArray, item => item?.ToString()?.ToLower() == "in" || item?.ToString()?.ToLower() == "out");
                                 }
                                 logger.LogDataSameLine(dataTable.TableName + ", ");
                                 DataRowCollection rows = dataTable.Rows;
                                 int j = 0;
+                                EmployeePunchData employeePunchData = new();
                                 foreach (DataRow row in rows)
                                 {
                                     if (j==0)
                                     {
+                                        j++;
                                         continue;
                                     }
-                                    //var id = row.ItemArray[eCodeColumn].ToString();
+                                    if (DateTime.TryParse(row.ItemArray[dateColumn]?.ToString(), out DateTime date))
+                                    {
+                                        var name = row.ItemArray[nameColumn]?.ToString();
+                                        if (!string.IsNullOrEmpty(name) && int.TryParse(row.ItemArray[eCodeColumn]?.ToString(), out int id))
+                                        {
+                                            employeePunchData = new EmployeePunchData()
+                                            {
+                                                Name = name,
+                                                Id = id,
+                                                PunchDatas = []
+                                            };
+                                            employeePunchDatas.Add(employeePunchData);
+                                        }
+                                        employeePunchData.PunchDatas.Add(
+                                            new PunchData() 
+                                            { 
+                                                Date = date, 
+                                                Punches = row.ItemArray[firstInOutColumn..lastInOutColumn]
+                                                            .Where(item => item != null && DateTime.TryParse(item.ToString(), out _))
+                                                            .Select(item => TimeOnly.FromDateTime(DateTime.Parse(item?.ToString()!)))
+                                                            .ToList()
+                                            });
+                                    }
                                     j++;
                                 }
                             }
