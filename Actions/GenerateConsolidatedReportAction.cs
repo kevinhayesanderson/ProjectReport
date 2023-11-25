@@ -1,79 +1,85 @@
 ﻿using Microsoft.Extensions.FileSystemGlobbing;
 using Models;
 using Services;
-using Utilities;
 
 namespace Actions
 {
     [ActionName("GenerateConsolidatedReport")]
-    internal class GenerateConsolidatedReportAction(bool run,
-                                                    string inputFolder,
-                                                    string time,
-                                                    ILogger logger,
+    internal class GenerateConsolidatedReportAction(string inputFolder,
                                                     object[] monthlyReportMonths,
                                                     int monthlyReportIdCol,
                                                     int ptrBookingMonthCol,
                                                     object[] ptrBookingMonths,
                                                     object[] ptrEffortCols,
                                                     int ptrProjectIdCol,
-                                                    string ptrSheetName, DataService dataService, ReadService readService, ExportService exportService) : IAction
+                                                    string ptrSheetName) : Action
     {
-        public string InputFolder => inputFolder;
-        public bool Run => run;
+        private List<string> _monthlyReports = [];
+        private List<string> _ptrFiles = [];
 
-        public bool Execute()
+        public override bool Validate()
         {
             bool res = true;
-            var _exportFolder = @$"{InputFolder}\Reports_{time}";
+            if (!Directory.Exists(inputFolder))
+            {
+                Logger.LogError($"Directory doesn't exist: {inputFolder}", 2);
+                res = false;
+            }
+            else
+            {
+                _monthlyReports = Helper.GetMonthlyReports(inputFolder);
+                if (_monthlyReports.Count == 0)
+                {
+                    Logger.LogError($"No Monthly reports found on {inputFolder}, needed monthly reports to generate consolidated report.");
+                    res = false;
+                }
+                Matcher ptrMatcher = new();
+                _ = ptrMatcher.AddInclude(Constants.PTRPattern);
+                _ptrFiles = ptrMatcher.GetResultsInFullPath(inputFolder).ToList();
+                if (_ptrFiles.Count == 0)
+                {
+                    Logger.LogWarning($"No PTR found on {inputFolder}, needed PTR to generate consolidated report.");
+                    res = false;
+                }
+            }
+            return res;
+        }
+
+        public override bool Run()
+        {
+            bool res = true;
+            var _exportFolder = @$"{inputFolder}\Reports_{Time}";
 
             MonthlyReportData? _monthlyReportData = default;
-            List<string> monthlyReports = Helper.GetMonthlyReports(InputFolder);
-            if (monthlyReports.Count > 0)
-            {
-                logger.LogInfo("Monthly reports found:", 1);
-                monthlyReports.ForEach(mr => logger.Log(new FileInfo(mr).Name));
-                _monthlyReportData = readService.ReadMonthlyReports(monthlyReports, monthlyReportMonths, monthlyReportIdCol);
-                exportService.ExportMonthlyReportInter(ref _monthlyReportData, in time, in _exportFolder);
-            }
-            else
-            {
-                logger.LogWarning($"No Monthly reports found on {InputFolder}, needed monthly reports to generate consolidated report or leave report.");
-                return false;
-            }
+
+            Logger.LogInfo("Monthly reports found:", 1);
+            _monthlyReports.ForEach(mr => Logger.Log(new FileInfo(mr).Name));
+            _monthlyReportData = ReadService.ReadMonthlyReports(_monthlyReports, monthlyReportMonths, monthlyReportIdCol);
+            ExportService.ExportMonthlyReportInter(ref _monthlyReportData, Time, in _exportFolder);
 
             PtrData? _ptrData = default;
-            Matcher ptrMatcher = new();
-            _ = ptrMatcher.AddInclude(Constants.PTRPattern);
-            List<string> ptrFiles = ptrMatcher.GetResultsInFullPath(InputFolder).ToList();
-            if (ptrFiles.Count > 0)
-            {
-                logger.LogInfo("PTR's found:", 2);
-                ptrFiles.ForEach(ptr => logger.Log(new FileInfo(ptr).Name));
-                _ptrData = readService.ReadPtr(ptrFiles, ptrBookingMonthCol, ptrBookingMonths, ptrEffortCols, ptrProjectIdCol, ptrSheetName);
-                exportService.ExportPtrInter(ref _ptrData, in time, in _exportFolder);
-            }
-            else
-            {
-                logger.LogWarning($"No PTR found on {InputFolder}, needed PTR to generate consolidated report.");
-                return false;
-            }
+
+            Logger.LogInfo("PTR's found:", 2);
+            _ptrFiles.ForEach(ptr => Logger.Log(new FileInfo(ptr).Name));
+            _ptrData = ReadService.ReadPtr(_ptrFiles, ptrBookingMonthCol, ptrBookingMonths, ptrEffortCols, ptrProjectIdCol, ptrSheetName);
+            ExportService.ExportPtrInter(ref _ptrData, Time, in _exportFolder);
 
             if (_monthlyReportData != null && _ptrData != null)
             {
-                List<ConsolidatedData> ConsolidatedData = dataService.Consolidate(_ptrData, _monthlyReportData);
+                List<ConsolidatedData> ConsolidatedData = DataService.Consolidate(_ptrData, _monthlyReportData);
                 if (ConsolidatedData.Count > 0)
                 {
-                    exportService.ExportConsolidateData(in ConsolidatedData, ref _monthlyReportData, in time, in _exportFolder);
+                    ExportService.ExportConsolidateData(in ConsolidatedData, ref _monthlyReportData, Time, in _exportFolder);
                 }
                 else
                 {
-                    logger.LogWarning($"Consolidated data is empty, modify filter conditions or check if data is present, otherwise report application error to {Constants.ApplicationAdmin}", 2);
+                    Logger.LogWarning($"Consolidated data is empty, modify filter conditions or check if data is present, otherwise report application error to {Constants.ApplicationAdmin}", 2);
                     return false;
                 }
             }
             else
             {
-                logger.LogWarning($"Either PTR or Monthly report data is empty, modify filter conditions or check if data is present, otherwise report application error to {Constants.ApplicationAdmin}", 2);
+                Logger.LogWarning($"Either PTR or Monthly report data is empty, modify filter conditions or check if data is present, otherwise report application error to {Constants.ApplicationAdmin}", 2);
                 return false;
             }
             return res;

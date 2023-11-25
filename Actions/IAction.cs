@@ -3,57 +3,53 @@ using Utilities;
 
 namespace Actions
 {
-    public interface IAction
+    public abstract class Action
     {
-        public string InputFolder { get; }
-        public bool Run { get; }
 
-        public static bool ExecuteActions(Models.Action[] userActions, string time, ILogger logger, DataService dataService, ReadService readService, WriteService writeService, ExportService exportService, CancellationToken cancellationToken)
+        public static string Time { get; private set; }
+        public static ILogger Logger { get; private set; }
+        public static DataService DataService { get; private set; }
+        public static ReadService ReadService { get; private set; }
+        public static WriteService WriteService { get; private set; }
+        public static ExportService ExportService { get; private set; }
+
+        public static void Init(string time, ILogger logger, DataService dataService, ReadService readService, WriteService writeService, ExportService exportService)
+        {
+            Time = time;
+            Logger = logger;
+            DataService = dataService;
+            ReadService = readService;
+            WriteService = writeService;
+            ExportService = exportService;
+        }
+
+        public static bool ExecuteActions(IEnumerable<Models.Action> userActions, CancellationToken cancellationToken)
         {
             bool res = true;
-            var actions = InitiateActions(userActions, time, logger, dataService, readService, writeService, exportService);
-            var executableActions = Array.FindAll(actions, action => action.CanExecuteAction(logger));
-            for (int i = 0; i < executableActions.Length; i++)
+            var executableActions = userActions.Where(ua => ua.Run);
+            var actions = InitiateActions(executableActions);
+            foreach (var action in actions)
             {
                 if (cancellationToken.IsCancellationRequested) return false;
-                res = res && executableActions[i].Execute();
+                res = res && action.ValidateAndRun();
             }
             return res;
         }
 
-        private static IAction[] InitiateActions(Models.Action[] userActions, string time, ILogger logger, DataService dataService, ReadService readService, WriteService writeService, ExportService exportService)
+        public abstract bool Validate();
+
+        public abstract bool Run();
+
+        public bool ValidateAndRun()
         {
-            List<IAction> actions = [];
-            var executableUserActions = userActions.Where(ua => ua.Run).ToList();
-            var actionTypes = typeof(IAction).Assembly.GetTypes().Where(type => !type.IsInterface && type.IsAssignableTo(typeof(IAction))).ToList();
-            foreach (var actionType in actionTypes)
+            if (Validate())
             {
-                ActionNameAttribute attribute = actionType.GetCustomAttributes(typeof(ActionNameAttribute), false).OfType<ActionNameAttribute>().First();
-                if (executableUserActions.Select(eua => eua.Name).Contains(attribute.Name))
-                {
-                    actions.Add(InitializeAction(actionType, executableUserActions.Find(eua => eua.Name == attribute.Name)!, time, logger, dataService, readService, writeService, exportService));
-                }
+                return Run();
             }
-            return [.. actions];
+            return false;
         }
 
-        public bool CanExecuteAction(ILogger logger)
-        {
-            bool res = false;
-            if (Run && Directory.Exists(InputFolder))
-            {
-                res = true;
-            }
-            else
-            {
-                logger.LogError($"Directory doesn't exist: {InputFolder}", 2);
-            }
-            return res;
-        }
-
-        public bool Execute();
-
-        private static IAction InitializeAction(Type actionType, Models.Action action, string time, ILogger logger, DataService dataService, ReadService readService, WriteService writeService, ExportService exportService)
+        private static Action InitializeAction(Type actionType, Models.Action action)
         {
             return actionType.Name switch
             {
@@ -66,17 +62,41 @@ namespace Actions
                     var ptrBookingMonths = action.PtrBookingMonths ?? [];
                     var ptrEffortCols = action.PtrEffortCols ?? [];
                     var ptrSheetName = action.PtrSheetName ?? string.Empty;
-                    return new GenerateConsolidatedReportAction(action.Run, action.InputFolder, time, logger, monthlyReportMonths, monthlyReportIdCol, ptrBookingMonthCol, ptrBookingMonths, ptrEffortCols, ptrProjectIdCol, ptrSheetName, dataService, readService, exportService);
+                    return new GenerateConsolidatedReportAction(
+                        action.InputFolder,
+                        monthlyReportMonths,
+                        monthlyReportIdCol,
+                        ptrBookingMonthCol,
+                        ptrBookingMonths,
+                        ptrEffortCols,
+                        ptrProjectIdCol,
+                        ptrSheetName);
                 }))(),
 
-                nameof(GenerateLeaveReportAction) => ((Func<GenerateLeaveReportAction>)(() => new GenerateLeaveReportAction(action.Run, action.InputFolder, time, logger, action.FinancialYear ?? string.Empty, exportService)))(),
+                nameof(GenerateLeaveReportAction) => ((Func<GenerateLeaveReportAction>)(() => new GenerateLeaveReportAction(action.InputFolder, action.FinancialYear ?? string.Empty)))(),
 
-                nameof(CalculatePunchMovementAction) => ((Func<CalculatePunchMovementAction>)(() => new CalculatePunchMovementAction(action.Run, action.InputFolder, time, logger, action.CutOff ?? string.Empty, readService, dataService, exportService)))(),
+                nameof(CalculatePunchMovementAction) => ((Func<CalculatePunchMovementAction>)(() => new CalculatePunchMovementAction(action.InputFolder, action.CutOff ?? string.Empty)))(),
 
-                nameof(InOutEntryAction) => ((Func<InOutEntryAction>)(() => new InOutEntryAction(action.Run, action.InputFolder, time, logger, readService, exportService)))(),
+                nameof(InOutEntryAction) => ((Func<InOutEntryAction>)(() => new InOutEntryAction(action.InputFolder)))(),
 
                 _ => throw new NotImplementedException("Action not implemented.")
             };
+        }
+
+        private static IEnumerable<Action> InitiateActions(IEnumerable<Models.Action> userActions)
+        {
+            IEnumerable<Action> actions = Enumerable.Empty<Action>();
+            var executableUserActions = userActions.Where(ua => ua.Run).ToList();
+            var actionTypes = typeof(Action).Assembly.GetTypes().Where(type => type != typeof(Action) && type.IsAssignableTo(typeof(Action))).ToList();
+            foreach (var actionType in actionTypes)
+            {
+                ActionNameAttribute attribute = actionType.GetCustomAttributes(typeof(ActionNameAttribute), false).OfType<ActionNameAttribute>().First();
+                if (executableUserActions.Select(eua => eua.Name).Contains(attribute.Name))
+                {
+                    actions =  actions.Append(InitializeAction(actionType, executableUserActions.Find(eua => eua.Name == attribute.Name)!));
+                }
+            }
+            return actions;
         }
     }
 }

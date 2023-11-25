@@ -1,27 +1,43 @@
 ﻿using Microsoft.Extensions.FileSystemGlobbing;
 using Services;
-using Utilities;
 
 namespace Actions
 {
     [ActionName("CalculatePunchMovement")]
-    internal class CalculatePunchMovementAction(bool run, string inputFolder, string time, ILogger logger, string cutOff, ReadService readService, DataService dataService, ExportService exportService) : IAction
+    internal class CalculatePunchMovementAction(string inputFolder, string cutOff) : Action
     {
         public string InputFolder => inputFolder;
-
-        public bool Run => run;
-
-        public bool Execute()
+        private List<string> _punchMovementFiles = [];
+        public override bool Validate()
         {
-            var exportFolder = @$"{InputFolder}\Reports_{time}";
-            Matcher punchMovementMatcher = new();
-            _ = punchMovementMatcher.AddInclude(Constants.PunchMovementPattern);
-            List<string> PunchMovementFiles = punchMovementMatcher.GetResultsInFullPath(InputFolder).ToList();
-            logger.LogInfo("PunchMovement Files found:", 1);
-            PunchMovementFiles.ForEach(pm => logger.Log(new FileInfo(pm).Name));
-            var punchMovementData = readService.ReadPunchMovementReports(PunchMovementFiles);
-            dataService.CalculatePunchMovement(punchMovementData, cutOff);
-            return exportService.ExportPunchMovementSummaryReport(in exportFolder, in punchMovementData);
+            bool res = true;
+            if (!Directory.Exists(InputFolder))
+            {
+                Logger.LogError($"Directory doesn't exist: {InputFolder}", 2);
+                res = false;
+            }
+            else
+            {
+                Matcher punchMovementMatcher = new();
+                _ = punchMovementMatcher.AddInclude(Constants.PunchMovementPattern);
+                _punchMovementFiles = punchMovementMatcher.GetResultsInFullPath(InputFolder).ToList();
+                if (_punchMovementFiles.Count == 0)
+                {
+                    Logger.LogError($"No Punch Movement files found on {InputFolder}.");
+                    res = false;
+                }
+            }
+            return res;
+        }
+
+        public override bool Run()
+        {
+            var exportFolder = @$"{InputFolder}\Reports_{Time}";
+            Logger.LogInfo("PunchMovement Files found:", 1);
+            _punchMovementFiles.ForEach(pm => Logger.Log(new FileInfo(pm).Name));
+            var punchMovementData = ReadService.ReadPunchMovementReports(_punchMovementFiles);
+            DataService.CalculatePunchMovement(punchMovementData, cutOff);
+            return ExportService.ExportPunchMovementSummaryReport(in exportFolder, in punchMovementData);
         }
     }
 }

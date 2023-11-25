@@ -322,19 +322,44 @@ namespace Services
                     List<DataTable> dataTableList = tables.Cast<DataTable>().Select(dataTable => dataTable).ToList();
                     if (dataTableList.Count > 0)
                     {
+                        int i = 0;
                         logger.LogSameLine("Reading Sheet: ");
+                        int eCodeColumn;
+                        int nameColumn;
+                        int dateColumn;
+                        int firstInOutColumn;
+                        int lastInOutColumn;
                         foreach (DataTable dataTable in dataTableList)
                         {
                             try
-                            {
+                            {   
+                                if(i==0)
+                                {
+                                    eCodeColumn = Array.IndexOf(dataTable.Rows[0].ItemArray, "ECode");
+                                    nameColumn = Array.IndexOf(dataTable.Rows[0].ItemArray, "Name");
+                                    dateColumn = Array.IndexOf(dataTable.Rows[0].ItemArray, "Date");
+                                    firstInOutColumn = Array.FindIndex(dataTable.Rows[0].ItemArray, item => item.ToString().ToLower() == "in" || item.ToString().ToLower() == "out");
+                                    lastInOutColumn = Array.FindLastIndex(dataTable.Rows[0].ItemArray, item => item.ToString().ToLower() == "in" || item.ToString().ToLower() == "out");
+                                }
                                 logger.LogDataSameLine(dataTable.TableName + ", ");
                                 DataRowCollection rows = dataTable.Rows;
+                                int j = 0;
+                                foreach (DataRow row in rows)
+                                {
+                                    if (j==0)
+                                    {
+                                        continue;
+                                    }
+                                    //var id = row.ItemArray[eCodeColumn].ToString();
+                                    j++;
+                                }
                             }
                             catch (Exception ex)
                             {
                                 logger.LogError($"Error on reading sheet {dataTable.TableName}: {ex}");
                                 throw;
                             }
+                            i++;
                         }
                     }
                     else

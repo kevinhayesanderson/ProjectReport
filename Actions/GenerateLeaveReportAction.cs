@@ -1,21 +1,38 @@
 ﻿using Services;
-using Utilities;
 
 namespace Actions
 {
     [ActionName("GenerateLeaveReport")]
-    internal class GenerateLeaveReportAction(bool run, string inputFolder, string time, ILogger logger, string fy, ExportService exportService) : IAction
+    internal class GenerateLeaveReportAction(string inputFolder, string fy) : Action
     {
+        private List<string> _monthlyReports = [];
         public string InputFolder => inputFolder;
-        public bool Run => run;
-
-        public bool Execute()
+        public override bool Validate()
         {
-            var _exportFolder = @$"{InputFolder}\Reports_{time}";
-            List<string> monthlyReports = Helper.GetMonthlyReports(InputFolder);
-            logger.LogInfo("Monthly reports found:", 1);
-            monthlyReports.ForEach(mr => logger.Log(new FileInfo(mr).Name));
-            return exportService.ExportLeaveReport(in monthlyReports, fy, in _exportFolder);
+            bool res = true;
+            if (!Directory.Exists(InputFolder))
+            {
+                Logger.LogError($"Directory doesn't exist: {InputFolder}", 2);
+                res = false;
+            }
+            else
+            {
+                _monthlyReports = Helper.GetMonthlyReports(InputFolder);
+                if (_monthlyReports.Count == 0)
+                {
+                    Logger.LogError($"No Monthly reports found on {InputFolder}, needed monthly reports to generate leave report.");
+                    res = false;
+                }
+            }
+            return res;
+        }
+
+        public override bool Run()
+        {
+            var _exportFolder = @$"{InputFolder}\Reports_{Time}";
+            Logger.LogInfo("Monthly reports found:", 1);
+            _monthlyReports.ForEach(mr => Logger.Log(new FileInfo(mr).Name));
+            return ExportService.ExportLeaveReport(in _monthlyReports, fy, in _exportFolder);
         }
     }
 }

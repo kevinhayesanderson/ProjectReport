@@ -1,5 +1,4 @@
-﻿using Actions;
-using Services;
+﻿using Services;
 using System.Text;
 using System.Text.RegularExpressions;
 using Utilities;
@@ -28,7 +27,9 @@ namespace ConsoleApplication
 
             if (userSettings != null)
             {
-                var res = IAction.ExecuteActions(userSettings!.Actions, time, logger, dataService, readService, writeService, exportService, cts.Token);
+                Actions.Action.Init(time, logger, dataService, readService, writeService, exportService);
+
+                var res = Actions.Action.ExecuteActions(userSettings!.Actions, cts.Token);
 
                 if (!res)
                 {
