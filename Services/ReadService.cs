@@ -204,6 +204,11 @@ namespace Services
             };
         }
 
+        public MusterOptionsData ReadMusterOptions(List<string> musterOptionsReports)
+        {
+            throw new NotImplementedException();
+        }
+
         public PtrData ReadPtr(List<string> reports, int bookingMonthCol, object[] bookingMonths, object[] effortCols, int projectIdCol, string sheetName)
         {
             PtrData ptrData = new();

@@ -1,7 +1,13 @@
-﻿namespace Services
+﻿using Models;
+
+namespace Services
 {
     public class WriteService
     {
+        public bool WriteInOutEntry(List<string> monthlyReports, MusterOptionsData musterOptionsData, string _exportFolder)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     ////public class ExcelFile
