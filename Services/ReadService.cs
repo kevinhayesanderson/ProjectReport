@@ -3,7 +3,6 @@ using Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Schema;
 using System.Data;
-using System.Globalization;
 using Utilities;
 
 namespace Services
@@ -333,8 +332,8 @@ namespace Services
                         foreach (DataTable dataTable in dataTableList)
                         {
                             try
-                            {   
-                                if(i==0)
+                            {
+                                if (i == 0)
                                 {
                                     eCodeColumn = Array.IndexOf(dataTable.Rows[0].ItemArray, "ECode");
                                     nameColumn = Array.IndexOf(dataTable.Rows[0].ItemArray, "Name");
@@ -348,7 +347,7 @@ namespace Services
                                 EmployeePunchData employeePunchData = new();
                                 foreach (DataRow row in rows)
                                 {
-                                    if (j==0)
+                                    if (j == 0)
                                     {
                                         j++;
                                         continue;
@@ -367,10 +366,10 @@ namespace Services
                                             employeePunchDatas.Add(employeePunchData);
                                         }
                                         employeePunchData.PunchDatas.Add(
-                                            new PunchData() 
-                                            { 
-                                                Date = date, 
-                                                Punches = row.ItemArray[firstInOutColumn..lastInOutColumn]
+                                            new PunchData()
+                                            {
+                                                Date = date,
+                                                Punches = row.ItemArray[firstInOutColumn..(lastInOutColumn + 1)]
                                                             .Where(item => item != null && DateTime.TryParse(item.ToString(), out _))
                                                             .Select(item => TimeOnly.FromDateTime(DateTime.Parse(item?.ToString()!)))
                                                             .ToList()

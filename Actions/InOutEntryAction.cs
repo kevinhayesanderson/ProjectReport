@@ -3,8 +3,14 @@
     [ActionName("InOutEntry")]
     internal class InOutEntryAction(string inputFolder) : Action
     {
-        public string InputFolder => inputFolder;
         private List<string> _monthlyReports = [];
+        public string InputFolder => inputFolder;
+        public override bool Run()
+        {
+            bool res = true;
+            return res;
+        }
+
         public override bool Validate()
         {
             bool res = true;
@@ -22,12 +28,6 @@
                     res = false;
                 }
             }
-            return res;
-        }
-
-        public override bool Run()
-        {
-            bool res = true;
             return res;
         }
     }

@@ -7,6 +7,15 @@ namespace Actions
     {
         private List<string> _monthlyReports = [];
         public string InputFolder => inputFolder;
+
+        public override bool Run()
+        {
+            var _exportFolder = @$"{InputFolder}\Reports_{Time}";
+            Logger.LogInfo("Monthly reports found:", 1);
+            _monthlyReports.ForEach(mr => Logger.Log(new FileInfo(mr).Name));
+            return ExportService.ExportLeaveReport(in _monthlyReports, fy, in _exportFolder);
+        }
+
         public override bool Validate()
         {
             bool res = true;
@@ -25,14 +34,6 @@ namespace Actions
                 }
             }
             return res;
-        }
-
-        public override bool Run()
-        {
-            var _exportFolder = @$"{InputFolder}\Reports_{Time}";
-            Logger.LogInfo("Monthly reports found:", 1);
-            _monthlyReports.ForEach(mr => Logger.Log(new FileInfo(mr).Name));
-            return ExportService.ExportLeaveReport(in _monthlyReports, fy, in _exportFolder);
         }
     }
 }

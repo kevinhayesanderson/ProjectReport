@@ -67,26 +67,26 @@ namespace Services
                 {
                     consDtRow = dataTable.NewRow();
                     consDtRow["Project Id"] = consolidatedData.ProjectId;
-                    consDtRow["Total Effort as per PTR"] = dataService.TohhmmFormatString(consolidatedData.TotalEffort);
+                    consDtRow["Total Effort as per PTR"] = DataService.TohhmmFormatString(consolidatedData.TotalEffort);
                     TotalEffort += consolidatedData.TotalEffort;
                     TimeSpan totalActualEffort = TimeSpan.Zero;
                     EmployeeActualEfforts.Where(eae => eae.ProjectId.Equals(consolidatedData.ProjectId, StringComparison.Ordinal)).ToList().ForEach(eae =>
                     {
                         totalActualEffort += eae.ActualEffort;
-                        consDtRow[$"{eae.Name}({eae.Id})"] = dataService.TohhmmFormatString(eae.ActualEffort);
+                        consDtRow[$"{eae.Name}({eae.Id})"] = DataService.TohhmmFormatString(eae.ActualEffort);
                     });
-                    consDtRow["Total Actual Effort as per Monthly report"] = dataService.TohhmmFormatString(totalActualEffort);
+                    consDtRow["Total Actual Effort as per Monthly report"] = DataService.TohhmmFormatString(totalActualEffort);
                     TotalActualEffort += totalActualEffort;
                     dataTable.Rows.Add(consDtRow);
                 }
                 consDtRow = dataTable.NewRow();
                 consDtRow["Project Id"] = "Total Hours";
-                consDtRow["Total Effort as per PTR"] = dataService.TohhmmFormatString(TotalEffort);
-                consDtRow["Total Actual Effort as per Monthly report"] = dataService.TohhmmFormatString(TotalActualEffort);
+                consDtRow["Total Effort as per PTR"] = DataService.TohhmmFormatString(TotalEffort);
+                consDtRow["Total Actual Effort as per Monthly report"] = DataService.TohhmmFormatString(TotalActualEffort);
                 monthlyReportData.EmployeesData.Where(ed => employeeNames.Contains($"{ed.Name}({ed.Id})")).ToList()
                     .ForEach(ed =>
                     {
-                        consDtRow[$"{ed.Name}({ed.Id})"] = dataService.TohhmmFormatString(ed.TotalProjectHours);
+                        consDtRow[$"{ed.Name}({ed.Id})"] = DataService.TohhmmFormatString(ed.TotalProjectHours);
                     });
                 dataTable.Rows.Add(consDtRow);
                 consDtRow = dataTable.NewRow();
@@ -96,10 +96,10 @@ namespace Services
                 monthlyReportData.EmployeesData.Where(ed => employeeNames.Contains($"{ed.Name}({ed.Id})")).ToList()
                    .ForEach(ed =>
                    {
-                       consDtRow[$"{ed.Name}({ed.Id})"] = dataService.TohhmmFormatString(ed.ActualAvailableHours);
+                       consDtRow[$"{ed.Name}({ed.Id})"] = DataService.TohhmmFormatString(ed.ActualAvailableHours);
                        totalActualAvailableHours += ed.ActualAvailableHours;
                    });
-                consDtRow["Total Actual Effort as per Monthly report"] = dataService.TohhmmFormatString(totalActualAvailableHours);
+                consDtRow["Total Actual Effort as per Monthly report"] = DataService.TohhmmFormatString(totalActualAvailableHours);
                 dataTable.Rows.Add(consDtRow);
                 consDtRow = dataTable.NewRow();
                 consDtRow["Project Id"] = "Total Leaves availed by team in Days";
@@ -320,7 +320,7 @@ namespace Services
                         DataRow monthlyDtRow = monthlyTable.NewRow();
                         monthlyDtRow["Name(Id)"] = $"{employeeData.Name}({employeeData.Id})";
                         monthlyDtRow["Project Id"] = pt.Key;
-                        monthlyDtRow["Actual Effort"] = dataService.TohhmmFormatString(pt.Value);
+                        monthlyDtRow["Actual Effort"] = DataService.TohhmmFormatString(pt.Value);
                         monthlyTable.Rows.Add(monthlyDtRow);
                     });
                 });
@@ -357,15 +357,147 @@ namespace Services
             {
                 DataRow row = dataTable.NewRow();
                 row["Project Id"] = projectEffort.Key;
-                row["Total Effort"] = dataService.TohhmmFormatString(projectEffort.Value);
+                row["Total Effort"] = DataService.TohhmmFormatString(projectEffort.Value);
                 dataTable.Rows.Add(row);
             }
             WriteExcel(ref dataTable, exportPath, fileName);
         }
 
-        public bool ExportPunchMovementSummaryReport(in string exportFolder, in PunchMovementData employeePunchData)
+        public bool ExportPunchMovementSummaryReport(in string exportFolder, in string time, in PunchMovementData employeePunchData)
         {
-            throw new NotImplementedException();
+            bool res = true;
+            logger.LogInfo("Exporting Punch movement summary report:", 1);
+            try
+            {
+                string reportName = "PunchMovementSummaryReport";
+                string sheetName = $"{reportName}_Sheet1";
+                string fileName = $"{reportName}_{time}.xls";
+                string exportPath = $"{exportFolder}\\{fileName}";
+
+                DataTable dataTable = new(sheetName);
+                DataColumn column1 = new()
+                {
+                    DataType = typeof(string),
+                    ColumnName = "Employee Id",
+                    Caption = "Employee Id",
+                    ReadOnly = false
+                };
+                dataTable.Columns.Add(column1);
+                DataColumn column2 = new()
+                {
+                    DataType = typeof(string),
+                    ColumnName = "Employee Name",
+                    Caption = "Employee Name",
+                    ReadOnly = false,
+                    Unique = false
+                };
+                dataTable.Columns.Add(column2);
+                DataColumn column3 = new()
+                {
+                    DataType = typeof(string),
+                    ColumnName = "Date",
+                    Caption = "Date",
+                    ReadOnly = false,
+                    Unique = false
+                };
+                dataTable.Columns.Add(column3);
+                DataColumn column4 = new()
+                {
+                    DataType = typeof(string),
+                    ColumnName = "First In",
+                    Caption = "First In",
+                    ReadOnly = false,
+                    Unique = false
+                };
+                dataTable.Columns.Add(column4);
+                DataColumn column5 = new()
+                {
+                    DataType = typeof(string),
+                    ColumnName = "Last Out",
+                    Caption = "Last Out",
+                    ReadOnly = false,
+                    Unique = false
+                };
+                dataTable.Columns.Add(column5);
+                DataColumn column6 = new()
+                {
+                    DataType = typeof(string),
+                    ColumnName = "IsLastOutNextDay",
+                    Caption = "IsLastOutNextDay",
+                    ReadOnly = false,
+                    Unique = false
+                };
+                dataTable.Columns.Add(column6);
+                DataColumn column7 = new()
+                {
+                    DataType = typeof(string),
+                    ColumnName = "Available Hours",
+                    Caption = "Available Hours",
+                    ReadOnly = false,
+                    Unique = false
+                };
+                dataTable.Columns.Add(column7);
+                DataColumn column8 = new()
+                {
+                    DataType = typeof(string),
+                    ColumnName = "Work Hours",
+                    Caption = "Work Hours",
+                    ReadOnly = false,
+                    Unique = false
+                };
+                dataTable.Columns.Add(column8);
+                DataColumn column9 = new()
+                {
+                    DataType = typeof(string),
+                    ColumnName = "Break Hours",
+                    Caption = "Break Hours",
+                    ReadOnly = false,
+                    Unique = false
+                };
+                dataTable.Columns.Add(column9);
+
+                void AddRow(PunchData punchData, DataRow row)
+                {
+                    row["Date"] = punchData.Date.ToShortDateString();
+                    row["First In"] = punchData.FirstInTime.ToShortTimeString();
+                    row["Last Out"] = punchData.LastOutTime.ToShortTimeString();
+                    row["IsLastOutNextDay"] = punchData.IsLastOutNextDay.ToString();
+                    row["Available Hours"] = DataService.TohhmmFormatString(punchData.AvailableHours);
+                    row["Work Hours"] = DataService.TohhmmFormatString(punchData.WorkHours);
+                    row["Break Hours"] = DataService.TohhmmFormatString(punchData.BreakHours);
+                }
+
+                foreach (var employeePunchDatas in employeePunchData.EmployeePunchDatas)
+                {
+                    DataRow row = dataTable.NewRow();
+                    row["Employee Id"] = employeePunchDatas.Id;
+                    row["Employee Name"] = employeePunchDatas.Name;
+                    AddRow(employeePunchDatas.PunchDatas[0], row);
+                    dataTable.Rows.Add(row);
+
+                    foreach (var punchData in employeePunchDatas.PunchDatas.Skip(1))
+                    {
+                        DataRow punchDataRow = dataTable.NewRow();
+                        AddRow(punchData, punchDataRow);
+                        dataTable.Rows.Add(punchDataRow);
+                    }
+
+                    DataRow summaryRow = dataTable.NewRow();
+                    summaryRow["Date"] = "Summary";
+                    summaryRow["Available Hours"] = DataService.TohhmmFormatString(employeePunchDatas.TotalAvailableHours);
+                    summaryRow["Work Hours"] = DataService.TohhmmFormatString(employeePunchDatas.TotalWorkHours);
+                    summaryRow["Break Hours"] = DataService.TohhmmFormatString(employeePunchDatas.TotalBreakHours);
+                    dataTable.Rows.Add(summaryRow);
+                }
+
+                WriteExcel(ref dataTable, exportPath, fileName);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error on exporting Punch movement summary report: {ex}");
+                return false;
+            }
+            return res;
         }
 
         private void WriteExcel(ref DataTable dataTable, in string filePath, in string reportName = "data")
