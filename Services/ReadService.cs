@@ -44,13 +44,14 @@ namespace Services
 
                 if (userSettings is not null)
                 {
-                    logger.LogInfo("User settings:", 1);
-                    for (int i = 0; i < userSettings.Actions.Length; i++)
+                    logger.LogInfo("Active actions:", 1);
+                    var activeActions = userSettings.Actions.Where(action => action.Run).ToArray();
+                    for (int i = 0; i < activeActions.Length; i++)
                     {
                         logger.LogChar('-', 100);
                         logger.LogLine(1);
-                        PrintAction(userSettings.Actions[i]);
-                        if (i == userSettings.Actions.Length - 1)
+                        PrintAction(activeActions[i]);
+                        if (i == activeActions.Length - 1)
                         {
                             logger.LogChar('-', 100);
                             logger.LogLine(1);
@@ -204,9 +205,65 @@ namespace Services
             };
         }
 
-        public MusterOptionsData ReadMusterOptions(List<string> musterOptionsReports)
+        public List<MusterOptionsData> ReadMusterOptions(List<string> musterOptionsReports)
         {
-            throw new NotImplementedException();
+            List<MusterOptionsData> res = [];
+            foreach (var musterOptionsReport in musterOptionsReports)
+            {
+                try
+                {
+                    logger.LogInfo($"Reading {new FileInfo(musterOptionsReport).Name}", 1);
+                    using FileStream fileStream = File.Open(musterOptionsReport, FileMode.Open, FileAccess.Read);
+                    using IExcelDataReader reader = ExcelReaderFactory.CreateReader(fileStream, null);
+                    DataTableCollection tables = ExcelDataReaderExtensions.AsDataSet(reader, null).Tables;
+                    List<DataTable> dataTableList = tables.Cast<DataTable>().Select(dataTable => dataTable).ToList();
+                    if(dataTableList.Count > 0)
+                    {
+                        int i = 0;
+                        logger.LogSameLine("Reading Sheet: ");
+                        int eCodeColumn = -1;
+                        int nameColumn = -1;
+                        int firstDateColumn = -1;
+                        int lastDateColumn = -1;
+                        foreach (DataTable dataTable in dataTableList)
+                        {
+                            try
+                            {
+                                if (i == 0)
+                                {
+                                    eCodeColumn = Array.IndexOf(dataTable.Rows[3].ItemArray, "EmpCode");
+                                    nameColumn = Array.IndexOf(dataTable.Rows[3].ItemArray, "Name");
+                                    firstDateColumn = Array.FindIndex(dataTable.Rows[3].ItemArray, item => DateTime.TryParse(item?.ToString()?.ToLower(), out _));
+                                    lastDateColumn = Array.FindLastIndex(dataTable.Rows[3].ItemArray, item => DateTime.TryParse(item?.ToString()?.ToLower(), out _));
+                                }
+                                logger.LogDataSameLine(dataTable.TableName + ", ");
+                                DataRowCollection rows = dataTable.Rows;
+                                foreach (DataRow row in rows)
+                                {
+
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                logger.LogError($"Error on reading sheet {dataTable.TableName}: {ex}");
+                                throw;
+                            }
+                            i++;
+                        }
+                    }
+                    else
+                    {
+                        logger.LogWarning($"No sheets found in muster options report {musterOptionsReport}.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError($"Error on reading muster options report {musterOptionsReport}: {ex}");
+                    throw;
+                }
+               
+            }
+            return res;
         }
 
         public PtrData ReadPtr(List<string> reports, int bookingMonthCol, object[] bookingMonths, object[] effortCols, int projectIdCol, string sheetName)

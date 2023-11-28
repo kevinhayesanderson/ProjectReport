@@ -8,6 +8,11 @@ namespace Services
         {
             throw new NotImplementedException();
         }
+
+        public bool WriteInOutEntry(List<string> monthlyReports, List<MusterOptionsData> musterOptionsDatas, string exportFolder)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     ////public class ExcelFile
