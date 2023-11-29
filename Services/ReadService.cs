@@ -231,16 +231,16 @@ namespace Services
                             {
                                 if (i == 0)
                                 {
-                                    eCodeColumn = Array.IndexOf(dataTable.Rows[3].ItemArray, "EmpCode");
-                                    nameColumn = Array.IndexOf(dataTable.Rows[3].ItemArray, "Name");
-                                    firstDateColumn = Array.FindIndex(dataTable.Rows[3].ItemArray, item => DateTime.TryParse(item?.ToString()?.ToLower(), out _));
-                                    lastDateColumn = Array.FindLastIndex(dataTable.Rows[3].ItemArray, item => DateTime.TryParse(item?.ToString()?.ToLower(), out _));
+                                    var trimmedColumnNames = dataTable.Rows[3].ItemArray.Select(o => o?.ToString()?.Trim().ToLower()).ToArray();
+                                    eCodeColumn = Array.IndexOf(trimmedColumnNames, "empcode");
+                                    nameColumn = Array.IndexOf(trimmedColumnNames, "name");
+                                    firstDateColumn = Array.FindIndex(trimmedColumnNames, item => DateTime.TryParse(item, out _));
+                                    lastDateColumn = Array.FindLastIndex(trimmedColumnNames, item => DateTime.TryParse(item, out _));
                                 }
                                 logger.LogDataSameLine(dataTable.TableName + ", ");
                                 DataRowCollection rows = dataTable.Rows;
                                 foreach (DataRow row in rows)
                                 {
-
                                 }
                             }
                             catch (Exception ex)
@@ -261,7 +261,6 @@ namespace Services
                     logger.LogError($"Error on reading muster options report {musterOptionsReport}: {ex}");
                     throw;
                 }
-
             }
             return res;
         }
@@ -537,47 +536,47 @@ namespace Services
             logger.LogSameLine("Run: "); logger.LogDataSameLine(action.Run.ToString(), 1);
             logger.LogSameLine("InputFolder: "); logger.LogDataSameLine(action.InputFolder, 1);
 
-            if (action.MonthlyReportMonths is not null)
+            if (action.MonthlyReportMonths is not [])
             {
                 logger.LogSameLine("MonthlyReportMonths: ");
                 logger.LogDataSameLine(string.Join(",", convertObjectsToStrings(action.MonthlyReportMonths)), 1);
             }
-            if (action.MonthlyReportIdCol is not null)
+            if (action.MonthlyReportIdCol is not -1)
             {
                 logger.LogSameLine("MonthlyReportIdCol: ");
-                logger.LogDataSameLine(action.MonthlyReportIdCol?.ToString() ?? string.Empty, 1);
+                logger.LogDataSameLine(action.MonthlyReportIdCol.ToString() ?? string.Empty, 1);
             }
-            if (action.PtrSheetName is not null)
+            if (!string.IsNullOrEmpty(action.PtrSheetName))
             {
                 logger.LogSameLine("PtrSheetName: ");
                 logger.LogDataSameLine(action.PtrSheetName, 1);
             }
-            if (action.PtrProjectIdCol is not null)
+            if (action.PtrProjectIdCol is not -1)
             {
                 logger.LogSameLine("PtrProjectIdCol: ");
                 logger.LogDataSameLine(action.PtrProjectIdCol.ToString() ?? string.Empty, 1);
             }
-            if (action.PtrBookingMonthCol is not null)
+            if (action.PtrBookingMonthCol is not -1)
             {
                 logger.LogSameLine("PtrBookingMonthCol: ");
                 logger.LogDataSameLine(action.PtrBookingMonthCol.ToString() ?? string.Empty, 1);
             }
-            if (action.PtrBookingMonths is not null)
+            if (action.PtrBookingMonths is not [])
             {
                 logger.LogSameLine("PtrBookingMonths: ");
                 logger.LogDataSameLine(string.Join(",", convertObjectsToStrings(action.PtrBookingMonths)), 1);
             }
-            if (action.PtrEffortCols is not null)
+            if (action.PtrEffortCols is not [])
             {
                 logger.LogSameLine("PtrEffortCols: ");
                 logger.LogDataSameLine(string.Join(",", convertObjectsToStrings(action.PtrEffortCols)), 1);
             }
-            if (action.FinancialYear is not null)
+            if (!string.IsNullOrEmpty(action.FinancialYear))
             {
                 logger.LogSameLine("FinancialYear: ");
                 logger.LogDataSameLine(action.FinancialYear, 1);
             }
-            if (action.CutOff is not null)
+            if (!string.IsNullOrEmpty(action.CutOff))
             {
                 logger.LogSameLine("Cut-off: ");
                 logger.LogDataSameLine(action.CutOff, 1);

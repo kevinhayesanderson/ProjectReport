@@ -20,14 +20,14 @@
     },
     {
       "Name": "CalculatePunchMovement",
-      "Run": true,
+      "Run": false,
       "InputFolder": "E:\\ProjectReport\\Requirements\\Second_requirement\\PM",
       "CutOff": "4:45"
     },
     {
       "Name": "InOutEntry",
-      "Run": false,
-      "InputFolder": "E:\\ProjectReport\\Requirements\\Test kit"
+      "Run": true,
+      "InputFolder": "E:\\ProjectReport\\Requirements\\Second_requirement\\MO\\CAD"
     }
   ]
 }

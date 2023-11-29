@@ -9,6 +9,7 @@ namespace Actions
         private List<string> _monthlyReports = [];
         private List<string> _musterOptionsReports = [];
         public string InputFolder => inputFolder;
+
         public override bool Run()
         {
             bool res = true;
@@ -18,6 +19,8 @@ namespace Actions
             List<MusterOptionsData>? _musterOptionsDatas = default;
             Logger.LogInfo("Muster Options files found found:", 1);
             _musterOptionsReports.ForEach(mor => Logger.Log(new FileInfo(mor).Name));
+            Logger.LogInfo("Monthly reports found:", 1);
+            _monthlyReports.ForEach(mr => Logger.Log(new FileInfo(mr).Name));
             _musterOptionsDatas = ReadService.ReadMusterOptions(_musterOptionsReports);
 
             if (_musterOptionsDatas != null)

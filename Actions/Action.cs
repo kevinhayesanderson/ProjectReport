@@ -5,7 +5,6 @@ namespace Actions
 {
     public abstract class Action
     {
-
         public static string Time { get; private set; }
         public static ILogger Logger { get; private set; }
         public static DataService DataService { get; private set; }
@@ -49,29 +48,12 @@ namespace Actions
         {
             return actionType.Name switch
             {
-                nameof(GenerateConsolidatedReportAction) => ((Func<GenerateConsolidatedReportAction>)(() =>
-                {
-                    var monthlyReportIdCol = action.MonthlyReportIdCol ?? 4; //TODO: default value or raise error
-                    var ptrBookingMonthCol = action.PtrBookingMonthCol ?? 4;
-                    var ptrProjectIdCol = action.PtrProjectIdCol ?? 4;
-                    var monthlyReportMonths = action.MonthlyReportMonths ?? [];
-                    var ptrBookingMonths = action.PtrBookingMonths ?? [];
-                    var ptrEffortCols = action.PtrEffortCols ?? [];
-                    var ptrSheetName = action.PtrSheetName ?? string.Empty;
-                    return new GenerateConsolidatedReportAction(
-                        action.InputFolder,
-                        monthlyReportMonths,
-                        monthlyReportIdCol,
-                        ptrBookingMonthCol,
-                        ptrBookingMonths,
-                        ptrEffortCols,
-                        ptrProjectIdCol,
-                        ptrSheetName);
-                }))(),
+                nameof(GenerateConsolidatedReportAction) => ((Func<GenerateConsolidatedReportAction>)(() => new GenerateConsolidatedReportAction(
+                    action.InputFolder, action.MonthlyReportMonths, action.MonthlyReportIdCol, action.PtrBookingMonthCol, action.PtrBookingMonths, action.PtrEffortCols, action.PtrProjectIdCol, action.PtrSheetName)))(),
 
-                nameof(GenerateLeaveReportAction) => ((Func<GenerateLeaveReportAction>)(() => new GenerateLeaveReportAction(action.InputFolder, action.FinancialYear ?? string.Empty)))(),
+                nameof(GenerateLeaveReportAction) => ((Func<GenerateLeaveReportAction>)(() => new GenerateLeaveReportAction(action.InputFolder, action.FinancialYear)))(),
 
-                nameof(CalculatePunchMovementAction) => ((Func<CalculatePunchMovementAction>)(() => new CalculatePunchMovementAction(action.InputFolder, action.CutOff ?? string.Empty)))(),
+                nameof(CalculatePunchMovementAction) => ((Func<CalculatePunchMovementAction>)(() => new CalculatePunchMovementAction(action.InputFolder, action.CutOff)))(),
 
                 nameof(InOutEntryAction) => ((Func<InOutEntryAction>)(() => new InOutEntryAction(action.InputFolder)))(),
 

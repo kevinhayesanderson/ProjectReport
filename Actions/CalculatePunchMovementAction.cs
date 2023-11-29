@@ -9,6 +9,7 @@ namespace Actions
     {
         private List<string> _punchMovementFiles = [];
         public string InputFolder => inputFolder;
+
         public override bool Run()
         {
             var exportFolder = @$"{InputFolder}\Reports_{Time}";
