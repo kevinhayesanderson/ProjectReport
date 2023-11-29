@@ -217,7 +217,7 @@ namespace Services
                     using IExcelDataReader reader = ExcelReaderFactory.CreateReader(fileStream, null);
                     DataTableCollection tables = ExcelDataReaderExtensions.AsDataSet(reader, null).Tables;
                     List<DataTable> dataTableList = tables.Cast<DataTable>().Select(dataTable => dataTable).ToList();
-                    if(dataTableList.Count > 0)
+                    if (dataTableList.Count > 0)
                     {
                         int i = 0;
                         logger.LogSameLine("Reading Sheet: ");
@@ -261,7 +261,7 @@ namespace Services
                     logger.LogError($"Error on reading muster options report {musterOptionsReport}: {ex}");
                     throw;
                 }
-               
+
             }
             return res;
         }
@@ -397,11 +397,12 @@ namespace Services
                             {
                                 if (i == 0)
                                 {
-                                    eCodeColumn = Array.IndexOf(dataTable.Rows[0].ItemArray, "ECode");
-                                    nameColumn = Array.IndexOf(dataTable.Rows[0].ItemArray, "Name");
-                                    dateColumn = Array.IndexOf(dataTable.Rows[0].ItemArray, "Date");
-                                    firstInOutColumn = Array.FindIndex(dataTable.Rows[0].ItemArray, item => item?.ToString()?.ToLower() == "in" || item?.ToString()?.ToLower() == "out");
-                                    lastInOutColumn = Array.FindLastIndex(dataTable.Rows[0].ItemArray, item => item?.ToString()?.ToLower() == "in" || item?.ToString()?.ToLower() == "out");
+                                    var trimmedColumnNames = dataTable.Rows[1].ItemArray.Select(o => o?.ToString()?.Trim().ToLower()).ToArray();
+                                    eCodeColumn = Array.IndexOf(trimmedColumnNames, "ecode");
+                                    nameColumn = Array.IndexOf(trimmedColumnNames, "name");
+                                    dateColumn = Array.IndexOf(trimmedColumnNames, "date");
+                                    firstInOutColumn = Array.FindIndex(trimmedColumnNames, item => item is "in" or "out");
+                                    lastInOutColumn = Array.FindLastIndex(trimmedColumnNames, item => item is "in" or "out");
                                 }
                                 logger.LogDataSameLine(dataTable.TableName + ", ");
                                 DataRowCollection rows = dataTable.Rows;

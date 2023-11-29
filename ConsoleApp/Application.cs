@@ -3,7 +3,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Utilities;
 
-namespace ConsoleApplication
+namespace ConsoleApp
 {
     internal class Application(ILogger logger, DataService dataService, ReadService readService, WriteService writeService, ExportService exportService)
     {
@@ -51,6 +51,8 @@ namespace ConsoleApplication
         {
             if (!string.IsNullOrEmpty(exitMessage))
                 logger.Log(exitMessage, line);
+            Console.WriteLine("Press any key to exit...");
+            _ = Console.ReadKey(false);
             Environment.Exit(0);
         }
     }

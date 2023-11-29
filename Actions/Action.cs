@@ -42,11 +42,7 @@ namespace Actions
 
         public bool ValidateAndRun()
         {
-            if (Validate())
-            {
-                return Run();
-            }
-            return false;
+            return Validate() && Run();
         }
 
         private static Action InitializeAction(Type actionType, Models.Action action)
@@ -93,7 +89,7 @@ namespace Actions
                 ActionNameAttribute attribute = actionType.GetCustomAttributes(typeof(ActionNameAttribute), false).OfType<ActionNameAttribute>().First();
                 if (executableUserActions.Select(eua => eua.Name).Contains(attribute.Name))
                 {
-                    actions =  actions.Append(InitializeAction(actionType, executableUserActions.Find(eua => eua.Name == attribute.Name)!));
+                    actions = actions.Append(InitializeAction(actionType, executableUserActions.Find(eua => eua.Name == attribute.Name)!));
                 }
             }
             return actions;

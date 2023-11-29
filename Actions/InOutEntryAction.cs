@@ -12,7 +12,7 @@ namespace Actions
         public override bool Run()
         {
             bool res = true;
-            
+
             var _exportFolder = @$"{inputFolder}\Reports_{Time}";
 
             List<MusterOptionsData>? _musterOptionsDatas = default;
@@ -20,7 +20,7 @@ namespace Actions
             _musterOptionsReports.ForEach(mor => Logger.Log(new FileInfo(mor).Name));
             _musterOptionsDatas = ReadService.ReadMusterOptions(_musterOptionsReports);
 
-            if(_musterOptionsDatas != null)
+            if (_musterOptionsDatas != null)
             {
                 res = WriteService.WriteInOutEntry(_monthlyReports, _musterOptionsDatas, _exportFolder);
             }

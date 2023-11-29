@@ -21,7 +21,7 @@
     {
       "Name": "CalculatePunchMovement",
       "Run": true,
-      "InputFolder": "E:\\ProjectReport\\Requirements\\Second_requirement",
+      "InputFolder": "E:\\ProjectReport\\Requirements\\Second_requirement\\PM",
       "CutOff": "4:45"
     },
     {

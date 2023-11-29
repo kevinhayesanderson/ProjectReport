@@ -1,6 +1,6 @@
 ﻿// Ignore Spelling: Admin
 
-namespace Actions
+namespace Models
 {
     public static class Constants
     {

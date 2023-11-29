@@ -41,7 +41,7 @@ namespace Actions
                 List<ConsolidatedData> ConsolidatedData = DataService.Consolidate(_ptrData, _monthlyReportData);
                 if (ConsolidatedData.Count > 0)
                 {
-                    ExportService.ExportConsolidateData(in ConsolidatedData, ref _monthlyReportData, Time, in _exportFolder);
+                    res = ExportService.ExportConsolidateData(in ConsolidatedData, ref _monthlyReportData, Time, in _exportFolder);
                 }
                 else
                 {

@@ -38,15 +38,20 @@ namespace Services
                     var punchDatas = employeePunchDatas.PunchDatas;
                     for (int i = 0; i < punchDatas.Count; i++)
                     {
-                        (int hour, int minute) = (int.Parse(cutOff.Split(':')[0]), int.Parse(cutOff.Split(':')[^1]));
+                        (int cutOffHour, int cutOffMinute) = (int.Parse(cutOff.Split(':')[0]), int.Parse(cutOff.Split(':')[^1]));
 
-                        TimeOnly firstValue = punchDatas[i].Punches.Find(punch => punch >= new TimeOnly(hour, minute));
+                        TimeOnly firstValue = punchDatas[i].Punches.Find(punch => punch >= new TimeOnly(cutOffHour, cutOffMinute));
 
-                        if (firstValue == default) continue;
+                        int firstValueIndex = punchDatas[i].Punches.IndexOf(firstValue);
+
+                        if (firstValue == default || (firstValueIndex != -1 && punchDatas[i].Punches[firstValueIndex..].Count <= 1))
+                        {
+                            continue;
+                        }
 
                         IEnumerable<TimeOnly> InOuts = Enumerable.Empty<TimeOnly>();
 
-                        bool lastOutPredicate(TimeOnly punch) => punch <= new TimeOnly(hour, minute);
+                        bool lastOutPredicate(TimeOnly punch) => punch <= new TimeOnly(cutOffHour, cutOffMinute);
 
                         bool TryGetLastOutInNextDay(List<TimeOnly> punches, out TimeOnly lastOut)
                         {
@@ -66,15 +71,13 @@ namespace Services
                             lastValue = lastOut;
                             int subsetIndex = punchDatas[i + 1].Punches.IndexOf(lastValue);
                             var nextDayInOuts = punchDatas[i + 1].Punches[..(subsetIndex + 1)];
-                            var firstValueIndex = punchDatas[i].Punches.IndexOf(firstValue);
                             InOuts = punchDatas[i].Punches[firstValueIndex..].Concat(nextDayInOuts);
                         }
                         else
                         {
                             lastValue = punchDatas[i].Punches[^1];
-                            var firstIndex = punchDatas[i].Punches.IndexOf(firstValue);
-                            var lastIndex = punchDatas[i].Punches.IndexOf(lastValue);
-                            InOuts = punchDatas[i].Punches[firstIndex..(lastIndex + 1)];
+                            var lastValueIndex = punchDatas[i].Punches.IndexOf(lastValue);
+                            InOuts = punchDatas[i].Punches[firstValueIndex..(lastValueIndex + 1)];
                         }
 
                         TimeSpan breakTime = TimeSpan.Zero;
