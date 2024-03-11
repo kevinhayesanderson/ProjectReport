@@ -22,7 +22,7 @@ Here's an example of userSettings.json:
   "Actions": [
     {
       "Name": "GenerateConsolidatedReport",
-      "Run": false,
+      "Run": true,
       "InputFolder": "C:\\ProjectReport\\InputFolder",
       "MonthlyReportIdCol": 3,
       "MonthlyReportMonths": [ "Jun-23", "Jul-23" ],
@@ -34,19 +34,19 @@ Here's an example of userSettings.json:
     },
     {
       "Name": "GenerateLeaveReport",
-      "Run": false,
+      "Run": true,
       "InputFolder": "C:\\ProjectReport\\InputFolder",
       "FinancialYear": "23-24"
     },
     {
       "Name": "CalculatePunchMovement",
-      "Run": false,
+      "Run": true,
       "InputFolder": "C:\\ProjectReport\\InputFolder",
       "CutOff": "4:45"
     },
     {
       "Name": "InOutEntry",
-      "Run": true,
+      "Run": false,
       "InputFolder": "C:\\ProjectReport\\InputFolder"
     }
   ]
