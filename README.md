@@ -1,10 +1,10 @@
 ## Project Report Application Information
-### Application Description:
-&emsp; The Project Report application is a windows console application used to create consolidated reports from Monthly and PTR reports.
-### Application Source code:
+### Description:
+&emsp; The Project Report application is a windows console application used to create various consolidated reports for [Ambigai Consultancy Services GmbH](https://www.ambigai.net/).
+### Source code:
 &emsp;[https://github.com/kevinhayesanderson/ProjectReport](https://github.com/kevinhayesanderson/ProjectReport)
 
-### Application Owner Info: 
+### Owner Info: 
 &emsp;MohanRaj L.V.P 
 &emsp;[mohanraj.lvp@ambigai.net](mailto:mohanraj.lvp@ambigai.net)
  
@@ -19,31 +19,37 @@ It contains an array of actions.
 Here's an example of userSettings.json:
 ```json
 {
-    "Actions": [
-        {
-            "Name": "GenerateConsolidatedReport",
-            "Run": true,
-            "InputFolder": "E:\\ProjectReport\\Requirements\\Second_requirement",
-            "MonthlyReportIdCol": 0,
-            "MonthlyReportMonths": [],
-            "PtrBookingMonthCol": 0,
-            "PtrBookingMonths": [],
-            "PtrEffortCols": [],
-            "PtrProjectIdCol": 0,
-            "PtrSheetName": ""
-        },
-        {
-            "Name": "GenerateLeaveReport",
-            "Run": true,
-            "InputFolder": "E:\\ProjectReport\\Requirements\\Second_requirement",
-            "FinancialYear": ""
-        },
-        {
-            "Name": "CalculatePunchMovement",
-            "Run": true,
-            "InputFolder": "E:\\ProjectReport\\Requirements\\Second_requirement"
-        }
-    ]
+  "Actions": [
+    {
+      "Name": "GenerateConsolidatedReport",
+      "Run": false,
+      "InputFolder": "C:\\ProjectReport\\InputFolder",
+      "MonthlyReportIdCol": 3,
+      "MonthlyReportMonths": [ "Jun-23", "Jul-23" ],
+      "PtrBookingMonthCol": 28,
+      "PtrBookingMonths": [ 6, "7|July_2023" ],
+      "PtrEffortCols": [ 22 ],
+      "PtrProjectIdCol": 2,
+      "PtrSheetName": ""
+    },
+    {
+      "Name": "GenerateLeaveReport",
+      "Run": false,
+      "InputFolder": "C:\\ProjectReport\\InputFolder",
+      "FinancialYear": "23-24"
+    },
+    {
+      "Name": "CalculatePunchMovement",
+      "Run": false,
+      "InputFolder": "C:\\ProjectReport\\InputFolder",
+      "CutOff": "4:45"
+    },
+    {
+      "Name": "InOutEntry",
+      "Run": true,
+      "InputFolder": "C:\\ProjectReport\\InputFolder"
+    }
+  ]
 }
 ```
 ### Actions:
@@ -107,8 +113,11 @@ The single financial year for which the leave report will be generated.
 > `"21-22"` - FY 2021-2022.
  
 ### CalculatePunchMovement:
-This action generates a time report.
+This action generates a time report from PunchMovement reports.
  
+### InOutEntry:
+This action updates the in and out time of monthly reports in the input folder using muster options in and out time.
+
 ### Monthly report constraints:
  
 1. The file name should have "Monthly_Report" in the file name to be considered as a Monthly report.
