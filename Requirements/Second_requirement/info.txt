@@ -17,7 +17,7 @@ EmpId	Name	Date	FirstIn	LastOut	IsLastOutNextDay	AvailableHours	WorkHours	BreakH
 -----	----	----	-------	-------	----------------	--------------	---------	----------
                 Summary										Total			Total		Total
 
-Requirement Done, approved by mohan.
+The requirement is Done, approved by Mohan.
 
 -------------------------------------------------------------------------------------------------------------------------------------
 Req 2:
