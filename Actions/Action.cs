@@ -14,12 +14,7 @@ namespace Actions
 
         public static void Init(string time, ILogger logger, DataService dataService, ReadService readService, WriteService writeService, ExportService exportService)
         {
-            Time = time;
-            Logger = logger;
-            DataService = dataService;
-            ReadService = readService;
-            WriteService = writeService;
-            ExportService = exportService;
+            (Time, Logger, DataService, ReadService, WriteService, ExportService) = (time, logger, dataService, readService, writeService, exportService);
         }
 
         public static bool ExecuteActions(IEnumerable<Models.Action> userActions, CancellationToken cancellationToken)

@@ -467,15 +467,15 @@ namespace Services
                     row["Break Hours"] = DataService.TohhmmFormatString(punchData.BreakHours);
                 }
 
-                foreach (var employeePunchDatas in employeePunchData.EmployeePunchDatas)
+                for (int i = 0; i < employeePunchData.Length; i++)
                 {
                     DataRow row = dataTable.NewRow();
-                    row["Employee Id"] = employeePunchDatas.Id;
-                    row["Employee Name"] = employeePunchDatas.Name;
-                    AddRow(employeePunchDatas.PunchDatas[0], row);
+                    row["Employee Id"] = employeePunchData[i].Id;
+                    row["Employee Name"] = employeePunchData[i].Name;
+                    AddRow(employeePunchData[i].PunchDatas[0], row);
                     dataTable.Rows.Add(row);
 
-                    foreach (var punchData in employeePunchDatas.PunchDatas.Skip(1))
+                    foreach (var punchData in employeePunchData[i].PunchDatas.Skip(1))
                     {
                         DataRow punchDataRow = dataTable.NewRow();
                         AddRow(punchData, punchDataRow);
@@ -484,9 +484,9 @@ namespace Services
 
                     DataRow summaryRow = dataTable.NewRow();
                     summaryRow["Date"] = "Summary";
-                    summaryRow["Available Hours"] = DataService.TohhmmFormatString(employeePunchDatas.TotalAvailableHours);
-                    summaryRow["Work Hours"] = DataService.TohhmmFormatString(employeePunchDatas.TotalWorkHours);
-                    summaryRow["Break Hours"] = DataService.TohhmmFormatString(employeePunchDatas.TotalBreakHours);
+                    summaryRow["Available Hours"] = DataService.TohhmmFormatString(employeePunchData[i].TotalAvailableHours);
+                    summaryRow["Work Hours"] = DataService.TohhmmFormatString(employeePunchData[i].TotalWorkHours);
+                    summaryRow["Break Hours"] = DataService.TohhmmFormatString(employeePunchData[i].TotalBreakHours);
                     dataTable.Rows.Add(summaryRow);
                 }
 

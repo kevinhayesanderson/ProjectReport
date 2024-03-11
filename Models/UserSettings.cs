@@ -5,19 +5,19 @@ namespace Models
     public class UserSettings
     {
         [JsonPropertyName("Actions")]
-        public required Action[] Actions { get; set; }
+        public Action[] Actions { get; set; }
     }
 
     public class Action
     {
         [JsonPropertyName("Name")]
-        public required string Name { get; set; }
+        public string Name { get; set; }
 
         [JsonPropertyName("Run")]
-        public required bool Run { get; set; }
+        public bool Run { get; set; }
 
         [JsonPropertyName("InputFolder")]
-        public required string InputFolder { get; set; }
+        public string InputFolder { get; set; }
 
         [JsonPropertyName("MonthlyReportIdCol")]
         public int MonthlyReportIdCol { get; set; } = -1;

@@ -33,9 +33,9 @@ namespace Services
             logger.LogInfo("Calculating punch movement...", 2);
             try
             {
-                foreach (var employeePunchDatas in punchMovementData.EmployeePunchDatas)
+                for (int j = 0; j < punchMovementData.Length; j++)
                 {
-                    var punchDatas = employeePunchDatas.PunchDatas;
+                    var punchDatas = punchMovementData[j].PunchDatas;
                     for (int i = 0; i < punchDatas.Count; i++)
                     {
                         (int cutOffHour, int cutOffMinute) = (int.Parse(cutOff.Split(':')[0]), int.Parse(cutOff.Split(':')[^1]));
@@ -114,15 +114,15 @@ namespace Services
                     var totalAvailableHours = TimeSpan.Zero;
                     var totalWorkHours = TimeSpan.Zero;
                     var totalBreakHours = TimeSpan.Zero;
-                    foreach (var punchData in employeePunchDatas.PunchDatas)
+                    foreach (var punchData in punchMovementData[j].PunchDatas)
                     {
                         totalAvailableHours += punchData.AvailableHours;
                         totalWorkHours += punchData.WorkHours;
                         totalBreakHours += punchData.BreakHours;
                     }
-                    employeePunchDatas.TotalAvailableHours = totalAvailableHours;
-                    employeePunchDatas.TotalWorkHours = totalWorkHours;
-                    employeePunchDatas.TotalBreakHours = totalBreakHours;
+                    punchMovementData[j].TotalAvailableHours = totalAvailableHours;
+                    punchMovementData[j].TotalWorkHours = totalWorkHours;
+                    punchMovementData[j].TotalBreakHours = totalBreakHours;
                 }
             }
             catch (Exception ex)
@@ -182,6 +182,27 @@ namespace Services
                 $"Feb-{strArray[1]}",
                 $"Mar-{strArray[1]}"
             ];
+        }
+
+        public static TimeOnly? ConvertObjtoTimeOnly(object obj)
+        {
+            if (obj is string stringValue)
+            {
+                if (stringValue.Trim() == string.Empty)
+                {
+                    return null;
+                }
+                else
+                {
+                    TimeOnly.TryParse(stringValue, out TimeOnly timeOnly);
+                    return timeOnly;
+                }
+            }
+            if (obj is DateTime dateTime)
+            {
+                return TimeOnly.FromDateTime(dateTime);
+            }
+            return null;
         }
     }
 }

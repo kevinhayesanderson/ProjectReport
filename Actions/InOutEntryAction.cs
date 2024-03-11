@@ -14,18 +14,16 @@ namespace Actions
         {
             bool res = true;
 
-            var _exportFolder = @$"{inputFolder}\Reports_{Time}";
-
-            List<MusterOptionsData>? _musterOptionsDatas = default;
             Logger.LogInfo("Muster Options files found found:", 1);
             _musterOptionsReports.ForEach(mor => Logger.Log(new FileInfo(mor).Name));
             Logger.LogInfo("Monthly reports found:", 1);
             _monthlyReports.ForEach(mr => Logger.Log(new FileInfo(mr).Name));
-            _musterOptionsDatas = ReadService.ReadMusterOptions(_musterOptionsReports);
 
-            if (_musterOptionsDatas != null)
+            MusterOptionsDatas _musterOptionsDatas = ReadService.ReadMusterOptions(_musterOptionsReports);
+
+            if (_musterOptionsDatas != null && _musterOptionsDatas.Datas.Count > 0)
             {
-                res = WriteService.WriteInOutEntry(_monthlyReports, _musterOptionsDatas, _exportFolder);
+                res = WriteService.WriteInOutEntry(_monthlyReports, _musterOptionsDatas);
             }
             else
             {

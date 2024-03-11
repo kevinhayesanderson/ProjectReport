@@ -1,17 +1,77 @@
-﻿using Models;
+﻿using Microsoft.Office.Interop.Excel;
+using Models;
+using Utilities;
+
+using Excel = Microsoft.Office.Interop.Excel;
 
 namespace Services
 {
-    public class WriteService
+    public class WriteService(ILogger logger)
     {
-        public bool WriteInOutEntry(List<string> monthlyReports, MusterOptionsData musterOptionsData, string _exportFolder)
+        public bool WriteInOutEntry(List<string> monthlyReports, MusterOptionsDatas musterOptionsDatas)
         {
-            throw new NotImplementedException();
+            bool res = true;
+            logger.LogInfo("Writing InOutEntry in monthly reports:", 1);
+            Application excelApp = new()
+            {
+                Visible = true // Optional, make Excel visible
+            };
+            try
+            {
+                IEnumerable<Workbook> workbooks = GetMonthlyReportsWorkbooks(excelApp, monthlyReports);
+
+                foreach ((uint employeeId, MusterOptionsData musterOptionsData) in musterOptionsDatas.Datas)
+                {
+                }
+
+                SaveAndCloseWorkbooks(workbooks);
+
+                // Open the existing workbook with password authentication
+                Workbook workbook = excelApp.Workbooks.Open("", Password: "");
+
+                // Get the first worksheet (you can change the index if you have multiple sheets)
+                Worksheet worksheet = (Worksheet)workbook.Sheets[1];
+
+                // Example: Write data to cell A1
+                WriteDataToCell(worksheet, 1, 1, "Hello, Excel!");
+
+                // Save the changes
+                workbook.Save();
+
+                // Close the workbook
+                workbook.Close();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"An error occurred on writing InOutEntry in monthly reports: {ex.Message}");
+                return false;
+            }
+            finally
+            {
+                excelApp.Quit();
+            }
+            return res;
         }
 
-        public bool WriteInOutEntry(List<string> monthlyReports, List<MusterOptionsData> musterOptionsDatas, string exportFolder)
+        private void SaveAndCloseWorkbooks(IEnumerable<Workbook> workbooks)
         {
-            throw new NotImplementedException();
+            foreach (var workbook in workbooks)
+            {
+                workbook.Save();
+                workbook.Close();
+            }
+        }
+
+        private IEnumerable<Workbook> GetMonthlyReportsWorkbooks(Application excelApp, List<string> monthlyReports)
+        {
+            return monthlyReports.Select(mr => excelApp.Workbooks.Open(mr));
+        }
+
+        // Helper method to write data to a specific cell
+        private static void WriteDataToCell(Worksheet worksheet, int row, int column, object data)
+        {
+            Excel.Range cell = (Excel.Range)worksheet.Cells[row, column];
+            cell.Value = data;
         }
     }
 

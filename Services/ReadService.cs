@@ -84,7 +84,7 @@ namespace Services
                     using FileStream fileStream = File.Open(report, FileMode.Open, FileAccess.Read);
                     using IExcelDataReader reader = ExcelReaderFactory.CreateReader(fileStream, null);
                     DataTableCollection tables = ExcelDataReaderExtensions.AsDataSet(reader, null).Tables;
-                    List<DataTable> dataTableList = months.Any()
+                    List<DataTable> dataTableList = months.Length != 0
                         ? tables.Cast<DataTable>().Where(dataTable => months.Contains(dataTable.TableName.Trim())).ToList()
                         : tables.Cast<DataTable>().Select(dataTable => dataTable).ToList();
                     if (dataTableList.Count > 0)
@@ -205,9 +205,9 @@ namespace Services
             };
         }
 
-        public List<MusterOptionsData> ReadMusterOptions(List<string> musterOptionsReports)
+        public MusterOptionsDatas ReadMusterOptions(List<string> musterOptionsReports)
         {
-            List<MusterOptionsData> res = [];
+            MusterOptionsDatas musterOptionsDatas = new MusterOptionsDatas();
             foreach (var musterOptionsReport in musterOptionsReports)
             {
                 try
@@ -223,8 +223,11 @@ namespace Services
                         logger.LogSameLine("Reading Sheet: ");
                         int eCodeColumn = -1;
                         int nameColumn = -1;
+                        int designationColumn = -1;
                         int firstDateColumn = -1;
                         int lastDateColumn = -1;
+                        DateTime firstDate = default;
+                        DateTime lastDate = default;
                         foreach (DataTable dataTable in dataTableList)
                         {
                             try
@@ -234,13 +237,47 @@ namespace Services
                                     var trimmedColumnNames = dataTable.Rows[3].ItemArray.Select(o => o?.ToString()?.Trim().ToLower()).ToArray();
                                     eCodeColumn = Array.IndexOf(trimmedColumnNames, "empcode");
                                     nameColumn = Array.IndexOf(trimmedColumnNames, "name");
-                                    firstDateColumn = Array.FindIndex(trimmedColumnNames, item => DateTime.TryParse(item, out _));
-                                    lastDateColumn = Array.FindLastIndex(trimmedColumnNames, item => DateTime.TryParse(item, out _));
+                                    designationColumn = Array.IndexOf(trimmedColumnNames, "designation");
+                                    firstDateColumn = Array.FindIndex(trimmedColumnNames, item => DateTime.TryParse(item, out firstDate));
+                                    lastDateColumn = Array.FindLastIndex(trimmedColumnNames, item => DateTime.TryParse(item, out lastDate));
                                 }
                                 logger.LogDataSameLine(dataTable.TableName + ", ");
                                 DataRowCollection rows = dataTable.Rows;
-                                foreach (DataRow row in rows)
+
+                                for (int j = 5; j < rows.Count; j += 6)
                                 {
+                                    var row = rows[j];
+                                    var employeeId = Convert.ToUInt32(row[eCodeColumn]);
+                                    if (row[nameColumn] is not String employeeName) continue;
+                                    var designation = row[designationColumn] as String ?? string.Empty;
+                                    var musterOptions = new List<MusterOption>();
+                                    for (int k = firstDateColumn; k <= lastDateColumn; k++)
+                                    {
+                                        var date = (DateTime)rows[3][k];
+                                        var inTime = DataService.ConvertObjtoTimeOnly(rows[j + 2][k]);
+                                        var outTime = DataService.ConvertObjtoTimeOnly(rows[j + 3][k]);
+                                        var musterOption = new MusterOption()
+                                        {
+                                            Date = date,
+                                            InTime = inTime,
+                                            OutTime = outTime
+                                        };
+                                        musterOptions.Add(musterOption);
+                                    }
+
+                                    if (musterOptionsDatas.Datas.TryGetValue(employeeId, out MusterOptionsData musterOptionsData))
+                                    {
+                                        musterOptionsData.AddMusterOptions(musterOptions);
+                                    }
+                                    else
+                                    {
+                                        musterOptionsDatas.Datas[employeeId] = new MusterOptionsData()
+                                        {
+                                            Name = employeeName,
+                                            Designation = designation,
+                                            MusterOptions = musterOptions
+                                        };
+                                    }
                                 }
                             }
                             catch (Exception ex)
@@ -262,7 +299,7 @@ namespace Services
                     throw;
                 }
             }
-            return res;
+            return musterOptionsDatas;
         }
 
         public PtrData ReadPtr(List<string> reports, int bookingMonthCol, object[] bookingMonths, object[] effortCols, int projectIdCol, string sheetName)
@@ -459,10 +496,7 @@ namespace Services
                     throw;
                 }
             }
-            return new PunchMovementData()
-            {
-                EmployeePunchDatas = employeePunchDatas,
-            };
+            return new PunchMovementData([.. employeePunchDatas]);
         }
 
         private bool ConvertInputBookingMonths(object[] inputBookingMonths)
