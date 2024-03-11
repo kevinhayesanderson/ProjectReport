@@ -17,21 +17,3 @@ I:
 59 and 01 minutes can be rounded to closest hour
 Year wise PTR, reading takes too long (10s)
 various formats on hidden rows for ptrbooking months
-
-----
-Reading Offshore_Monthly_Report_Lokesh_RA_90313_from_Apr2023_to_Mar2024_CW31.xls
-Reading Sheet: Jun-23,
-Error on reading sheet Jun-23: Invalid format at column: 35 at row: 25 in sheet Jun-23
-----
-Reading Offshore_Monthly_Report_Manikanth_90103_from_Jan2023_to_Dec2023_Dated_04Aug2023.xls
-Reading Sheet: Jun-23,
-Error on reading sheet Jun-23: Invalid format at column: 35 at row: 22 in sheet Jun-23
-
-CAM
-EBS
-ProjectReport
-	App.exe
-	userSettings.json
-	CAM.json
-	EBS.json
-	T1.json
