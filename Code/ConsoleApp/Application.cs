@@ -7,6 +7,15 @@ namespace ConsoleApp
 {
     internal class Application(ILogger logger, DataService dataService, ReadService readService, WriteService writeService, ExportService exportService)
     {
+        public void ExitApplication(string exitMessage = "", int line = 1)
+        {
+            if (!string.IsNullOrEmpty(exitMessage))
+                logger.Log(exitMessage, line);
+            Console.WriteLine("Press any key to exit...");
+            _ = Console.ReadKey(false);
+            Environment.Exit(0);
+        }
+
         public void Run()
         {
             string time = new Regex("[^\\w\\d]").Replace(DateTime.Now.ToString(), "_");
@@ -45,15 +54,6 @@ namespace ConsoleApp
             cts.Cancel();
             logger.LogWarning("Application canceled by user");
             ExitApplication("Exiting application.");
-        }
-
-        public void ExitApplication(string exitMessage = "", int line = 1)
-        {
-            if (!string.IsNullOrEmpty(exitMessage))
-                logger.Log(exitMessage, line);
-            Console.WriteLine("Press any key to exit...");
-            _ = Console.ReadKey(false);
-            Environment.Exit(0);
         }
     }
 }

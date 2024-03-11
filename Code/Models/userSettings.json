@@ -3,7 +3,7 @@
     {
       "Name": "GenerateConsolidatedReport",
       "Run": false,
-      "InputFolder": "E:\\ProjectReport\\Requirements\\Test kit",
+      "InputFolder": "D:\\ProjectReport\\Test_data",
       "MonthlyReportIdCol": 3,
       "MonthlyReportMonths": [ "Jun-23", "Jul-23" ],
       "PtrBookingMonthCol": 28,
@@ -15,19 +15,19 @@
     {
       "Name": "GenerateLeaveReport",
       "Run": false,
-      "InputFolder": "E:\\ProjectReport\\Requirements\\Test kit",
+      "InputFolder": "D:\\ProjectReport\\Test_data",
       "FinancialYear": "23-24"
     },
     {
       "Name": "CalculatePunchMovement",
       "Run": false,
-      "InputFolder": "E:\\ProjectReport\\Requirements\\Second_requirement\\PM",
+      "InputFolder": "D:\\ProjectReport\\Test_data\\PM",
       "CutOff": "4:45"
     },
     {
       "Name": "InOutEntry",
       "Run": true,
-      "InputFolder": "D:\\ProjectReport\\Requirements\\Second_requirement\\MO\\CAD"
+      "InputFolder": "D:\\ProjectReport\\Test_data\\MO\\CAD"
     }
   ]
 }

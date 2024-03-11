@@ -7,7 +7,7 @@ using Utilities;
 
 namespace Services
 {
-    public class ReadService(ILogger logger, DataService dataService)
+    public class ReadService(ILogger logger)
     {
         private List<object>? _bookingMonths;
 
@@ -254,8 +254,8 @@ namespace Services
                                     for (int k = firstDateColumn; k <= lastDateColumn; k++)
                                     {
                                         var date = (DateTime)rows[3][k];
-                                        var inTime = DataService.ConvertObjtoTimeOnly(rows[j + 2][k]);
-                                        var outTime = DataService.ConvertObjtoTimeOnly(rows[j + 3][k]);
+                                        var inTime = DataService.ConvertToTimeOnly(rows[j + 2][k]);
+                                        var outTime = DataService.ConvertToTimeOnly(rows[j + 3][k]);
                                         var musterOption = new MusterOption()
                                         {
                                             Date = date,
@@ -529,7 +529,7 @@ namespace Services
                         break;
 
                     case long number:
-                        if (!dataService.Months.Contains(number))
+                        if (!DataService.Months.Contains(number))
                         {
                             break;
                         }

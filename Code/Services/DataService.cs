@@ -7,7 +7,48 @@ namespace Services
 {
     public class DataService(ILogger logger)
     {
-        public long[] Months => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+        public static long[] Months => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+
+        public static TimeOnly? ConvertToTimeOnly(object obj)
+        {
+            if (obj is string stringValue)
+            {
+                if (stringValue.Trim() == string.Empty)
+                {
+                    return null;
+                }
+                else
+                {
+                    TimeOnly.TryParse(stringValue, out TimeOnly timeOnly);
+                    return timeOnly;
+                }
+            }
+            if (obj is DateTime dateTime)
+            {
+                return TimeOnly.FromDateTime(dateTime);
+            }
+            return null;
+        }
+
+        public static List<string> GetFyMonths(string financialYear)
+        {
+            string[] strArray = financialYear.Split('-');
+            return
+            [
+                $"Apr-{strArray[0]}",
+                $"May-{strArray[0]}",
+                $"Jun-{strArray[0]}",
+                $"Jul-{strArray[0]}",
+                $"Aug-{strArray[0]}",
+                $"Sep-{strArray[0]}",
+                $"Oct-{strArray[0]}",
+                $"Nov-{strArray[0]}",
+                $"Dec-{strArray[0]}",
+                $"Jan-{strArray[1]}",
+                $"Feb-{strArray[1]}",
+                $"Mar-{strArray[1]}"
+            ];
+        }
 
         public static string TohhmmFormatString(TimeSpan timeSpan)
         {
@@ -162,47 +203,6 @@ namespace Services
                 throw;
             }
             return consolidatedDataList;
-        }
-
-        public List<string> GetFyMonths(string financialYear)
-        {
-            string[] strArray = financialYear.Split('-');
-            return
-            [
-                $"Apr-{strArray[0]}",
-                $"May-{strArray[0]}",
-                $"Jun-{strArray[0]}",
-                $"Jul-{strArray[0]}",
-                $"Aug-{strArray[0]}",
-                $"Sep-{strArray[0]}",
-                $"Oct-{strArray[0]}",
-                $"Nov-{strArray[0]}",
-                $"Dec-{strArray[0]}",
-                $"Jan-{strArray[1]}",
-                $"Feb-{strArray[1]}",
-                $"Mar-{strArray[1]}"
-            ];
-        }
-
-        public static TimeOnly? ConvertObjtoTimeOnly(object obj)
-        {
-            if (obj is string stringValue)
-            {
-                if (stringValue.Trim() == string.Empty)
-                {
-                    return null;
-                }
-                else
-                {
-                    TimeOnly.TryParse(stringValue, out TimeOnly timeOnly);
-                    return timeOnly;
-                }
-            }
-            if (obj is DateTime dateTime)
-            {
-                return TimeOnly.FromDateTime(dateTime);
-            }
-            return null;
         }
     }
 }

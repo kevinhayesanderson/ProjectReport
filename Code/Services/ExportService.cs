@@ -7,7 +7,7 @@ using Utilities;
 
 namespace Services
 {
-    public class ExportService(ILogger logger, DataService dataService)
+    public class ExportService(ILogger logger)
     {
         public bool ExportConsolidateData(in List<ConsolidatedData> consolidatedDataList, ref MonthlyReportData monthlyReportData, in string time, in string exportFolder)
         {
@@ -127,7 +127,7 @@ namespace Services
         {
             bool res = true;
             logger.LogInfo("Generating Leave Report for FY" + financialYear + ":", 1);
-            List<string> sheetNames = dataService.GetFyMonths(financialYear);
+            List<string> sheetNames = DataService.GetFyMonths(financialYear);
             List<LeaveReportData> leaveReportDataList = [];
             bool hasReadErrors = false;
             foreach (string monthlyReport in monthlyReports)
