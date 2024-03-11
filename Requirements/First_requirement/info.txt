@@ -3,17 +3,17 @@
 	- Booking Month = ["3|March_23","4|Apr_23","5|May-23", "8|Aug|Aug_23|Aug-23"] *
 2. Cons rpt 
 	- All time to be written as TimeSpan *
-	- Project Id's should taken from both PTR & Monthly rpt *
+	- Project Id's should be taken from both PTR & Monthly rpt *
 	- Leaves should be written as below
 		"Leave by Hours for all {Total leave} days * 9"	| 207:00 |	*
 3. Ptr Inter rpt
 	- time to be written as TimeSpan *
 
 Q:
-Is MonthlyReport in Financial Year, format document contains calender year sheets only ? ||use sheet copy operation to preserve format||
-For leave report, for new employee, taking name and id not from first sheet, for joining month ||removed all constraints||
+Does MonthlyReport in Financial Year, format document contain calendar year sheets only? || Use sheet copy operation to preserve format||
+For leave report, for a new employee, taking name and id not from the first sheet, for joining month ||removed all constraints||
 
 I:
-59 and 01 minutes can be rounded to closest hour
-Year wise PTR, reading takes too long (10s)
-various formats on hidden rows for ptrbooking months
+59 and 01 minutes can be rounded to the closest hour
+Year-wise PTR, reading takes too long (10s)
+various formats on hidden rows for ptr booking months
