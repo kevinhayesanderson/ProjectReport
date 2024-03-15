@@ -57,11 +57,17 @@ namespace Services
 
                             var inTime = musterOption?.InTime;
                             if (inTime != null)
+                            {
                                 worksheet.SetCellValue(inTimeRowIndex, i, inTime.Value.ToString("H:mm"));
+                                worksheet.CellList[inTimeRowIndex].Style.NumberFormat = "h:mm";
+                            }
 
                             var outTime = musterOption?.OutTime;
                             if (outTime != null)
+                            {
                                 worksheet.SetCellValue(outTimeRowIndex, i, outTime.Value.ToString("H:mm"));
+                                worksheet.CellList[outTimeRowIndex].Style.NumberFormat = "h:mm";
+                            }
 
                             dataIndex++;
                         }
