@@ -48,7 +48,7 @@ namespace Services
 
                         int inTimeRowIndex = 10;
                         int outTimeRowIndex = 12;
-                        int firtDateColumnIndex = 4;
+                        int firtDateColumnIndex = 5;
                         int lastDateColumnIndex = firtDateColumnIndex + musterOptions.Length;
                         int dataIndex = 0;
                         for (int i = firtDateColumnIndex; i < lastDateColumnIndex; i++)
@@ -58,15 +58,15 @@ namespace Services
                             var inTime = musterOption?.InTime;
                             if (inTime != null)
                             {
-                                worksheet.SetCellValue(inTimeRowIndex, i, inTime.Value.ToString("H:mm"));
-                                worksheet.CellList[inTimeRowIndex].Style.NumberFormat = "h:mm";
+                                worksheet.SetCellValue(inTimeRowIndex, i, $"{inTime.Value.Hour}:{inTime.Value.Minute}");
+                                worksheet.CellList[inTimeRowIndex].Style.NumberFormat = "[h]:mm";
                             }
 
                             var outTime = musterOption?.OutTime;
                             if (outTime != null)
                             {
-                                worksheet.SetCellValue(outTimeRowIndex, i, outTime.Value.ToString("H:mm"));
-                                worksheet.CellList[outTimeRowIndex].Style.NumberFormat = "h:mm";
+                                worksheet.SetCellValue(outTimeRowIndex, i, $"{outTime.Value.Hour}:{outTime.Value.Minute}");
+                                worksheet.CellList[outTimeRowIndex].Style.NumberFormat = "[h]:mm";
                             }
 
                             dataIndex++;
