@@ -19,7 +19,7 @@ namespace Actions
             Logger.LogInfo("Monthly reports found:", 1);
             _monthlyReports.ForEach(mr => Logger.Log(new FileInfo(mr).Name));
 
-            var monthlyReportsData = _monthlyReports.Select(x => (DataService.ExtractEmployeeIdFromFileName(x), x)).ToList();
+            var monthlyReportsData = _monthlyReports.Select(x => (Services.DataService.ExtractEmployeeIdFromFileName(x), x)).ToList();
 
             MusterOptionsDatas _musterOptionsDatas = ReadService.ReadMusterOptions(_musterOptionsReports);
 

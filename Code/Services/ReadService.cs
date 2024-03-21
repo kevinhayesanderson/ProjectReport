@@ -265,7 +265,7 @@ namespace Services
                                         musterOptions.Add(musterOption);
                                     }
 
-                                    if (musterOptionsDatas.Datas.TryGetValue(employeeId, out MusterOptionsData musterOptionsData))
+                                    if (musterOptionsDatas.Datas.TryGetValue(employeeId, out MusterOptionsData? musterOptionsData))
                                     {
                                         musterOptionsData.AddMusterOptions(musterOptions);
                                     }

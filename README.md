@@ -1,6 +1,6 @@
 ## Project Report Application Information
 ### Description:
-&emsp; The Project Report application is a windows console application used to create various consolidated reports for [Ambigai Consultancy Services GmbH](https://www.ambigai.net/).
+&emsp; The Project Report application is a Windows console application used to create various consolidated reports for [Ambigai Consultancy Services GmbH](https://www.ambigai.net/).
 ### Source code:
 &emsp;[https://github.com/kevinhayesanderson/ProjectReport](https://github.com/kevinhayesanderson/ProjectReport)
 
@@ -136,4 +136,3 @@ This action updates the in and out time of monthly reports in the input folder u
  
 1. Year-wise PTR will be read faster as the filter iterates through all the rows in the sheet.
 <br/><br/>
-**<p style="text-align: center;">&copy; 2023 [Ambigai Consultancy Services GmbH](https://www.ambigai.net/)</p>**

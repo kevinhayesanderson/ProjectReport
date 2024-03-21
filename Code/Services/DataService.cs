@@ -205,7 +205,7 @@ namespace Services
             return consolidatedDataList;
         }
 
-        public uint ExtractEmployeeIdFromFileName(string fileName)
+        public static uint ExtractEmployeeIdFromFileName(string fileName)
         {
             var idString = Array.Find(fileName.Split('_'), fragment => fragment.Length == 5 && uint.TryParse(fragment, out var _));
             return idString == null ? uint.MinValue : Convert.ToUInt32(idString);
