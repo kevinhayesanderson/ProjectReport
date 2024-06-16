@@ -5,12 +5,12 @@ namespace Actions
 {
     public abstract class Action
     {
-        public static string Time { get; private set; }
-        public static ILogger Logger { get; private set; }
-        public static DataService DataService { get; private set; }
-        public static ReadService ReadService { get; private set; }
-        public static WriteService WriteService { get; private set; }
-        public static ExportService ExportService { get; private set; }
+        public static string Time { get; set; } = string.Empty;
+        public static ILogger Logger { get; private set; } = new ConsoleLogger();
+        public static DataService DataService { get; private set; } = new DataService(Logger);
+        public static ReadService ReadService { get; private set; } = new ReadService(Logger);
+        public static WriteService WriteService { get; private set; } = new WriteService(Logger);
+        public static ExportService ExportService { get; private set; } = new ExportService(Logger);
 
         public static void Init(string time, ILogger logger, DataService dataService, ReadService readService, WriteService writeService, ExportService exportService)
         {
