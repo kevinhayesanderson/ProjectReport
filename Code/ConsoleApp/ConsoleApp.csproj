@@ -14,6 +14,8 @@
 		<GenerateDocumentationFile>False</GenerateDocumentationFile>
 		<PublishTrimmed>False</PublishTrimmed>
 		<PublishAot>False</PublishAot>
+		<GenerateAssemblyInfo>True</GenerateAssemblyInfo>
+		<GeneratedAssemblyInfoFile>assemblyinfo.cs</GeneratedAssemblyInfoFile>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
