@@ -18,10 +18,9 @@ namespace Services
             UserSettings? userSettings = default;
             try
             {
-                using StreamReader schemaFile = File.OpenText("userSettings-schema.json");
-                using JsonTextReader schemaReader = new(schemaFile);
-                JSchema schema = JSchema.Load(schemaReader);
-                using JsonTextReader reader = new(File.OpenText("userSettings.json"));
+                var userSettingsInfo = new UserSettingsInfo();
+                JSchema schema = JSchema.Parse(userSettingsInfo.SchemaValue);
+                using JsonTextReader reader = new(File.OpenText(userSettingsInfo.UserSettingsFileName));
 
                 JSchemaValidatingReader validatingReader = new(reader)
                 {
