@@ -14,8 +14,11 @@
 		<GenerateDocumentationFile>False</GenerateDocumentationFile>
 		<PublishTrimmed>False</PublishTrimmed>
 		<PublishAot>False</PublishAot>
-		<GenerateAssemblyInfo>True</GenerateAssemblyInfo>
-		<GeneratedAssemblyInfoFile>assemblyinfo.cs</GeneratedAssemblyInfoFile>
+		<Company>Ambigai Consultancy Services (India) Pvt. Ltd</Company>
+		<Title>Project Report</Title>
+		<Description>The Project Report application is a Windows console application used to create various consolidated reports for Ambigai Consultancy Services GmbH.</Description>
+		<Product>Project Report</Product>
+		<ProductName>Project Report</ProductName>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
