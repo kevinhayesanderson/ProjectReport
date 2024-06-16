@@ -12,7 +12,7 @@
 		<AnalysisLevel>latest</AnalysisLevel>
 		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
 		<GenerateDocumentationFile>False</GenerateDocumentationFile>
-		<PublishTrimmed>True</PublishTrimmed>
+		<PublishTrimmed>False</PublishTrimmed>
 		<PublishAot>False</PublishAot>
 	</PropertyGroup>
 
