@@ -57,10 +57,7 @@
                   "default": [],
                   "items": [
                     {
-                      "type": "number"
-                    },
-                    {
-                      "type": "string"
+                      "type": [ "number", "string" ]
                     }
                   ],
                   "additionalItems": false

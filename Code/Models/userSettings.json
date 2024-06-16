@@ -2,32 +2,38 @@
   "Actions": [
     {
       "Name": "GenerateConsolidatedReport",
-      "Run": false,
-      "InputFolder": "D:\\ProjectReport\\Test_data",
+      "Run": true,
+      "InputFolder": "C:\\Users\\kevin\\Downloads",
       "MonthlyReportIdCol": 3,
-      "MonthlyReportMonths": [ "Jun-23", "Jul-23" ],
-      "PtrBookingMonthCol": 28,
-      "PtrBookingMonths": [ 6, "7|July_2023" ],
-      "PtrEffortCols": [ 22 ],
-      "PtrProjectIdCol": 2,
-      "PtrSheetName": ""
+      "MonthlyReportMonths": [
+        "Apr-24"
+      ],
+      "PtrBookingMonthCol": 20,
+      "PtrBookingMonths": [
+        "April"
+      ],
+      "PtrEffortCols": [
+        18
+      ],
+      "PtrProjectIdCol": 1,
+      "PtrSheetName": "ACS_PTR_CFD_May2024"
     },
     {
       "Name": "GenerateLeaveReport",
       "Run": false,
-      "InputFolder": "D:\\ProjectReport\\Test_data",
+      "InputFolder": "",
       "FinancialYear": "23-24"
     },
     {
       "Name": "CalculatePunchMovement",
       "Run": false,
-      "InputFolder": "D:\\ProjectReport\\Test_data\\PM",
+      "InputFolder": "",
       "CutOff": "4:45"
     },
     {
       "Name": "InOutEntry",
-      "Run": true,
-      "InputFolder": "D:\\ProjectReport\\Test_data\\MO\\CAE_EBS\\Test1"
+      "Run": false,
+      "InputFolder": ""
     }
   ]
 }
