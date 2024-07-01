@@ -18,10 +18,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="ExcelDataReader" Version="3.6.0" />
-		<PackageReference Include="ExcelDataReader.DataSet" Version="3.6.0" />
+		<PackageReference Include="ExcelDataReader" Version="3.7.0" />
+		<PackageReference Include="ExcelDataReader.DataSet" Version="3.7.0" />
 		<PackageReference Include="Newtonsoft.Json.Schema" Version="4.0.1" />
-		<PackageReference Include="Spire.XLS" Version="14.5.3" />
+		<PackageReference Include="Spire.XLS" Version="14.6.6" />
 	</ItemGroup>
 
 	<ItemGroup>
