@@ -6,10 +6,10 @@ namespace Services
 {
     public class WriteService(ILogger logger)
     {
-        public bool WriteInOutEntry(List<(uint, string)> monthlyReportsData, MusterOptionsDatas musterOptionsDatas)
+        public bool WriteMonthlyReportInOutEntry(List<(uint, string)> monthlyReportsData, MusterOptionsDatas musterOptionsDatas)
         {
             bool res = true;
-            logger.LogInfo("Writing InOutEntry in monthly reports:", 2);
+            logger.LogInfo("Writing MonthlyReportInOutEntry:", 2);
 
             try
             {
@@ -78,7 +78,7 @@ namespace Services
             }
             catch (Exception ex)
             {
-                logger.LogError($"An error occurred on writing InOutEntry in monthly reports: {ex.Message}");
+                logger.LogError($"An error occurred on writing MonthlyReportInOutEntry: {ex.Message}");
                 return false;
             }
             return res;

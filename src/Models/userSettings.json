@@ -2,7 +2,7 @@
   "Actions": [
     {
       "Name": "GenerateConsolidatedReport",
-      "Run": true,
+      "Run": false,
       "InputFolder": "C:\\Users\\kevin\\Downloads",
       "MonthlyReportIdCol": 3,
       "MonthlyReportMonths": [
@@ -31,9 +31,14 @@
       "CutOff": "4:45"
     },
     {
-      "Name": "InOutEntry",
-      "Run": false,
-      "InputFolder": ""
+      "Name": "MonthlyReportInOutEntry",
+      "Run": true,
+      "InputFolder": "C:\\Users\\90258\\Downloads\\Muster report\\Muster report"
+    },
+    {
+      "Name": "AttendanceReportEntry",
+      "Run": true,
+      "InputFolder": "C:\\Users\\90258\\Downloads"
     }
   ]
 }

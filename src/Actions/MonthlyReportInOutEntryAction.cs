@@ -3,8 +3,8 @@ using Models;
 
 namespace Actions
 {
-    [ActionName("InOutEntry")]
-    internal class InOutEntryAction(string inputFolder) : Action
+    [ActionName("MonthlyReportInOutEntry")]
+    internal class MonthlyReportInOutEntryAction(string inputFolder) : Action
     {
         private List<string> _monthlyReports = [];
         private List<string> _musterOptionsReports = [];
@@ -25,7 +25,7 @@ namespace Actions
 
             if (_musterOptionsDatas != null && _musterOptionsDatas.Datas.Count > 0)
             {
-                res = WriteService.WriteInOutEntry(monthlyReportsData, _musterOptionsDatas);
+                res = WriteService.WriteMonthlyReportInOutEntry(monthlyReportsData, _musterOptionsDatas);
             }
             else
             {

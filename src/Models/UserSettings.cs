@@ -31,7 +31,8 @@ namespace Models
               ""GenerateConsolidatedReport"",
               ""GenerateLeaveReport"",
               ""CalculatePunchMovement"",
-              ""InOutEntry""
+              ""MonthlyReportInOutEntry"",
+              ""AttendanceReportEntry""
             ]
           },
           ""Run"": {
@@ -136,7 +137,22 @@ namespace Models
             ""if"": {
               ""properties"": {
                 ""Name"": {
-                  ""const"": ""InOutEntry""
+                  ""const"": ""MonthlyReportInOutEntry""
+                }
+              },
+              ""required"": [
+                ""Name""
+              ]
+            },
+            ""then"": {
+              ""properties"": {}
+            }
+          },
+          {
+            ""if"": {
+              ""properties"": {
+                ""Name"": {
+                  ""const"": ""AttendanceReportEntry""
                 }
               },
               ""required"": [

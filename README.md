@@ -45,7 +45,7 @@ Here's an example of userSettings.json:
       "CutOff": "4:45"
     },
     {
-      "Name": "InOutEntry",
+      "Name": "MonthlyReportInOutEntry",
       "Run": false,
       "InputFolder": "C:\\ProjectReport\\InputFolder"
     }
@@ -115,7 +115,7 @@ The single financial year for which the leave report will be generated.
 ### CalculatePunchMovement:
 This action generates a time report from PunchMovement reports.
  
-### InOutEntry:
+### MonthlyReportInOutEntry:
 This action updates the in and out time of monthly reports in the input folder using muster options in and out time.
 
 ### Monthly report constraints:

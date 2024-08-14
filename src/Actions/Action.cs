@@ -50,7 +50,7 @@ namespace Actions
 
                 nameof(CalculatePunchMovementAction) => ((Func<CalculatePunchMovementAction>)(() => new CalculatePunchMovementAction(action.InputFolder, action.CutOff)))(),
 
-                nameof(InOutEntryAction) => ((Func<InOutEntryAction>)(() => new InOutEntryAction(action.InputFolder)))(),
+                nameof(MonthlyReportInOutEntryAction) => ((Func<MonthlyReportInOutEntryAction>)(() => new MonthlyReportInOutEntryAction(action.InputFolder)))(),
 
                 _ => throw new NotImplementedException("Action not implemented.")
             };
