@@ -30,7 +30,7 @@ namespace ConsoleApp
 
             Console.Title = $"Project Report Application PID:{Environment.ProcessId}";
 
-            logger.LogInfo($"Running Project Report Application at Date_Time:{time}");
+            logger.LogInfo($"Running Project Report Application(PID:{Environment.ProcessId}) at Date_Time:{time}");
 
             var userSettings = readService.GetUserSettings();
 

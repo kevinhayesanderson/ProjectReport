@@ -243,23 +243,37 @@ namespace Services
                                 logger.LogDataSameLine(dataTable.TableName + ", ");
                                 DataRowCollection rows = dataTable.Rows;
 
-                                for (int j = 5; j < rows.Count; j += 6)
+                                int rowIndexColumn = 0;
+                                List<int> dataRowIndexes = [];
+                                foreach (DataRow row in dataTable.Rows)
                                 {
-                                    var row = rows[j];
+                                    if (int.TryParse(row.ItemArray[rowIndexColumn]?.ToString(), out _))
+                                    {
+                                        dataRowIndexes.Add(dataTable.Rows.IndexOf(row));
+                                    }
+                                }
+
+                                foreach (int dataRowIndex in dataRowIndexes)
+                                {
+                                    var row = rows[dataRowIndex];
                                     var employeeId = Convert.ToUInt32(row[eCodeColumn]);
-                                    if (row[nameColumn] is not String employeeName) continue;
-                                    var designation = row[designationColumn] as String ?? string.Empty;
+                                    if (row[nameColumn] is not string employeeName) continue;
+                                    var designation = row[designationColumn] as string ?? string.Empty;
                                     var musterOptions = new List<MusterOption>();
                                     for (int k = firstDateColumn; k <= lastDateColumn; k++)
                                     {
                                         var date = (DateTime)rows[3][k];
-                                        var inTime = DataService.ConvertToTimeOnly(rows[j + 2][k]);
-                                        var outTime = DataService.ConvertToTimeOnly(rows[j + 3][k]);
+                                        var shift = rows[dataRowIndex + 1][k].ToString();
+                                        var inTime = DataService.ConvertToTimeOnly(rows[dataRowIndex + 2][k]);
+                                        var outTime = DataService.ConvertToTimeOnly(rows[dataRowIndex + 3][k]);
+                                        var muster = rows[dataRowIndex + 4][k].ToString();
                                         var musterOption = new MusterOption()
                                         {
                                             Date = date,
+                                            Shift = shift ?? string.Empty,
                                             InTime = inTime,
-                                            OutTime = outTime
+                                            OutTime = outTime,
+                                            Muster = muster ?? string.Empty
                                         };
                                         musterOptions.Add(musterOption);
                                     }

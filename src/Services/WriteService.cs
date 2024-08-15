@@ -6,14 +6,27 @@ namespace Services
 {
     public class WriteService(ILogger logger)
     {
-        public bool WriteAttendanceReportEntry(List<string> attendanceReports, MusterOptionsDatas musterOptionsDatas)
+        public bool WriteAttendanceReportEntry(in List<string> attendanceReports, in MusterOptionsDatas musterOptionsDatas)
         {
             bool res = true;
             logger.LogInfo("Writing AttendanceReportEntry:", 2);
+
+            try
+            {
+                foreach (var attendanceReport in attendanceReports)
+                {
+
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"An error occurred on writing AttendanceReportEntry: {ex.Message}");
+                return false;
+            }
             return res;
         }
 
-        public bool WriteMonthlyReportInOutEntry(List<(uint, string)> monthlyReportsData, MusterOptionsDatas musterOptionsDatas)
+        public bool WriteMonthlyReportInOutEntry(in List<(uint, string)> monthlyReportsData, in MusterOptionsDatas musterOptionsDatas)
         {
             bool res = true;
             logger.LogInfo("Writing MonthlyReportInOutEntry:", 2);
