@@ -32,7 +32,7 @@
     },
     {
       "Name": "MonthlyReportInOutEntry",
-      "Run": true,
+      "Run": false,
       "InputFolder": "D:\\ProjectReport\\test_data\\Muster"
     },
     {

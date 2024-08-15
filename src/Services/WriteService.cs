@@ -1,5 +1,6 @@
 ﻿using Models;
 using Spire.Xls;
+using System.Globalization;
 using Utilities;
 
 namespace Services
@@ -15,7 +16,51 @@ namespace Services
             {
                 foreach (var attendanceReport in attendanceReports)
                 {
+                    logger.LogSameLine("Editing Attendance Report");
+                    logger.LogDataSameLine(Path.GetFileName(attendanceReport));
+                    logger.LogLine();
 
+                    Workbook workbook = new();
+
+                    workbook.LoadFromFile(attendanceReport);
+
+                    var sheetNames = workbook.Worksheets.Select(x => x.Name);
+
+                    List<(string sheetName, int year, int month)> dataEntrySheets = [];
+
+                    foreach (var sheetName in sheetNames)
+                    {
+                        var splits = sheetName.Trim().Split('_');
+
+                        if (splits.Length != 2) continue;
+
+                        var monthString = splits[0];
+                        var yearString = splits[1];
+
+                        bool isMonthParsable = DateTime.TryParseExact(monthString, "MMM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime monthDateTime);
+                        if (!isMonthParsable) continue;
+                        var month = monthDateTime.Month;
+
+                        bool isYearParsable = DateTime.TryParseExact(yearString, "YYYY", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime yearDateTime);
+                        if (!isYearParsable) continue;
+                        var year = yearDateTime.Year;
+
+                        dataEntrySheets.Add((sheetName, year, month));
+                    }
+
+                    logger.LogSameLine($"Editing Sheet");
+                    foreach ((string sheetName, int year, int month) in dataEntrySheets)
+                    {
+                        logger.LogDataSameLine(Path.GetFileName(sheetName));
+
+                        var workSheet = workbook.Worksheets[sheetName];
+                        //TODO: 1. Get unique employee ids from sheet
+                        //TODO: 2. get matching muster data
+                        //TODO: 3. get entry row indexes
+                        //TODO: 4. Enter muster values
+                    }
+
+                    workbook.Save();
                 }
             }
             catch (Exception ex)

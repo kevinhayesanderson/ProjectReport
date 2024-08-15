@@ -1,4 +1,4 @@
-## Project Report Application Information
+## <u>Project Report Application Information</u>:
 ### Description:
 &emsp; The Project Report application is a Windows console application used to create various consolidated reports for [Ambigai Consultancy Services GmbH](https://www.ambigai.net/).
 ### Source code:
@@ -11,9 +11,8 @@
 ### Developer Info:
 &emsp;Kevin Hayes Anderson
 &emsp;[kevin.hayes@ambigai.net](mailto:kevin.hayes@ambigai.net)
- 
- 
-### User Setting information:
+<br/><br/>
+### <u>User Setting information</u>:
 The user settings are stored in the userSettings.json file.<br/>
 It contains an array of actions.
 Here's an example of userSettings.json:
@@ -57,7 +56,8 @@ Here's an example of userSettings.json:
   ]
 }
 ```
-### Actions:
+<br/><br/>
+### <u>Actions</u>:
 Each action contains three common properties: Name, Run & InputFolder.
  
 ***Name:***
@@ -125,7 +125,8 @@ This action updates the in and out time of monthly reports in the input folder u
 
 ### AttendanceReportEntry:
 This action updates the Shift ,in time, out time and Muster of attendance reports in the input folder using muster options data.
-
+<br/><br/>
+### <u>Constraints</u>:
 ### Monthly report constraints:
  
 1. The file name should have "Monthly_Report" in the file name to be considered as a Monthly report.
@@ -139,6 +140,11 @@ This action updates the Shift ,in time, out time and Muster of attendance report
  
 1. The file name should have "ACS_PTR" present in the file name to be considered as a PTR report.
 2. Effort should either be in the Excel format of `number` or `[h]:mm:ss`.
+
+### Attendance report constraints:
+
+1. The file name should have "ACS_Attendance" in the file name to be considered as a Monthly report.
+2. Sheets with name format of "MMM_YYYY" will be edited.
  
 ### General constraints:
  
