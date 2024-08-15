@@ -20,9 +20,9 @@ namespace Actions
 
         public override void Init()
         {
-            _monthlyReports = Helper.GetReports(inputFolder, Constants.MonthlyReportPattern).ToList();
+            _monthlyReports = Helper.GetReports(inputFolder, Constants.MonthlyReport.FileNamePattern).ToList();
 
-            _ptrFiles = Helper.GetReports(inputFolder, Constants.PTRPattern).ToList();
+            _ptrFiles = Helper.GetReports(inputFolder, Constants.PTR.FileNamePattern).ToList();
 
             _exportFolder = @$"{inputFolder}\Reports_{Time}";
         }
@@ -49,13 +49,13 @@ namespace Actions
                 }
                 else
                 {
-                    Logger.LogWarning($"Consolidated data is empty, modify filter conditions or check if data is present, otherwise report application error to {Constants.ApplicationAdmin}", 2);
+                    Logger.LogWarning($"Consolidated data is empty, modify filter conditions or check if data is present, otherwise report application error to {Constants.General.ApplicationAdmin}", 2);
                     return false;
                 }
             }
             else
             {
-                Logger.LogWarning($"Either PTR or Monthly report data is empty, modify filter conditions or check if data is present, otherwise report application error to {Constants.ApplicationAdmin}", 2);
+                Logger.LogWarning($"Either PTR or Monthly report data is empty, modify filter conditions or check if data is present, otherwise report application error to {Constants.General.ApplicationAdmin}", 2);
                 return false;
             }
         }
@@ -64,9 +64,9 @@ namespace Actions
         {
             bool res = ValidateDirectory(inputFolder);
 
-            res = res && ValidateReports(_monthlyReports, $"No Monthly Report files with naming pattern {Constants.MonthlyReportPattern} found on {inputFolder}.");
+            res = res && ValidateReports(_monthlyReports, $"No Monthly Report files with naming pattern {Constants.MonthlyReport.FileNamePattern} found on {inputFolder}.");
 
-            res = res && ValidateReports(_ptrFiles, $"No PTR files with naming pattern {Constants.PTRPattern} found on {inputFolder}.");
+            res = res && ValidateReports(_ptrFiles, $"No PTR files with naming pattern {Constants.PTR.FileNamePattern} found on {inputFolder}.");
 
             return res;
         }

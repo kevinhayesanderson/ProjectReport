@@ -11,9 +11,9 @@ namespace Actions
 
         public override void Init()
         {
-            _attendanceReports = Helper.GetReports(inputFolder, Constants.AttendanceReportPattern).ToList();
+            _attendanceReports = Helper.GetReports(inputFolder, Constants.AttendanceReport.FileNamePattern).ToList();
 
-            _musterOptionsReports = Helper.GetReports(inputFolder, Constants.MusterOptionsPattern).ToList();
+            _musterOptionsReports = Helper.GetReports(inputFolder, Constants.MusterOptions.FileNamePattern).ToList();
         }
 
         public override bool Run()
@@ -30,7 +30,7 @@ namespace Actions
             }
             else
             {
-                Logger.LogWarning($"Muster options data is empty, check if data is present, otherwise report application error to {Constants.ApplicationAdmin}", 2);
+                Logger.LogWarning($"Muster options data is empty, check if data is present, otherwise report application error to {Constants.General.ApplicationAdmin}", 2);
                 return false;
             }
         }
@@ -39,9 +39,9 @@ namespace Actions
         {
             bool res = ValidateDirectory(inputFolder);
 
-            res = res && ValidateReports(_attendanceReports, $"No Attendance Report files with naming pattern {Constants.AttendanceReportPattern} found on {inputFolder}.");
+            res = res && ValidateReports(_attendanceReports, $"No Attendance Report files with naming pattern {Constants.AttendanceReport.FileNamePattern} found on {inputFolder}.");
 
-            res = res && ValidateReports(_musterOptionsReports, $"No Muster Options files with naming pattern {Constants.MusterOptionsPattern} found on {inputFolder}.");
+            res = res && ValidateReports(_musterOptionsReports, $"No Muster Options files with naming pattern {Constants.MusterOptions.FileNamePattern} found on {inputFolder}.");
 
             return res;
         }

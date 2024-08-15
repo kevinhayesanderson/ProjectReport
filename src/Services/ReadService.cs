@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Schema;
 using System.Data;
 using Utilities;
+using static Models.Constants;
 
 namespace Services
 {
@@ -88,15 +89,15 @@ namespace Services
                         : tables.Cast<DataTable>().Select(dataTable => dataTable).ToList();
                     if (dataTableList.Count > 0)
                     {
-                        if (string.IsNullOrEmpty(((string)dataTableList[0].Rows[3][2]).Trim()))
+                        if (string.IsNullOrEmpty(((string)dataTableList[0].Rows[MonthlyReport.EmployeeNameIndex.Row][MonthlyReport.EmployeeNameIndex.Column]).Trim()))
                         {
-                            throw new ArgumentException($"Employee name is empty or has an invalid format in the sheet {dataTableList[0].TableName}: Check row {4} at column {3}");
+                            throw new ArgumentException($"Employee name is empty or has an invalid format in the sheet {dataTableList[0].TableName}: Check row {MonthlyReport.EmployeeNameIndex.Row + 1} at column {MonthlyReport.EmployeeNameIndex.Column + 1}");
                         }
-                        string employeeName = (string)dataTableList[0].Rows[3][2];
+                        string employeeName = (string)dataTableList[0].Rows[MonthlyReport.EmployeeNameIndex.Row][MonthlyReport.EmployeeNameIndex.Column];
                         employeeName = employeeName.Trim();
-                        if (!int.TryParse(dataTableList[0].Rows[4][2].ToString(), out int employeeId))
+                        if (!int.TryParse(dataTableList[0].Rows[MonthlyReport.EmployeeIdIndex.Row][MonthlyReport.EmployeeIdIndex.Column].ToString(), out int employeeId))
                         {
-                            throw new ArgumentException($"Employee Id is empty or has an invalid format in the sheet {dataTableList[0].TableName}: Check row {5} at column {3}");
+                            throw new ArgumentException($"Employee Id is empty or has an invalid format in the sheet {dataTableList[0].TableName}: Check row {MonthlyReport.EmployeeIdIndex.Row + 1} at column {MonthlyReport.EmployeeIdIndex.Column + 1}");
                         }
                         Dictionary<string, TimeSpan> projectData = [];
                         logger.LogSameLine("Reading Sheet: ");
@@ -109,7 +110,7 @@ namespace Services
                                 logger.LogDataSameLine(dataTable.TableName + ", ");
                                 DataRowCollection rows = dataTable.Rows;
                                 int lastColumnIndex;
-                                int actualAvailableHoursRowIndex = 13;
+                                int actualAvailableHoursRowIndex = MonthlyReport.ActualAvailableHoursIndex.Row;
                                 lastColumnIndex = rows[actualAvailableHoursRowIndex].ItemArray.Length - 1;
                                 if (TimeSpan.TryParse(rows[actualAvailableHoursRowIndex][lastColumnIndex].ToString(), out TimeSpan actualAvailableHours))
                                 {
@@ -123,20 +124,19 @@ namespace Services
                                 {
                                     throw new FormatException($"Invalid format at column: {lastColumnIndex + 1} at row: {actualAvailableHoursRowIndex + 1} in sheet {dataTable.TableName}");
                                 }
-                                int totalLeavesRowIndex = 14;
-                                if (int.TryParse(rows[totalLeavesRowIndex][lastColumnIndex].ToString(), out int totalLeaves))
+                                if (int.TryParse(rows[MonthlyReport.LeavesRowIndex.Row][lastColumnIndex].ToString(), out int totalLeaves))
                                 {
                                     if (actualAvailableHours.Equals(new int()))
                                     {
-                                        logger.LogWarning($"Check for potential empty data at column: {lastColumnIndex + 1} at row: {totalLeavesRowIndex + 1} in sheet {dataTable.TableName}", 1);
+                                        logger.LogWarning($"Check for potential empty data at column: {lastColumnIndex + 1} at row: {MonthlyReport.LeavesRowIndex.Row + 1} in sheet {dataTable.TableName}", 1);
                                     }
                                     TotalLeaves += totalLeaves;
                                 }
                                 else
                                 {
-                                    throw new FormatException($"Invalid format at column: {lastColumnIndex + 1} at row: {totalLeavesRowIndex + 1} in sheet {dataTable.TableName}");
+                                    throw new FormatException($"Invalid format at column: {lastColumnIndex + 1} at row: {MonthlyReport.LeavesRowIndex.Row + 1} in sheet {dataTable.TableName}");
                                 }
-                                for (int rowIndex = 15; rowIndex < rows.Count; ++rowIndex)
+                                for (int rowIndex = MonthlyReport.DataRowIndex.Row; rowIndex < rows.Count; ++rowIndex)
                                 {
                                     if (rows[rowIndex][idCol - 1] is string key && (key.ToUpper().StartsWith("ACS_", StringComparison.Ordinal) || key.ToUpper().StartsWith("ACS.", StringComparison.Ordinal)))
                                     {
@@ -206,7 +206,7 @@ namespace Services
 
         public MusterOptionsDatas ReadMusterOptions(List<string> musterOptionsReports)
         {
-            MusterOptionsDatas musterOptionsDatas = new MusterOptionsDatas();
+            MusterOptionsDatas musterOptionsDatas = new();
             foreach (var musterOptionsReport in musterOptionsReports)
             {
                 try
@@ -233,21 +233,20 @@ namespace Services
                             {
                                 if (i == 0)
                                 {
-                                    var trimmedColumnNames = dataTable.Rows[3].ItemArray.Select(o => o?.ToString()?.Trim().ToLower()).ToArray();
-                                    eCodeColumn = Array.IndexOf(trimmedColumnNames, "empcode");
-                                    nameColumn = Array.IndexOf(trimmedColumnNames, "name");
-                                    designationColumn = Array.IndexOf(trimmedColumnNames, "designation");
+                                    var trimmedColumnNames = dataTable.Rows[MusterOptions.HeadingsRowIndex.Row].ItemArray.Select(o => o?.ToString()?.Trim()).ToArray();
+                                    eCodeColumn = Array.IndexOf(trimmedColumnNames, MusterOptions.EmpCodeColumnHeading);
+                                    nameColumn = Array.IndexOf(trimmedColumnNames, MusterOptions.NameColumnHeading);
+                                    designationColumn = Array.IndexOf(trimmedColumnNames, MusterOptions.DesignationColumnHeading);
                                     firstDateColumn = Array.FindIndex(trimmedColumnNames, item => DateTime.TryParse(item, out firstDate));
                                     lastDateColumn = Array.FindLastIndex(trimmedColumnNames, item => DateTime.TryParse(item, out lastDate));
                                 }
                                 logger.LogDataSameLine(dataTable.TableName + ", ");
                                 DataRowCollection rows = dataTable.Rows;
 
-                                int rowIndexColumn = 0;
                                 List<int> dataRowIndexes = [];
                                 foreach (DataRow row in dataTable.Rows)
                                 {
-                                    if (int.TryParse(row.ItemArray[rowIndexColumn]?.ToString(), out _))
+                                    if (int.TryParse(row.ItemArray[MusterOptions.SerialNoIndex.Column]?.ToString(), out _))
                                     {
                                         dataRowIndexes.Add(dataTable.Rows.IndexOf(row));
                                     }
@@ -262,11 +261,11 @@ namespace Services
                                     var musterOptions = new List<MusterOption>();
                                     for (int k = firstDateColumn; k <= lastDateColumn; k++)
                                     {
-                                        var date = (DateTime)rows[3][k];
-                                        var shift = rows[dataRowIndex + 1][k].ToString();
-                                        var inTime = DataService.ConvertToTimeOnly(rows[dataRowIndex + 2][k]);
-                                        var outTime = DataService.ConvertToTimeOnly(rows[dataRowIndex + 3][k]);
-                                        var muster = rows[dataRowIndex + 4][k].ToString();
+                                        var date = (DateTime)rows[MusterOptions.HeadingsRowIndex.Row][k];
+                                        var shift = rows[dataRowIndex + MusterOptions.ShiftOffset][k].ToString();
+                                        var inTime = DataService.ConvertToTimeOnly(rows[dataRowIndex + MusterOptions.InTimeOffset][k]);
+                                        var outTime = DataService.ConvertToTimeOnly(rows[dataRowIndex + MusterOptions.OutTimeOffset][k]);
+                                        var muster = rows[dataRowIndex + MusterOptions.MusterOffset][k].ToString();
                                         var musterOption = new MusterOption()
                                         {
                                             Date = date,
@@ -446,12 +445,20 @@ namespace Services
                             {
                                 if (i == 0)
                                 {
-                                    var trimmedColumnNames = dataTable.Rows[1].ItemArray.Select(o => o?.ToString()?.Trim().ToLower()).ToArray();
-                                    eCodeColumn = Array.IndexOf(trimmedColumnNames, "ecode");
-                                    nameColumn = Array.IndexOf(trimmedColumnNames, "name");
-                                    dateColumn = Array.IndexOf(trimmedColumnNames, "date");
-                                    firstInOutColumn = Array.FindIndex(trimmedColumnNames, item => item is "in" or "out");
-                                    lastInOutColumn = Array.FindLastIndex(trimmedColumnNames, item => item is "in" or "out");
+                                    var trimmedColumnNames = dataTable.Rows[PunchMovement.HeadingsRowIndex.Row].ItemArray.Select(o => o?.ToString()?.Trim()).ToArray();
+                                    eCodeColumn = Array.IndexOf(trimmedColumnNames, PunchMovement.ECodeColumnHeading);
+                                    nameColumn = Array.IndexOf(trimmedColumnNames, PunchMovement.NameColumnHeading);
+                                    dateColumn = Array.IndexOf(trimmedColumnNames, PunchMovement.DateColumnHeading);
+                                    bool inOutPredicate(string? columnName)
+                                    {
+                                        if (columnName is PunchMovement.InColumnHeading || columnName is PunchMovement.OutColumnHeading)
+                                        {
+                                            return true;
+                                        }
+                                        return false;
+                                    };
+                                    firstInOutColumn = Array.FindIndex(trimmedColumnNames, inOutPredicate);
+                                    lastInOutColumn = Array.FindLastIndex(trimmedColumnNames, inOutPredicate);
                                 }
                                 logger.LogDataSameLine(dataTable.TableName + ", ");
                                 DataRowCollection rows = dataTable.Rows;

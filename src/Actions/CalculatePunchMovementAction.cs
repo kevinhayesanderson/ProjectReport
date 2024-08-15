@@ -12,7 +12,7 @@ namespace Actions
 
         public override void Init()
         {
-            _punchMovementFiles = Helper.GetReports(inputFolder, Constants.PunchMovementPattern).ToList();
+            _punchMovementFiles = Helper.GetReports(inputFolder, Constants.PunchMovement.FileNamePattern).ToList();
             _exportFolder = @$"{inputFolder}\Reports_{Time}";
         }
 
@@ -31,7 +31,7 @@ namespace Actions
         {
             bool res = ValidateDirectory(inputFolder);
 
-            res = res && ValidateReports(_punchMovementFiles, $"No Punch Movement files with naming pattern {Constants.PunchMovementPattern} found on {inputFolder}");
+            res = res && ValidateReports(_punchMovementFiles, $"No Punch Movement files with naming pattern {Constants.PunchMovement.FileNamePattern} found on {inputFolder}");
 
             return res;
         }

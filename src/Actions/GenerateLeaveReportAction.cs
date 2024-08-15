@@ -13,7 +13,7 @@ namespace Actions
 
         public override void Init()
         {
-            _monthlyReports = Helper.GetReports(inputFolder, Constants.MonthlyReportPattern).ToList();
+            _monthlyReports = Helper.GetReports(inputFolder, Constants.MonthlyReport.FileNamePattern).ToList();
 
             _exportFolder = @$"{inputFolder}\Reports_{Time}";
         }
@@ -29,7 +29,7 @@ namespace Actions
         {
             bool res = ValidateDirectory(inputFolder);
 
-            res = res && ValidateReports(_monthlyReports, $"No Monthly Report files with naming pattern {Constants.MonthlyReportPattern} found on {inputFolder}.");
+            res = res && ValidateReports(_monthlyReports, $"No Monthly Report files with naming pattern {Constants.MonthlyReport.FileNamePattern} found on {inputFolder}.");
 
             return res;
         }

@@ -1,6 +1,4 @@
-﻿// Ignore Spelling: Tohhmm
-
-using Models;
+﻿using Models;
 using Utilities;
 
 namespace Services
@@ -19,7 +17,7 @@ namespace Services
                 }
                 else
                 {
-                    TimeOnly.TryParse(stringValue, out TimeOnly timeOnly);
+                    _ = TimeOnly.TryParse(stringValue, out TimeOnly timeOnly);
                     return timeOnly;
                 }
             }
@@ -30,7 +28,7 @@ namespace Services
             return null;
         }
 
-        public static List<string> GetFyMonths(string financialYear)
+        public static List<string> GetMMMYYYforFy(string financialYear)
         {
             string[] strArray = financialYear.Split('-');
             return
@@ -90,7 +88,7 @@ namespace Services
                             continue;
                         }
 
-                        IEnumerable<TimeOnly> InOuts = Enumerable.Empty<TimeOnly>();
+                        IEnumerable<TimeOnly> InOuts = [];
 
                         bool lastOutPredicate(TimeOnly punch) => punch <= new TimeOnly(cutOffHour, cutOffMinute);
 
@@ -207,7 +205,7 @@ namespace Services
 
         public static uint ExtractEmployeeIdFromFileName(string fileName)
         {
-            var idString = Array.Find(fileName.Split('_'), fragment => fragment.Length == 5 && uint.TryParse(fragment, out var _));
+            var idString = Array.Find(fileName.Split('_'), fragment => fragment.Length == Constants.General.EmployeeIdLength && uint.TryParse(fragment, out var _));
             return idString == null ? uint.MinValue : Convert.ToUInt32(idString);
         }
     }

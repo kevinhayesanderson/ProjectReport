@@ -2,6 +2,7 @@
 using Spire.Xls;
 using System.Globalization;
 using Utilities;
+using static Models.Constants;
 
 namespace Services
 {
@@ -24,32 +25,21 @@ namespace Services
 
                     workbook.LoadFromFile(attendanceReport);
 
-                    var sheetNames = workbook.Worksheets.Select(x => x.Name);
+                    var sheetNames = workbook.Worksheets.Select(x => x.Name.Trim());
 
-                    List<(string sheetName, int year, int month)> dataEntrySheets = [];
+                    List<(string sheetName, DateOnly dateOnly)> dataEntrySheets = [];
 
                     foreach (var sheetName in sheetNames)
                     {
-                        var splits = sheetName.Trim().Split('_');
-
-                        if (splits.Length != 2) continue;
-
-                        var monthString = splits[0];
-                        var yearString = splits[1];
-
-                        bool isMonthParsable = DateTime.TryParseExact(monthString, "MMM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime monthDateTime);
-                        if (!isMonthParsable) continue;
-                        var month = monthDateTime.Month;
-
-                        bool isYearParsable = DateTime.TryParseExact(yearString, "YYYY", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime yearDateTime);
-                        if (!isYearParsable) continue;
-                        var year = yearDateTime.Year;
-
-                        dataEntrySheets.Add((sheetName, year, month));
+                        //BUG: Fix sheet name pattern matching
+                        if (DateOnly.TryParseExact(sheetName, AttendanceReport.SheetNamePattern, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateOnly dateOnly))
+                        {
+                            dataEntrySheets.Add((sheetName, dateOnly));
+                        }
                     }
 
                     logger.LogSameLine($"Editing Sheet");
-                    foreach ((string sheetName, int year, int month) in dataEntrySheets)
+                    foreach ((string sheetName, DateOnly dateOnly) in dataEntrySheets)
                     {
                         logger.LogDataSameLine(Path.GetFileName(sheetName));
 
@@ -86,7 +76,7 @@ namespace Services
 
                     if (fileId == uint.MinValue)
                     {
-                        logger.LogWarning($"Ignoring monthly report {fileName}, unable to locate 5 digit employee id in the file name");
+                        logger.LogWarning($"Ignoring monthly report {fileName}, unable to locate {General.EmployeeIdLength} digit employee id in the file name");
                         continue;
                     }
 
@@ -102,7 +92,7 @@ namespace Services
 
                     foreach (var dataDate in dataDates)
                     {
-                        var sheetName = dataDate.ToString("MMM-yy");
+                        var sheetName = dataDate.ToString(MonthlyReport.SheetNamePattern);
 
                         Worksheet worksheet = workbook.Worksheets[sheetName];
 
@@ -111,27 +101,24 @@ namespace Services
                             .OrderBy(x => x.Date)
                             .ToArray();
 
-                        int inTimeRowIndex = 10;
-                        int outTimeRowIndex = 12;
-                        int firstDateColumnIndex = 5;
-                        int lastDateColumnIndex = firstDateColumnIndex + musterOptions.Length;
+                        int lastDateColumnIndex = MonthlyReport.FirstDateIndex.Column + musterOptions.Length;
                         int dataIndex = 0;
-                        for (int i = firstDateColumnIndex; i < lastDateColumnIndex; i++)
+                        for (int i = MonthlyReport.FirstDateIndex.Column; i < lastDateColumnIndex; i++)
                         {
                             var musterOption = musterOptions[dataIndex];
 
                             var inTime = musterOption?.InTime;
                             if (inTime != null)
                             {
-                                worksheet.SetCellValue(inTimeRowIndex, i, $"{inTime.Value.Hour}:{inTime.Value.Minute}");
-                                worksheet.CellList[inTimeRowIndex].Style.NumberFormat = "[h]:mm";
+                                worksheet.SetCellValue(MonthlyReport.InTimeIndex.Row, i, $"{inTime.Value.Hour}:{inTime.Value.Minute}");
+                                worksheet.CellList[MonthlyReport.InTimeIndex.Row].Style.NumberFormat = MonthlyReport.TimeNumberFormat;
                             }
 
                             var outTime = musterOption?.OutTime;
                             if (outTime != null)
                             {
-                                worksheet.SetCellValue(outTimeRowIndex, i, $"{outTime.Value.Hour}:{outTime.Value.Minute}");
-                                worksheet.CellList[outTimeRowIndex].Style.NumberFormat = "[h]:mm";
+                                worksheet.SetCellValue(MonthlyReport.OutTimeIndex.Row, i, $"{outTime.Value.Hour}:{outTime.Value.Minute}");
+                                worksheet.CellList[MonthlyReport.OutTimeIndex.Row].Style.NumberFormat = MonthlyReport.TimeNumberFormat;
                             }
 
                             dataIndex++;

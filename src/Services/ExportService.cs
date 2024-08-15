@@ -4,6 +4,7 @@ using System.Data;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using Utilities;
+using static Models.Constants;
 
 namespace Services
 {
@@ -127,7 +128,7 @@ namespace Services
         {
             bool res = true;
             logger.LogInfo("Generating Leave Report for FY" + financialYear + ":", 1);
-            List<string> sheetNames = DataService.GetFyMonths(financialYear);
+            List<string> sheetNames = DataService.GetMMMYYYforFy(financialYear);
             List<LeaveReportData> leaveReportDataList = [];
             bool hasReadErrors = false;
             foreach (string monthlyReport in monthlyReports)
@@ -139,27 +140,25 @@ namespace Services
                     using IExcelDataReader reader = ExcelReaderFactory.CreateReader(fileStream, null);
                     DataTableCollection tables = ExcelDataReaderExtensions.AsDataSet(reader, null).Tables;
                     List<DataTable> sheets = tables.Cast<DataTable>().Where(dataTable => sheetNames.Contains(dataTable.TableName.Trim())).ToList();
-                    int? totalLeaves = new int?(0);
-                    Dictionary<string, int?> leaves = [];
-                    string employeeName = string.Empty;
-                    int employeeId = default;
+                    (int? totalLeaves, Dictionary<string, int?> leaves, string employeeName, int employeeId, int employeeIdColumnIndex, int employeeIdRowIndex, int employeeNameColumnIndex, int employeeNameRowIndex)
+                    = (new int?(0), [], string.Empty, default, MonthlyReport.EmployeeIdIndex.Column, MonthlyReport.EmployeeIdIndex.Row, MonthlyReport.EmployeeNameIndex.Column, MonthlyReport.EmployeeNameIndex.Row);
                     if (sheets.Count > 0)
                     {
                         for (int i = 0; i < sheets.Count; i++)
                         {
-                            if (sheets[i].Rows[3][2] is DBNull || sheets[i].Rows[4][2] is DBNull)
+                            if (sheets[i].Rows[employeeNameRowIndex][employeeNameColumnIndex] is DBNull || sheets[i].Rows[employeeIdRowIndex][employeeIdColumnIndex] is DBNull)
                             {
                                 continue;
                             }
-                            if (string.IsNullOrEmpty(((string)sheets[i].Rows[3][2]).Trim()))
+                            if (string.IsNullOrEmpty(((string)sheets[i].Rows[employeeNameRowIndex][employeeNameColumnIndex]).Trim()))
                             {
-                                throw new ArgumentException("Employee name is empty or has an invalid format in the sheet " + sheets[i].TableName + ": Check row " + 4 + " at column " + 3);
+                                throw new ArgumentException("Employee name is empty or has an invalid format in the sheet " + sheets[i].TableName + ": Check row " + (employeeNameRowIndex + 1) + " at column " + (employeeNameColumnIndex + 1));
                             }
-                            employeeName = (string)sheets[i].Rows[3][2];
+                            employeeName = (string)sheets[i].Rows[employeeNameRowIndex][employeeNameColumnIndex];
                             employeeName = employeeName.Trim();
-                            if (!int.TryParse(sheets[i].Rows[4][2].ToString(), out employeeId))
+                            if (!int.TryParse(sheets[i].Rows[employeeIdRowIndex][employeeIdColumnIndex].ToString(), out employeeId))
                             {
-                                throw new ArgumentException("Employee Id is empty or has an invalid format in the sheet " + sheets[i].TableName + ": Check row " + 5 + " at column " + 3);
+                                throw new ArgumentException("Employee Id is empty or has an invalid format in the sheet " + sheets[i].TableName + ": Check row " + (employeeIdRowIndex + 1) + " at column " + (employeeIdColumnIndex + 1));
                             }
                             break;
                         }
@@ -173,15 +172,15 @@ namespace Services
                                 try
                                 {
                                     DataRowCollection rows = dataTable.Rows;
-                                    int lastColumnIndex = rows[14].ItemArray.Length - 1;
-                                    if (int.TryParse(rows[14][lastColumnIndex].ToString(), out int monthlyLeave))
+                                    int lastColumnIndex = rows[MonthlyReport.LeavesRowIndex.Row].ItemArray.Length - 1;
+                                    if (int.TryParse(rows[MonthlyReport.LeavesRowIndex.Row][lastColumnIndex].ToString(), out int monthlyLeave))
                                     {
                                         leaves[dataTable.TableName] = new int?(monthlyLeave);
                                         totalLeaves = totalLeaves.HasValue ? new int?(totalLeaves.GetValueOrDefault() + monthlyLeave) : new int?();
                                     }
                                     else
                                     {
-                                        throw new FormatException($"Invalid format at column: {lastColumnIndex + 1} at row: 15in sheet: {dataTable.TableName}");
+                                        throw new FormatException($"Invalid format at column: {lastColumnIndex + 1} at row: {MonthlyReport.LeavesRowIndex.Row + 1} in sheet: {dataTable.TableName}");
                                     }
                                 }
                                 catch (Exception ex)
