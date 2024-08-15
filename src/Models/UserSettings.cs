@@ -185,13 +185,13 @@ namespace Models
     public class Action
     {
         [JsonPropertyName("Name")]
-        public required string Name { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
 
         [JsonPropertyName("Run")]
-        public required bool Run { get; set; }
+        public bool Run { get; set; }
 
         [JsonPropertyName("InputFolder")]
-        public required string InputFolder { get; set; } = string.Empty;
+        public string InputFolder { get; set; } = string.Empty;
 
         [JsonPropertyName("MonthlyReportIdCol")]
         public int MonthlyReportIdCol { get; set; } = -1;
