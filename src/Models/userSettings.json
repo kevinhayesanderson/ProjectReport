@@ -33,12 +33,12 @@
     {
       "Name": "MonthlyReportInOutEntry",
       "Run": true,
-      "InputFolder": "C:\\Users\\90258\\Downloads\\Muster report\\Muster report"
+      "InputFolder": "D:\\ProjectReport\\test_data\\Muster"
     },
     {
       "Name": "AttendanceReportEntry",
       "Run": true,
-      "InputFolder": "C:\\Users\\90258\\Downloads"
+      "InputFolder": "D:\\ProjectReport\\test_data\\Muster"
     }
   ]
 }

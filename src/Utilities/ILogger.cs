@@ -12,6 +12,8 @@
 
         void LogError(string message, int line = 0);
 
+        void LogFileNames(IEnumerable<string> files, string heading);
+
         void LogInfo(string message, int line = 0);
 
         void LogInfoSameLine(string message, int line = 0);

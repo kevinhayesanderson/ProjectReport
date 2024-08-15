@@ -7,5 +7,6 @@
         public const string PTRPattern = "*ACS_PTR*";
         public const string PunchMovementPattern = "*PunchMovement*";
         public const string MusterOptionsPattern = "*Muster_Options*";
+        public const string AttendanceReportPattern = "*ACS_Attendance*";
     }
 }

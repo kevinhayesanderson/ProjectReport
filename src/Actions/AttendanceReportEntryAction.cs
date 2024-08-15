@@ -3,15 +3,15 @@ using Utilities;
 
 namespace Actions
 {
-    [ActionName("MonthlyReportInOutEntry")]
-    internal class MonthlyReportInOutEntryAction(string inputFolder) : Action
+    [ActionName("AttendanceReportEntry")]
+    internal class AttendanceReportEntryAction(string inputFolder) : Action
     {
-        private List<string> _monthlyReports = [];
+        private List<string> _attendanceReports = [];
         private List<string> _musterOptionsReports = [];
 
         public override void Init()
         {
-            _monthlyReports = Helper.GetReports(inputFolder, Constants.MonthlyReportPattern).ToList();
+            _attendanceReports = Helper.GetReports(inputFolder, Constants.AttendanceReportPattern).ToList();
 
             _musterOptionsReports = Helper.GetReports(inputFolder, Constants.MusterOptionsPattern).ToList();
         }
@@ -20,15 +20,13 @@ namespace Actions
         {
             Logger.LogFileNames(_musterOptionsReports, "Muster Options files found found:");
 
-            Logger.LogFileNames(_monthlyReports, "Monthly reports found:");
-
-            var monthlyReportsData = _monthlyReports.Select(x => (Services.DataService.ExtractEmployeeIdFromFileName(x), x)).ToList();
+            Logger.LogFileNames(_attendanceReports, "Attendance Report files found:");
 
             var musterOptionsDatas = ReadService.ReadMusterOptions(_musterOptionsReports);
 
             if (musterOptionsDatas != null && musterOptionsDatas.Datas.Count > 0)
             {
-                return WriteService.WriteMonthlyReportInOutEntry(monthlyReportsData, musterOptionsDatas);
+                return WriteService.WriteAttendanceReportEntry(_attendanceReports, musterOptionsDatas);
             }
             else
             {
@@ -41,7 +39,7 @@ namespace Actions
         {
             bool res = ValidateDirectory(inputFolder);
 
-            res = res && ValidateReports(_monthlyReports, $"No Monthly Report files with naming pattern {Constants.MonthlyReportPattern} found on {inputFolder}.");
+            res = res && ValidateReports(_attendanceReports, $"No Attendance Report files with naming pattern {Constants.AttendanceReportPattern} found on {inputFolder}.");
 
             res = res && ValidateReports(_musterOptionsReports, $"No Muster Options files with naming pattern {Constants.MusterOptionsPattern} found on {inputFolder}.");
 

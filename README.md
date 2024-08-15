@@ -46,7 +46,12 @@ Here's an example of userSettings.json:
     },
     {
       "Name": "MonthlyReportInOutEntry",
-      "Run": false,
+      "Run": true,
+      "InputFolder": "C:\\ProjectReport\\InputFolder"
+    },
+    {
+      "Name": "AttendanceReportEntry",
+      "Run": true,
       "InputFolder": "C:\\ProjectReport\\InputFolder"
     }
   ]
@@ -117,6 +122,9 @@ This action generates a time report from PunchMovement reports.
  
 ### MonthlyReportInOutEntry:
 This action updates the in and out time of monthly reports in the input folder using muster options in and out time.
+
+### AttendanceReportEntry:
+This action updates the Shift ,in time, out time and Muster of attendance reports in the input folder using muster options data.
 
 ### Monthly report constraints:
  

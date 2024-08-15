@@ -67,5 +67,14 @@
             LogLine(lineAfter);
             Console.ResetColor();
         }
+
+        public void LogFileNames(IEnumerable<string> files, string heading)
+        {
+            LogInfo(heading, 1);
+            foreach (var file in files)
+            {
+                Log(new FileInfo(file).Name);
+            }
+        }
     }
 }

@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.FileSystemGlobbing;
-using Models;
+﻿using Models;
 using Services;
+using Utilities;
 
 namespace Actions
 {
@@ -8,37 +8,31 @@ namespace Actions
     internal class CalculatePunchMovementAction(string inputFolder, string cutOff) : Action
     {
         private List<string> _punchMovementFiles = [];
-        public string InputFolder => inputFolder;
+        private string _exportFolder = string.Empty;
+
+        public override void Init()
+        {
+            _punchMovementFiles = Helper.GetReports(inputFolder, Constants.PunchMovementPattern).ToList();
+            _exportFolder = @$"{inputFolder}\Reports_{Time}";
+        }
 
         public override bool Run()
         {
-            var exportFolder = @$"{InputFolder}\Reports_{Time}";
-            Logger.LogInfo("PunchMovement Files found:", 1);
-            _punchMovementFiles.ForEach(pm => Logger.Log(new FileInfo(pm).Name));
+            Logger.LogFileNames(_punchMovementFiles, "PunchMovement files found:");
+
             var punchMovementData = ReadService.ReadPunchMovementReports(_punchMovementFiles);
+
             DataService.CalculatePunchMovement(punchMovementData, cutOff);
-            return ExportService.ExportPunchMovementSummaryReport(in exportFolder, Time, in punchMovementData);
+
+            return ExportService.ExportPunchMovementSummaryReport(in _exportFolder, Time, in punchMovementData);
         }
 
         public override bool Validate()
         {
-            bool res = true;
-            if (!Directory.Exists(InputFolder))
-            {
-                Logger.LogError($"Directory doesn't exist: {InputFolder}", 2);
-                res = false;
-            }
-            else
-            {
-                Matcher punchMovementMatcher = new();
-                _ = punchMovementMatcher.AddInclude(Constants.PunchMovementPattern);
-                _punchMovementFiles = punchMovementMatcher.GetResultsInFullPath(InputFolder).ToList();
-                if (_punchMovementFiles.Count == 0)
-                {
-                    Logger.LogError($"No Punch Movement files found on {InputFolder}.");
-                    res = false;
-                }
-            }
+            bool res = ValidateDirectory(inputFolder);
+
+            res = res && ValidateReports(_punchMovementFiles, $"No Punch Movement files with naming pattern {Constants.PunchMovementPattern} found on {inputFolder}");
+
             return res;
         }
     }

@@ -1,6 +1,4 @@
-﻿// Ignore Spelling: Datas
-
-namespace Models
+﻿namespace Models
 {
     public class PunchMovementData(EmployeePunchData[] employeePunchDatas)
     {

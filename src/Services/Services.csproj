@@ -21,7 +21,7 @@
 		<PackageReference Include="ExcelDataReader" Version="3.7.0" />
 		<PackageReference Include="ExcelDataReader.DataSet" Version="3.7.0" />
 		<PackageReference Include="Newtonsoft.Json.Schema" Version="4.0.1" />
-		<PackageReference Include="Spire.XLS" Version="14.7.2" />
+		<PackageReference Include="Spire.XLS" Version="14.8.2" />
 	</ItemGroup>
 
 	<ItemGroup>

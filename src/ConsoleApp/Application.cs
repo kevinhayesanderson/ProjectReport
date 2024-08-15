@@ -36,7 +36,7 @@ namespace ConsoleApp
 
             if (userSettings != null)
             {
-                Actions.Action.Init(time, logger, dataService, readService, writeService, exportService);
+                Actions.Action.Initialize(time, logger, dataService, readService, writeService, exportService);
 
                 var res = Actions.Action.ExecuteActions(userSettings!.Actions, cts.Token);
 

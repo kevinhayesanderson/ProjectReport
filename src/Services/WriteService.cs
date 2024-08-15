@@ -6,6 +6,13 @@ namespace Services
 {
     public class WriteService(ILogger logger)
     {
+        public bool WriteAttendanceReportEntry(List<string> attendanceReports, MusterOptionsDatas musterOptionsDatas)
+        {
+            bool res = true;
+            logger.LogInfo("Writing AttendanceReportEntry:", 2);
+            return res;
+        }
+
         public bool WriteMonthlyReportInOutEntry(List<(uint, string)> monthlyReportsData, MusterOptionsDatas musterOptionsDatas)
         {
             bool res = true;
@@ -48,10 +55,10 @@ namespace Services
 
                         int inTimeRowIndex = 10;
                         int outTimeRowIndex = 12;
-                        int firtDateColumnIndex = 5;
-                        int lastDateColumnIndex = firtDateColumnIndex + musterOptions.Length;
+                        int firstDateColumnIndex = 5;
+                        int lastDateColumnIndex = firstDateColumnIndex + musterOptions.Length;
                         int dataIndex = 0;
-                        for (int i = firtDateColumnIndex; i < lastDateColumnIndex; i++)
+                        for (int i = firstDateColumnIndex; i < lastDateColumnIndex; i++)
                         {
                             var musterOption = musterOptions[dataIndex];
 
