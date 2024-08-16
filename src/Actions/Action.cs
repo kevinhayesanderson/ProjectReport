@@ -3,19 +3,20 @@ using Utilities;
 
 namespace Actions
 {
-    public abstract class Action
+    public abstract class Action : IAction
     {
-        public static DataService DataService { get; private set; } = new DataService(Logger);
+        public static DataService DataService { get; set; } = new(Logger!);
 
-        public static ExportService ExportService { get; private set; } = new ExportService(Logger);
+        public static string ExportFolder => @$"{InputFolder}\Reports_{Time}";
+        public static ExportService ExportService { get; set; } = new(Logger!);
 
-        public static ILogger Logger { get; private set; } = new ConsoleLogger();
+        public static string InputFolder { get; set; } = string.Empty;
+        public static ILogger Logger { get; set; } = new ConsoleLogger();
 
-        public static ReadService ReadService { get; private set; } = new ReadService(Logger);
+        public static ReadService ReadService { get; set; } = new(Logger!);
 
         public static string Time { get; set; } = string.Empty;
-
-        public static WriteService WriteService { get; private set; } = new WriteService(Logger);
+        public static WriteService WriteService { get; set; } = new(Logger!);
 
         public static bool ExecuteActions(IEnumerable<Models.Action> userActions, CancellationToken cancellationToken)
         {
@@ -25,7 +26,7 @@ namespace Actions
             foreach (var action in actions)
             {
                 if (cancellationToken.IsCancellationRequested) return false;
-                res = res && action.ValidateAndRun(GetActionName(action));
+                res = res && action.InitValidateAndRun(GetActionName(action));
             }
             return res;
         }
@@ -61,45 +62,35 @@ namespace Actions
 
         public abstract bool Validate();
 
-        public bool ValidateAndRun(string? actionName)
-        {
-            if (!string.IsNullOrEmpty(actionName))
-            {
-                Logger.LogInfo($"Running action {actionName}:", 1);
-            }
-            Logger.LogChar('-', 100);
-            Logger.LogLine(1);
-            Init();
-            return Validate() && Run();
-        }
-
-        private static Action InitializeAction(Type actionType, Models.Action action)
-        {
-            return actionType.Name switch
-            {
-                nameof(GenerateConsolidatedReportAction) => ((Func<GenerateConsolidatedReportAction>)(() => new GenerateConsolidatedReportAction(action.InputFolder,
-                                                                                                                                                 action.MonthlyReportMonths,
-                                                                                                                                                 action.MonthlyReportIdCol,
-                                                                                                                                                 action.PtrBookingMonthCol,
-                                                                                                                                                 action.PtrBookingMonths,
-                                                                                                                                                 action.PtrEffortCols,
-                                                                                                                                                 action.PtrProjectIdCol,
-                                                                                                                                                 action.PtrSheetName)))(),
-
-                nameof(GenerateLeaveReportAction) => ((Func<GenerateLeaveReportAction>)(() => new GenerateLeaveReportAction(action.InputFolder, action.FinancialYear)))(),
-
-                nameof(CalculatePunchMovementAction) => ((Func<CalculatePunchMovementAction>)(() => new CalculatePunchMovementAction(action.InputFolder, action.CutOff)))(),
-
-                nameof(MonthlyReportInOutEntryAction) => ((Func<MonthlyReportInOutEntryAction>)(() => new MonthlyReportInOutEntryAction(action.InputFolder)))(),
-
-                nameof(AttendanceReportEntryAction) => ((Func<AttendanceReportEntryAction>)(() => new AttendanceReportEntryAction(action.InputFolder)))(),
-
-                _ => throw new NotImplementedException("Action not implemented.")
-            };
-        }
+        private static string? GetActionName(Action action) => action.ToString()?.Replace("Actions.", "").Replace("Action", "");
 
         private static IEnumerable<Action> InitiateActions(IEnumerable<Models.Action> userActions)
         {
+            Action InitializeAction(Type actionType, Models.Action action)
+            {
+                InputFolder = action.InputFolder;
+                return actionType.Name switch
+                {
+                    nameof(GenerateConsolidatedReportAction) => ((Func<GenerateConsolidatedReportAction>)(() => new GenerateConsolidatedReportAction(action.MonthlyReportMonths,
+                                                                                                                                                     action.MonthlyReportIdCol,
+                                                                                                                                                     action.PtrBookingMonthCol,
+                                                                                                                                                     action.PtrBookingMonths,
+                                                                                                                                                     action.PtrEffortCols,
+                                                                                                                                                     action.PtrProjectIdCol,
+                                                                                                                                                     action.PtrSheetName)))(),
+
+                    nameof(GenerateLeaveReportAction) => ((Func<GenerateLeaveReportAction>)(() => new GenerateLeaveReportAction(action.FinancialYear)))(),
+
+                    nameof(CalculatePunchMovementAction) => ((Func<CalculatePunchMovementAction>)(() => new CalculatePunchMovementAction(action.CutOff)))(),
+
+                    nameof(MonthlyReportInOutEntryAction) => ((Func<MonthlyReportInOutEntryAction>)(() => new MonthlyReportInOutEntryAction()))(),
+
+                    nameof(AttendanceReportEntryAction) => ((Func<AttendanceReportEntryAction>)(() => new AttendanceReportEntryAction()))(),
+
+                    _ => throw new NotImplementedException("Action not implemented.")
+                };
+            }
+
             IEnumerable<Action> actions = [];
             var executableUserActions = userActions.Where(ua => ua.Run).ToList();
             var actionTypes = typeof(Action).Assembly.GetTypes().Where(type => type != typeof(Action) && type.IsAssignableTo(typeof(Action))).ToList();
@@ -114,6 +105,16 @@ namespace Actions
             return actions;
         }
 
-        private static string? GetActionName(Action action) => action.ToString()?.Replace("Actions.", "").Replace("Action", "");
+        private bool InitValidateAndRun(string? actionName)
+        {
+            if (!string.IsNullOrEmpty(actionName))
+            {
+                Logger.LogInfo($"Running action {actionName}:", 1);
+            }
+            Logger.LogChar('-', 100);
+            Logger.LogLine(1);
+            Init();
+            return Validate() && Run();
+        }
     }
 }

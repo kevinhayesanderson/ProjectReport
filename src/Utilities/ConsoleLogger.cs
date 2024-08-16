@@ -27,6 +27,15 @@
 
         public void LogError(string message, int line = 0) => Log(LogType.Error, message, line);
 
+        public void LogFileNames(IEnumerable<string> files, string heading)
+        {
+            LogInfo(heading, 1);
+            foreach (var file in files)
+            {
+                Log(new FileInfo(file).Name);
+            }
+        }
+
         public void LogInfo(string message, int line = 0) => Log(LogType.Info, message, line);
 
         public void LogInfoSameLine(string message, int line = 0) => Log(LogType.Info, message, 0, line, true);
@@ -66,15 +75,6 @@
             }
             LogLine(lineAfter);
             Console.ResetColor();
-        }
-
-        public void LogFileNames(IEnumerable<string> files, string heading)
-        {
-            LogInfo(heading, 1);
-            foreach (var file in files)
-            {
-                Log(new FileInfo(file).Name);
-            }
         }
     }
 }

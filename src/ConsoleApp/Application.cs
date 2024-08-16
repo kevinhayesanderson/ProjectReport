@@ -2,8 +2,9 @@
 using System.Text;
 using System.Text.RegularExpressions;
 using Utilities;
+using Action = Actions.Action;
 
-namespace ConsoleApp
+namespace ProjectReportConsoleApp
 {
     internal class Application(ILogger logger, DataService dataService, ReadService readService, WriteService writeService, ExportService exportService)
     {
@@ -36,9 +37,9 @@ namespace ConsoleApp
 
             if (userSettings != null)
             {
-                Actions.Action.Initialize(time, logger, dataService, readService, writeService, exportService);
+                Action.Initialize(time, logger, dataService, readService, writeService, exportService);
 
-                var res = Actions.Action.ExecuteActions(userSettings!.Actions, cts.Token);
+                var res = Action.ExecuteActions(userSettings!.Actions, cts.Token);
 
                 if (!res)
                 {

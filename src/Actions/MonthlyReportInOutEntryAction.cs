@@ -4,16 +4,16 @@ using Utilities;
 namespace Actions
 {
     [ActionName("MonthlyReportInOutEntry")]
-    internal class MonthlyReportInOutEntryAction(string inputFolder) : Action
+    internal class MonthlyReportInOutEntryAction() : Action
     {
         private List<string> _monthlyReports = [];
         private List<string> _musterOptionsReports = [];
 
         public override void Init()
         {
-            _monthlyReports = Helper.GetReports(inputFolder, Constants.MonthlyReport.FileNamePattern).ToList();
+            _monthlyReports = Helper.GetReports(InputFolder, Constants.MonthlyReport.FileNamePattern).ToList();
 
-            _musterOptionsReports = Helper.GetReports(inputFolder, Constants.MusterOptions.FileNamePattern).ToList();
+            _musterOptionsReports = Helper.GetReports(InputFolder, Constants.MusterOptions.FileNamePattern).ToList();
         }
 
         public override bool Run()
@@ -39,11 +39,11 @@ namespace Actions
 
         public override bool Validate()
         {
-            bool res = ValidateDirectory(inputFolder);
+            bool res = ValidateDirectory(InputFolder);
 
-            res = res && ValidateReports(_monthlyReports, $"No Monthly Report files with naming pattern {Constants.MonthlyReport.FileNamePattern} found on {inputFolder}.");
+            res = res && ValidateReports(_monthlyReports, $"No Monthly Report files with naming pattern {Constants.MonthlyReport.FileNamePattern} found on {InputFolder}.");
 
-            res = res && ValidateReports(_musterOptionsReports, $"No Muster Options files with naming pattern {Constants.MusterOptions.FileNamePattern} found on {inputFolder}.");
+            res = res && ValidateReports(_musterOptionsReports, $"No Muster Options files with naming pattern {Constants.MusterOptions.FileNamePattern} found on {InputFolder}.");
 
             return res;
         }

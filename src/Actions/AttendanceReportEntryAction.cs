@@ -4,16 +4,16 @@ using Utilities;
 namespace Actions
 {
     [ActionName("AttendanceReportEntry")]
-    internal class AttendanceReportEntryAction(string inputFolder) : Action
+    internal class AttendanceReportEntryAction() : Action
     {
         private List<string> _attendanceReports = [];
         private List<string> _musterOptionsReports = [];
 
         public override void Init()
         {
-            _attendanceReports = Helper.GetReports(inputFolder, Constants.AttendanceReport.FileNamePattern).ToList();
+            _attendanceReports = Helper.GetReports(InputFolder, Constants.AttendanceReport.FileNamePattern).ToList();
 
-            _musterOptionsReports = Helper.GetReports(inputFolder, Constants.MusterOptions.FileNamePattern).ToList();
+            _musterOptionsReports = Helper.GetReports(InputFolder, Constants.MusterOptions.FileNamePattern).ToList();
         }
 
         public override bool Run()
@@ -37,11 +37,11 @@ namespace Actions
 
         public override bool Validate()
         {
-            bool res = ValidateDirectory(inputFolder);
+            bool res = ValidateDirectory(InputFolder);
 
-            res = res && ValidateReports(_attendanceReports, $"No Attendance Report files with naming pattern {Constants.AttendanceReport.FileNamePattern} found on {inputFolder}.");
+            res = res && ValidateReports(_attendanceReports, $"No Attendance Report files with naming pattern {Constants.AttendanceReport.FileNamePattern} found on {InputFolder}.");
 
-            res = res && ValidateReports(_musterOptionsReports, $"No Muster Options files with naming pattern {Constants.MusterOptions.FileNamePattern} found on {inputFolder}.");
+            res = res && ValidateReports(_musterOptionsReports, $"No Muster Options files with naming pattern {Constants.MusterOptions.FileNamePattern} found on {InputFolder}.");
 
             return res;
         }

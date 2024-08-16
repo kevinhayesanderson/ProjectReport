@@ -5,15 +5,13 @@ using Utilities;
 namespace Actions
 {
     [ActionName("CalculatePunchMovement")]
-    internal class CalculatePunchMovementAction(string inputFolder, string cutOff) : Action
+    internal class CalculatePunchMovementAction(string cutOff) : Action
     {
         private List<string> _punchMovementFiles = [];
-        private string _exportFolder = string.Empty;
 
         public override void Init()
         {
-            _punchMovementFiles = Helper.GetReports(inputFolder, Constants.PunchMovement.FileNamePattern).ToList();
-            _exportFolder = @$"{inputFolder}\Reports_{Time}";
+            _punchMovementFiles = Helper.GetReports(InputFolder, Constants.PunchMovement.FileNamePattern).ToList();
         }
 
         public override bool Run()
@@ -24,14 +22,14 @@ namespace Actions
 
             DataService.CalculatePunchMovement(punchMovementData, cutOff);
 
-            return ExportService.ExportPunchMovementSummaryReport(in _exportFolder, Time, in punchMovementData);
+            return ExportService.ExportPunchMovementSummaryReport(ExportFolder, Time, in punchMovementData);
         }
 
         public override bool Validate()
         {
-            bool res = ValidateDirectory(inputFolder);
+            bool res = ValidateDirectory(InputFolder);
 
-            res = res && ValidateReports(_punchMovementFiles, $"No Punch Movement files with naming pattern {Constants.PunchMovement.FileNamePattern} found on {inputFolder}");
+            res = res && ValidateReports(_punchMovementFiles, $"No Punch Movement files with naming pattern {Constants.PunchMovement.FileNamePattern} found on {InputFolder}");
 
             return res;
         }
