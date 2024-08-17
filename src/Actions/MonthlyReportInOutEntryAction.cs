@@ -28,7 +28,7 @@ namespace Actions
 
             if (musterOptionsDatas != null && musterOptionsDatas.Datas.Count > 0)
             {
-                return WriteService.WriteMonthlyReportInOutEntry(monthlyReportsData, musterOptionsDatas);
+                return WriteService.WriteMonthlyReportInOutEntry(in monthlyReportsData, in musterOptionsDatas);
             }
             else
             {

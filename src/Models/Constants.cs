@@ -58,7 +58,10 @@
         public static class AttendanceReport
         {
             public const string FileNamePattern = "*ACS_Attendance*";
-            public const string SheetNamePattern = "MMM_YYYY";
+            public const string SheetNamePattern = "MMM_yyyy";
+            public static readonly Index EmpCodeIndex = new(Column: 1);
+            public static readonly Index DateStartIndex = new(Column: 5);
+            public const string TimeNumberFormat = "h:mm";
         }
     }
 }

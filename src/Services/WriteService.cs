@@ -31,7 +31,6 @@ namespace Services
 
                     foreach (var sheetName in sheetNames)
                     {
-                        //BUG: Fix sheet name pattern matching
                         if (DateOnly.TryParseExact(sheetName, AttendanceReport.SheetNamePattern, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateOnly dateOnly))
                         {
                             dataEntrySheets.Add((sheetName, dateOnly));
@@ -41,13 +40,47 @@ namespace Services
                     logger.LogSameLine($"Editing Sheet");
                     foreach ((string sheetName, DateOnly dateOnly) in dataEntrySheets)
                     {
-                        logger.LogDataSameLine(Path.GetFileName(sheetName));
+                        logger.LogDataSameLine($"{sheetName} ,");
 
                         var workSheet = workbook.Worksheets[sheetName];
-                        //TODO: 1. Get unique employee ids from sheet
-                        //TODO: 2. get matching muster data
-                        //TODO: 3. get entry row indexes
-                        //TODO: 4. Enter muster values
+
+                        List<CellRange> empCodeColumnCellList = workSheet.Columns[AttendanceReport.EmpCodeIndex.Column].CellList;
+                        var uniqueEmployeeIds = empCodeColumnCellList
+                            .Where(x => x.NumberValue != double.NaN && uint.TryParse(x.NumberText, out _))
+                            .Select(x => uint.Parse(x.NumberText))
+                            .ToHashSet();
+
+                        var musterDatas = musterOptionsDatas.Datas
+                            .Where(x => uniqueEmployeeIds.Contains(x.Key) && x.Value.MusterOptions.Exists(y => y.Date.Month == dateOnly.Month && y.Date.Year == dateOnly.Year))
+                            .ToDictionary();
+
+                        var entryRowData = uniqueEmployeeIds
+                            .Select(uniqueEmployeeId => (uniqueEmployeeId, empCodeColumnCellList.FindIndex(x => uint.TryParse(x.NumberText, out uint numberValue) && numberValue == uniqueEmployeeId)))
+                            .ToList();
+
+                        foreach ((uint uniqueEmployeeId, int rowIndex) in entryRowData)
+                        {
+                            int column = AttendanceReport.DateStartIndex.Column;
+                            if (musterDatas.TryGetValue(uniqueEmployeeId, out MusterOptionsData musterOptionsData))
+                            {
+                                foreach (var musterOption in musterOptionsData.MusterOptions.Where(x => x.Date.Month == dateOnly.Month && x.Date.Year == dateOnly.Year))
+                                {
+                                    if (!string.IsNullOrEmpty(musterOption.Shift.Trim())) workSheet.SetCellValue(rowIndex + 2, column, musterOption.Shift);
+                                    if (musterOption.InTime is TimeOnly inTime)
+                                    {
+                                        workSheet.SetCellValue(rowIndex + 3, column, $"{inTime.Hour}:{inTime.Minute}");
+                                        workSheet[rowIndex + 3, column].Style.NumberFormat = AttendanceReport.TimeNumberFormat;
+                                    }
+                                    if (musterOption.OutTime is TimeOnly outTime)
+                                    {
+                                        workSheet.SetCellValue(rowIndex + 4, column, $"{outTime.Hour}:{outTime.Minute}");
+                                        workSheet[rowIndex + 4, column].Style.NumberFormat = AttendanceReport.TimeNumberFormat;
+                                    }
+                                    if (!string.IsNullOrEmpty(musterOption.Muster.Trim())) workSheet.SetCellValue(rowIndex + 5, column, musterOption.Muster);
+                                    column++;
+                                }
+                            }
+                        }
                     }
 
                     workbook.Save();

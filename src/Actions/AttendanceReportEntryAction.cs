@@ -26,7 +26,7 @@ namespace Actions
 
             if (musterOptionsDatas != null && musterOptionsDatas.Datas.Count > 0)
             {
-                return WriteService.WriteAttendanceReportEntry(_attendanceReports, musterOptionsDatas);
+                return WriteService.WriteAttendanceReportEntry(in _attendanceReports, in musterOptionsDatas);
             }
             else
             {
