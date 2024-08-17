@@ -17,7 +17,7 @@ namespace Services
             {
                 foreach (var attendanceReport in attendanceReports)
                 {
-                    logger.LogSameLine("Editing Attendance Report");
+                    logger.LogSameLine("Editing Attendance Report: ");
                     logger.LogDataSameLine(Path.GetFileName(attendanceReport));
                     logger.LogLine();
 
@@ -37,7 +37,7 @@ namespace Services
                         }
                     }
 
-                    logger.LogSameLine($"Editing Sheet");
+                    logger.LogSameLine($"Editing Sheet: ");
                     foreach ((string sheetName, DateOnly dateOnly) in dataEntrySheets)
                     {
                         logger.LogDataSameLine($"{sheetName} ,");
