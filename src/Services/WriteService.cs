@@ -46,7 +46,7 @@ namespace Services
 
                         List<CellRange> empCodeColumnCellList = workSheet.Columns[AttendanceReport.EmpCodeIndex.Column].CellList;
                         var uniqueEmployeeIds = empCodeColumnCellList
-                            .Where(x => x.NumberValue != double.NaN && uint.TryParse(x.NumberText, out _))
+                            .Where(x => !double.IsNaN(x.NumberValue) && uint.TryParse(x.NumberText, out _))
                             .Select(x => uint.Parse(x.NumberText))
                             .ToHashSet();
 
@@ -61,7 +61,7 @@ namespace Services
                         foreach ((uint uniqueEmployeeId, int rowIndex) in entryRowData)
                         {
                             int column = AttendanceReport.DateStartIndex.Column;
-                            if (musterDatas.TryGetValue(uniqueEmployeeId, out MusterOptionsData musterOptionsData))
+                            if (musterDatas.TryGetValue(uniqueEmployeeId, out var musterOptionsData))
                             {
                                 foreach (var musterOption in musterOptionsData.MusterOptions.Where(x => x.Date.Month == dateOnly.Month && x.Date.Year == dateOnly.Year))
                                 {
